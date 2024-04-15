@@ -1,0 +1,8 @@
+mutation Login($email: String!, $password: String!) {
+  authenticateUserWithPassword(email: $email, adminPassword: $password) {
+    __typename
+    ... on UserAuthenticationWithPasswordSuccess {
+      sessionToken
+    }
+  }
+}
