@@ -52,7 +52,7 @@ function implementRouteDeclaration(
                 "application/json": {
                   schema: routeData.inputParser.pick({
                     [RequestInputType.BODY]: true,
-                  }),
+                  }).shape?.body,
                 },
               },
             },
@@ -79,6 +79,12 @@ function implementRouteDeclaration(
       });
       if (!parsedData.success)
         return res.status(400).json({ error: parsedData.error });
+
+      const session = context.session;
+
+      if (routeData.isAuthed && !session?.itemId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
 
       try {
         const returnValue = await routeData.function({
