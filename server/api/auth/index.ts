@@ -1,5 +1,6 @@
 import { ImageExtension } from "@keystone-6/core/types";
 import { z } from "zod";
+import { PERMISSION_ENUM } from "../../../common/roles";
 import { LoginDocument } from "../../../graphql/operations";
 import { s3ImageConfigKey } from "../../../imageConfig";
 import {
@@ -9,6 +10,10 @@ import {
   RouteDeclarationMetadata,
   RouteMethod,
 } from "../../declarations";
+import {
+  hasRole,
+  serverAccessConfig,
+} from "../../services/access/serverAccessConfig";
 
 const authRouteDeclaration: RouteDeclarationList = {
   name: "/auth",
@@ -62,7 +67,9 @@ authRouteDeclaration.routes.set(
   "/test/:id/:id2",
   new RouteDeclarationMetadata({
     method: RouteMethod.GET,
-    isAuthed: true,
+    accessConfig: serverAccessConfig({
+      conditions: [hasRole({ roles: [PERMISSION_ENUM.ADMIN] })],
+    }),
     inputParser: z.object({
       [RequestInputType.PARAMS]: z.object({
         id: z.preprocess((val: any) => parseInt(val), z.number()),
@@ -86,7 +93,7 @@ authRouteDeclaration.routes.set(
   "/profile_picture",
   new RouteDeclarationMetadata({
     method: RouteMethod.GET,
-    isAuthed: true,
+    accessConfig: serverAccessConfig({}),
     inputParser: NO_INPUT,
     func: async ({ context: { session, prisma, images }, res }) => {
       const user = await prisma.user.findUnique({

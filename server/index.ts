@@ -34,7 +34,7 @@ function implementRouteDeclaration(
         MAIN_API_ROUTE + data.name + route
       ),
       tags: [data.name],
-      security: routeData.isAuthed ? [{ bearerAuth: [] }] : undefined,
+      security: routeData.accessConfig ? [{ bearerAuth: [] }] : undefined,
       request: {
         query: routeData.inputParser.pick({
           [RequestInputType.QUERY]: true,
@@ -82,8 +82,14 @@ function implementRouteDeclaration(
 
       const session = context.session;
 
-      if (routeData.isAuthed && !session?.itemId) {
-        return res.status(401).json({ error: "Unauthorized" });
+      if (routeData.accessConfig) {
+        const accessResult = routeData.accessConfig({
+          context,
+          session,
+          operation: method,
+        });
+
+        if (!accessResult) return res.status(403).json({ error: "Forbidden" });
       }
 
       try {

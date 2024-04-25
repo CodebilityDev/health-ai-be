@@ -922,16 +922,53 @@ var RouteDeclarationMetadata = class {
   method;
   inputParser;
   outputParser;
-  isAuthed;
+  accessConfig;
   // @ts-expect-error T does not satisfy the constraint 'z.ZodType<any>'.
   function;
   constructor(args) {
     this.method = args.method;
     this.function = args.func;
     this.inputParser = args.inputParser;
-    this.isAuthed = args.isAuthed;
+    this.accessConfig = args.accessConfig;
     this.outputParser = args.outputParser;
   }
+};
+
+// server/services/access/serverAccessConfig.ts
+var serverAccessConfig = (generatorArgs) => {
+  const globalMiddleware = (operation) => {
+    if (!operation.session) {
+      throw new Error("Not Authenticated");
+    }
+    if (!operation.context.session?.itemId) {
+      throw new Error("Not Authenticated");
+    }
+    const superAccessRoles = [
+      ...generatorArgs.superAccess || [],
+      "dev" /* Dev */
+    ];
+    if (superAccessRoles.includes(operation.session.data.role)) {
+      return true;
+    }
+    return false;
+  };
+  return (operation) => {
+    let isAllowed = false;
+    isAllowed = isAllowed || globalMiddleware(operation);
+    for (const condition of generatorArgs.conditions || []) {
+      if (isAllowed) {
+        isAllowed = isAllowed || condition(operation);
+      }
+      if (!isAllowed) {
+        break;
+      }
+    }
+    return isAllowed;
+  };
+};
+var hasRole2 = (args) => (operation) => {
+  console.log(operation.session?.data?.role);
+  return args.roles.includes(operation.session?.data?.role ?? "xxnorolexx");
 };
 
 // server/api/auth/index.ts
@@ -980,7 +1017,9 @@ authRouteDeclaration.routes.set(
   "/test/:id/:id2",
   new RouteDeclarationMetadata({
     method: "get" /* GET */,
-    isAuthed: true,
+    accessConfig: serverAccessConfig({
+      conditions: [hasRole2({ roles: [PERMISSION_ENUM.ADMIN] })]
+    }),
     inputParser: import_zod3.z.object({
       ["params" /* PARAMS */]: import_zod3.z.object({
         id: import_zod3.z.preprocess((val) => parseInt(val), import_zod3.z.number()),
@@ -1002,7 +1041,7 @@ authRouteDeclaration.routes.set(
   "/profile_picture",
   new RouteDeclarationMetadata({
     method: "get" /* GET */,
-    isAuthed: true,
+    accessConfig: serverAccessConfig({}),
     inputParser: NO_INPUT,
     func: async ({ context: { session: session2, prisma, images }, res }) => {
       const user = await prisma.user.findUnique({
@@ -1061,7 +1100,7 @@ function implementRouteDeclaration(mainRouter, commonContext, data) {
         MAIN_API_ROUTE + data.name + route
       ),
       tags: [data.name],
-      security: routeData.isAuthed ? [{ bearerAuth: [] }] : void 0,
+      security: routeData.accessConfig ? [{ bearerAuth: [] }] : void 0,
       request: {
         query: routeData.inputParser.pick({
           ["query" /* QUERY */]: true
@@ -1077,7 +1116,7 @@ function implementRouteDeclaration(mainRouter, commonContext, data) {
             "application/json": {
               schema: routeData.inputParser.pick({
                 ["body" /* BODY */]: true
-              })
+              }).shape?.body
             }
           }
         }
@@ -1103,6 +1142,16 @@ function implementRouteDeclaration(mainRouter, commonContext, data) {
       });
       if (!parsedData.success)
         return res.status(400).json({ error: parsedData.error });
+      const session2 = context.session;
+      if (routeData.accessConfig) {
+        const accessResult = routeData.accessConfig({
+          context,
+          session: session2,
+          operation: method
+        });
+        if (!accessResult)
+          return res.status(403).json({ error: "Forbidden" });
+      }
       try {
         const returnValue = await routeData.function({
           context,

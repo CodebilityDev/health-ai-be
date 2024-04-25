@@ -1,9 +1,10 @@
 import { KeystoneContext } from "@keystone-6/core/types";
 import type { Request, Response } from "express";
 import { z } from "zod";
-import { GlobalTypeInfo } from "../common/types";
+import { AuthedSession, GlobalContext, GlobalTypeInfo } from "../common/types";
 
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+import { ServerAccessFunction } from "./services/access/serverAccessConfig";
 
 extendZodWithOpenApi(z);
 
@@ -29,19 +30,25 @@ export enum RequestInputType {
   HEADERS = "headers",
 }
 
+export type ServerOperationArgs = {
+  context: GlobalContext;
+  session?: AuthedSession;
+  operation: RouteMethod;
+};
+
 export const NO_INPUT = z.object({});
 
 export class RouteDeclarationMetadata<T = any, U = any> {
   method: RouteMethod;
   inputParser: T;
   outputParser?: U;
-  isAuthed?: boolean;
+  accessConfig?: ServerAccessFunction;
   // @ts-expect-error T does not satisfy the constraint 'z.ZodType<any>'.
   function: RouteDeclaration<z.infer<T>>;
 
   constructor(args: {
     method: RouteMethod;
-    isAuthed?: boolean;
+    accessConfig?: ServerAccessFunction;
     inputParser: T;
     outputParser?: U;
     // @ts-expect-error T does not satisfy the constraint 'z.ZodType<any>'.
@@ -50,7 +57,7 @@ export class RouteDeclarationMetadata<T = any, U = any> {
     this.method = args.method;
     this.function = args.func;
     this.inputParser = args.inputParser;
-    this.isAuthed = args.isAuthed;
+    this.accessConfig = args.accessConfig;
     this.outputParser = args.outputParser;
   }
 }
