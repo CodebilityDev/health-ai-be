@@ -383,9 +383,6 @@ export type User = {
   lastName?: Maybe<Scalars["String"]["output"]>;
   name?: Maybe<Scalars["String"]["output"]>;
   role?: Maybe<UserRoleType>;
-  wait5s?: Maybe<Scalars["String"]["output"]>;
-  wait15s?: Maybe<Scalars["String"]["output"]>;
-  wait30s?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type UserAuthenticationWithPasswordFailure = {
