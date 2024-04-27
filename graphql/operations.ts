@@ -1,414 +1,415 @@
-import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
+import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
-export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type Exact<T extends { [key: string]: unknown }> = {
+  [K in keyof T]: T[K];
+};
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]?: Maybe<T[SubKey]>;
+};
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
+  [SubKey in K]: Maybe<T[SubKey]>;
+};
+export type MakeEmpty<
+  T extends { [key: string]: unknown },
+  K extends keyof T,
+> = { [_ in K]?: never };
+export type Incremental<T> =
+  | T
+  | {
+      [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never;
+    };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string; }
-  String: { input: string; output: string; }
-  Boolean: { input: boolean; output: boolean; }
-  Int: { input: number; output: number; }
-  Float: { input: number; output: number; }
-  DateTime: { input: any; output: any; }
+  ID: { input: string; output: string };
+  String: { input: string; output: string };
+  Boolean: { input: boolean; output: boolean };
+  Int: { input: number; output: number };
+  Float: { input: number; output: number };
+  DateTime: { input: any; output: any };
   /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
-  JSON: { input: any; output: any; }
+  JSON: { input: any; output: any };
   /** The `Upload` scalar type represents a file upload. */
-  Upload: { input: any; output: any; }
+  Upload: { input: any; output: any };
 };
 
 export type AuthenticatedItem = User;
 
 export type ClientItemAuthenticationWithPasswordFailure = {
-  __typename?: 'ClientItemAuthenticationWithPasswordFailure';
-  message: Scalars['String']['output'];
+  __typename?: "ClientItemAuthenticationWithPasswordFailure";
+  message: Scalars["String"]["output"];
 };
 
-export type ClientItemAuthenticationWithPasswordResult = ClientItemAuthenticationWithPasswordFailure | ClientItemAuthenticationWithPasswordSuccess;
+export type ClientItemAuthenticationWithPasswordResult =
+  | ClientItemAuthenticationWithPasswordFailure
+  | ClientItemAuthenticationWithPasswordSuccess;
 
 export type ClientItemAuthenticationWithPasswordSuccess = {
-  __typename?: 'ClientItemAuthenticationWithPasswordSuccess';
+  __typename?: "ClientItemAuthenticationWithPasswordSuccess";
   item: User;
-  sessionToken: Scalars['String']['output'];
+  sessionToken: Scalars["String"]["output"];
 };
 
 export type CreateInitialUserInput = {
-  adminPassword?: InputMaybe<Scalars['String']['input']>;
-  email?: InputMaybe<Scalars['String']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
+  adminPassword?: InputMaybe<Scalars["String"]["input"]>;
+  email?: InputMaybe<Scalars["String"]["input"]>;
+  name?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type DateTimeNullableFilter = {
-  equals?: InputMaybe<Scalars['DateTime']['input']>;
-  gt?: InputMaybe<Scalars['DateTime']['input']>;
-  gte?: InputMaybe<Scalars['DateTime']['input']>;
-  in?: InputMaybe<Array<Scalars['DateTime']['input']>>;
-  lt?: InputMaybe<Scalars['DateTime']['input']>;
-  lte?: InputMaybe<Scalars['DateTime']['input']>;
+  equals?: InputMaybe<Scalars["DateTime"]["input"]>;
+  gt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  gte?: InputMaybe<Scalars["DateTime"]["input"]>;
+  in?: InputMaybe<Array<Scalars["DateTime"]["input"]>>;
+  lt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  lte?: InputMaybe<Scalars["DateTime"]["input"]>;
   not?: InputMaybe<DateTimeNullableFilter>;
-  notIn?: InputMaybe<Array<Scalars['DateTime']['input']>>;
+  notIn?: InputMaybe<Array<Scalars["DateTime"]["input"]>>;
 };
 
 export type IdFilter = {
-  equals?: InputMaybe<Scalars['ID']['input']>;
-  gt?: InputMaybe<Scalars['ID']['input']>;
-  gte?: InputMaybe<Scalars['ID']['input']>;
-  in?: InputMaybe<Array<Scalars['ID']['input']>>;
-  lt?: InputMaybe<Scalars['ID']['input']>;
-  lte?: InputMaybe<Scalars['ID']['input']>;
+  equals?: InputMaybe<Scalars["ID"]["input"]>;
+  gt?: InputMaybe<Scalars["ID"]["input"]>;
+  gte?: InputMaybe<Scalars["ID"]["input"]>;
+  in?: InputMaybe<Array<Scalars["ID"]["input"]>>;
+  lt?: InputMaybe<Scalars["ID"]["input"]>;
+  lte?: InputMaybe<Scalars["ID"]["input"]>;
   not?: InputMaybe<IdFilter>;
-  notIn?: InputMaybe<Array<Scalars['ID']['input']>>;
+  notIn?: InputMaybe<Array<Scalars["ID"]["input"]>>;
 };
 
 export enum ImageExtension {
-  Gif = 'gif',
-  Jpg = 'jpg',
-  Png = 'png',
-  Webp = 'webp'
+  Gif = "gif",
+  Jpg = "jpg",
+  Png = "png",
+  Webp = "webp",
 }
 
 export type ImageFieldInput = {
-  upload: Scalars['Upload']['input'];
+  upload: Scalars["Upload"]["input"];
 };
 
 export type ImageFieldOutput = {
-  __typename?: 'ImageFieldOutput';
+  __typename?: "ImageFieldOutput";
   extension: ImageExtension;
-  filesize: Scalars['Int']['output'];
-  height: Scalars['Int']['output'];
-  id: Scalars['ID']['output'];
-  url: Scalars['String']['output'];
-  width: Scalars['Int']['output'];
+  filesize: Scalars["Int"]["output"];
+  height: Scalars["Int"]["output"];
+  id: Scalars["ID"]["output"];
+  url: Scalars["String"]["output"];
+  width: Scalars["Int"]["output"];
 };
 
 export type KeystoneAdminMeta = {
-  __typename?: 'KeystoneAdminMeta';
+  __typename?: "KeystoneAdminMeta";
   list?: Maybe<KeystoneAdminUiListMeta>;
   lists: Array<KeystoneAdminUiListMeta>;
 };
 
-
 export type KeystoneAdminMetaListArgs = {
-  key: Scalars['String']['input'];
+  key: Scalars["String"]["input"];
 };
 
 export type KeystoneAdminUiFieldGroupMeta = {
-  __typename?: 'KeystoneAdminUIFieldGroupMeta';
-  description?: Maybe<Scalars['String']['output']>;
+  __typename?: "KeystoneAdminUIFieldGroupMeta";
+  description?: Maybe<Scalars["String"]["output"]>;
   fields: Array<KeystoneAdminUiFieldMeta>;
-  label: Scalars['String']['output'];
+  label: Scalars["String"]["output"];
 };
 
 export type KeystoneAdminUiFieldMeta = {
-  __typename?: 'KeystoneAdminUIFieldMeta';
+  __typename?: "KeystoneAdminUIFieldMeta";
   createView: KeystoneAdminUiFieldMetaCreateView;
-  customViewsIndex?: Maybe<Scalars['Int']['output']>;
-  description?: Maybe<Scalars['String']['output']>;
-  fieldMeta?: Maybe<Scalars['JSON']['output']>;
-  isFilterable: Scalars['Boolean']['output'];
+  customViewsIndex?: Maybe<Scalars["Int"]["output"]>;
+  description?: Maybe<Scalars["String"]["output"]>;
+  fieldMeta?: Maybe<Scalars["JSON"]["output"]>;
+  isFilterable: Scalars["Boolean"]["output"];
   isNonNull?: Maybe<Array<KeystoneAdminUiFieldMetaIsNonNull>>;
-  isOrderable: Scalars['Boolean']['output'];
+  isOrderable: Scalars["Boolean"]["output"];
   itemView?: Maybe<KeystoneAdminUiFieldMetaItemView>;
-  label: Scalars['String']['output'];
+  label: Scalars["String"]["output"];
   listView: KeystoneAdminUiFieldMetaListView;
-  path: Scalars['String']['output'];
+  path: Scalars["String"]["output"];
   search?: Maybe<QueryMode>;
-  viewsIndex: Scalars['Int']['output'];
+  viewsIndex: Scalars["Int"]["output"];
 };
 
-
 export type KeystoneAdminUiFieldMetaItemViewArgs = {
-  id?: InputMaybe<Scalars['ID']['input']>;
+  id?: InputMaybe<Scalars["ID"]["input"]>;
 };
 
 export type KeystoneAdminUiFieldMetaCreateView = {
-  __typename?: 'KeystoneAdminUIFieldMetaCreateView';
+  __typename?: "KeystoneAdminUIFieldMetaCreateView";
   fieldMode: KeystoneAdminUiFieldMetaCreateViewFieldMode;
 };
 
 export enum KeystoneAdminUiFieldMetaCreateViewFieldMode {
-  Edit = 'edit',
-  Hidden = 'hidden'
+  Edit = "edit",
+  Hidden = "hidden",
 }
 
 export enum KeystoneAdminUiFieldMetaIsNonNull {
-  Create = 'create',
-  Read = 'read',
-  Update = 'update'
+  Create = "create",
+  Read = "read",
+  Update = "update",
 }
 
 export type KeystoneAdminUiFieldMetaItemView = {
-  __typename?: 'KeystoneAdminUIFieldMetaItemView';
+  __typename?: "KeystoneAdminUIFieldMetaItemView";
   fieldMode?: Maybe<KeystoneAdminUiFieldMetaItemViewFieldMode>;
   fieldPosition?: Maybe<KeystoneAdminUiFieldMetaItemViewFieldPosition>;
 };
 
 export enum KeystoneAdminUiFieldMetaItemViewFieldMode {
-  Edit = 'edit',
-  Hidden = 'hidden',
-  Read = 'read'
+  Edit = "edit",
+  Hidden = "hidden",
+  Read = "read",
 }
 
 export enum KeystoneAdminUiFieldMetaItemViewFieldPosition {
-  Form = 'form',
-  Sidebar = 'sidebar'
+  Form = "form",
+  Sidebar = "sidebar",
 }
 
 export type KeystoneAdminUiFieldMetaListView = {
-  __typename?: 'KeystoneAdminUIFieldMetaListView';
+  __typename?: "KeystoneAdminUIFieldMetaListView";
   fieldMode: KeystoneAdminUiFieldMetaListViewFieldMode;
 };
 
 export enum KeystoneAdminUiFieldMetaListViewFieldMode {
-  Hidden = 'hidden',
-  Read = 'read'
+  Hidden = "hidden",
+  Read = "read",
 }
 
 export type KeystoneAdminUiListMeta = {
-  __typename?: 'KeystoneAdminUIListMeta';
-  description?: Maybe<Scalars['String']['output']>;
+  __typename?: "KeystoneAdminUIListMeta";
+  description?: Maybe<Scalars["String"]["output"]>;
   fields: Array<KeystoneAdminUiFieldMeta>;
   groups: Array<KeystoneAdminUiFieldGroupMeta>;
-  hideCreate: Scalars['Boolean']['output'];
-  hideDelete: Scalars['Boolean']['output'];
-  initialColumns: Array<Scalars['String']['output']>;
+  hideCreate: Scalars["Boolean"]["output"];
+  hideDelete: Scalars["Boolean"]["output"];
+  initialColumns: Array<Scalars["String"]["output"]>;
   initialSort?: Maybe<KeystoneAdminUiSort>;
-  isHidden: Scalars['Boolean']['output'];
-  isSingleton: Scalars['Boolean']['output'];
-  itemQueryName: Scalars['String']['output'];
-  key: Scalars['String']['output'];
-  label: Scalars['String']['output'];
-  labelField: Scalars['String']['output'];
-  listQueryName: Scalars['String']['output'];
-  pageSize: Scalars['Int']['output'];
-  path: Scalars['String']['output'];
-  plural: Scalars['String']['output'];
-  singular: Scalars['String']['output'];
+  isHidden: Scalars["Boolean"]["output"];
+  isSingleton: Scalars["Boolean"]["output"];
+  itemQueryName: Scalars["String"]["output"];
+  key: Scalars["String"]["output"];
+  label: Scalars["String"]["output"];
+  labelField: Scalars["String"]["output"];
+  listQueryName: Scalars["String"]["output"];
+  pageSize: Scalars["Int"]["output"];
+  path: Scalars["String"]["output"];
+  plural: Scalars["String"]["output"];
+  singular: Scalars["String"]["output"];
 };
 
 export type KeystoneAdminUiSort = {
-  __typename?: 'KeystoneAdminUISort';
+  __typename?: "KeystoneAdminUISort";
   direction: KeystoneAdminUiSortDirection;
-  field: Scalars['String']['output'];
+  field: Scalars["String"]["output"];
 };
 
 export enum KeystoneAdminUiSortDirection {
-  Asc = 'ASC',
-  Desc = 'DESC'
+  Asc = "ASC",
+  Desc = "DESC",
 }
 
 export type KeystoneMeta = {
-  __typename?: 'KeystoneMeta';
+  __typename?: "KeystoneMeta";
   adminMeta: KeystoneAdminMeta;
 };
 
 export type Mutation = {
-  __typename?: 'Mutation';
-  authclient_changePassword?: Maybe<Scalars['Boolean']['output']>;
+  __typename?: "Mutation";
+  authclient_changePassword?: Maybe<Scalars["Boolean"]["output"]>;
   authclient_login?: Maybe<ClientItemAuthenticationWithPasswordResult>;
-  authclient_newAccountPasswordReset?: Maybe<Scalars['Boolean']['output']>;
-  authclient_requestPasswordReset?: Maybe<Scalars['Boolean']['output']>;
-  authclient_resetPassword?: Maybe<Scalars['Boolean']['output']>;
+  authclient_newAccountPasswordReset?: Maybe<Scalars["Boolean"]["output"]>;
+  authclient_requestPasswordReset?: Maybe<Scalars["Boolean"]["output"]>;
+  authclient_resetPassword?: Maybe<Scalars["Boolean"]["output"]>;
   authenticateUserWithPassword?: Maybe<UserAuthenticationWithPasswordResult>;
   createInitialUser: UserAuthenticationWithPasswordSuccess;
   createUser?: Maybe<User>;
   createUsers?: Maybe<Array<Maybe<User>>>;
   deleteUser?: Maybe<User>;
   deleteUsers?: Maybe<Array<Maybe<User>>>;
-  endSession: Scalars['Boolean']['output'];
-  test?: Maybe<Scalars['String']['output']>;
+  endSession: Scalars["Boolean"]["output"];
+  test?: Maybe<Scalars["String"]["output"]>;
   updateUser?: Maybe<User>;
   updateUsers?: Maybe<Array<Maybe<User>>>;
 };
 
-
 export type MutationAuthclient_ChangePasswordArgs = {
-  newPassword: Scalars['String']['input'];
-  oldPassword: Scalars['String']['input'];
+  newPassword: Scalars["String"]["input"];
+  oldPassword: Scalars["String"]["input"];
 };
-
 
 export type MutationAuthclient_LoginArgs = {
-  email: Scalars['String']['input'];
-  password: Scalars['String']['input'];
+  email: Scalars["String"]["input"];
+  password: Scalars["String"]["input"];
 };
-
 
 export type MutationAuthclient_NewAccountPasswordResetArgs = {
-  email: Scalars['String']['input'];
+  email: Scalars["String"]["input"];
 };
-
 
 export type MutationAuthclient_RequestPasswordResetArgs = {
-  email: Scalars['String']['input'];
+  email: Scalars["String"]["input"];
 };
-
 
 export type MutationAuthclient_ResetPasswordArgs = {
-  password: Scalars['String']['input'];
-  token: Scalars['String']['input'];
+  password: Scalars["String"]["input"];
+  token: Scalars["String"]["input"];
 };
-
 
 export type MutationAuthenticateUserWithPasswordArgs = {
-  adminPassword: Scalars['String']['input'];
-  email: Scalars['String']['input'];
+  adminPassword: Scalars["String"]["input"];
+  email: Scalars["String"]["input"];
 };
-
 
 export type MutationCreateInitialUserArgs = {
   data: CreateInitialUserInput;
 };
 
-
 export type MutationCreateUserArgs = {
   data: UserCreateInput;
 };
-
 
 export type MutationCreateUsersArgs = {
   data: Array<UserCreateInput>;
 };
 
-
 export type MutationDeleteUserArgs = {
   where: UserWhereUniqueInput;
 };
-
 
 export type MutationDeleteUsersArgs = {
   where: Array<UserWhereUniqueInput>;
 };
 
-
 export type MutationTestArgs = {
-  email?: InputMaybe<Scalars['String']['input']>;
+  email?: InputMaybe<Scalars["String"]["input"]>;
 };
-
 
 export type MutationUpdateUserArgs = {
   data: UserUpdateInput;
   where: UserWhereUniqueInput;
 };
 
-
 export type MutationUpdateUsersArgs = {
   data: Array<UserUpdateArgs>;
 };
 
 export type NestedStringFilter = {
-  contains?: InputMaybe<Scalars['String']['input']>;
-  endsWith?: InputMaybe<Scalars['String']['input']>;
-  equals?: InputMaybe<Scalars['String']['input']>;
-  gt?: InputMaybe<Scalars['String']['input']>;
-  gte?: InputMaybe<Scalars['String']['input']>;
-  in?: InputMaybe<Array<Scalars['String']['input']>>;
-  lt?: InputMaybe<Scalars['String']['input']>;
-  lte?: InputMaybe<Scalars['String']['input']>;
+  contains?: InputMaybe<Scalars["String"]["input"]>;
+  endsWith?: InputMaybe<Scalars["String"]["input"]>;
+  equals?: InputMaybe<Scalars["String"]["input"]>;
+  gt?: InputMaybe<Scalars["String"]["input"]>;
+  gte?: InputMaybe<Scalars["String"]["input"]>;
+  in?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  lt?: InputMaybe<Scalars["String"]["input"]>;
+  lte?: InputMaybe<Scalars["String"]["input"]>;
   not?: InputMaybe<NestedStringFilter>;
-  notIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  startsWith?: InputMaybe<Scalars['String']['input']>;
+  notIn?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  startsWith?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export enum OrderDirection {
-  Asc = 'asc',
-  Desc = 'desc'
+  Asc = "asc",
+  Desc = "desc",
 }
 
 export type PasswordFilter = {
-  isSet: Scalars['Boolean']['input'];
+  isSet: Scalars["Boolean"]["input"];
 };
 
 export type PasswordState = {
-  __typename?: 'PasswordState';
-  isSet: Scalars['Boolean']['output'];
+  __typename?: "PasswordState";
+  isSet: Scalars["Boolean"]["output"];
 };
 
 export type Query = {
-  __typename?: 'Query';
+  __typename?: "Query";
   authenticatedItem?: Maybe<AuthenticatedItem>;
   keystone: KeystoneMeta;
-  test?: Maybe<Scalars['String']['output']>;
+  test?: Maybe<Scalars["String"]["output"]>;
   user?: Maybe<User>;
   users?: Maybe<Array<User>>;
-  usersCount?: Maybe<Scalars['Int']['output']>;
+  usersCount?: Maybe<Scalars["Int"]["output"]>;
 };
-
 
 export type QueryUserArgs = {
   where: UserWhereUniqueInput;
 };
 
-
 export type QueryUsersArgs = {
   cursor?: InputMaybe<UserWhereUniqueInput>;
   orderBy?: Array<UserOrderByInput>;
-  skip?: Scalars['Int']['input'];
-  take?: InputMaybe<Scalars['Int']['input']>;
+  skip?: Scalars["Int"]["input"];
+  take?: InputMaybe<Scalars["Int"]["input"]>;
   where?: UserWhereInput;
 };
-
 
 export type QueryUsersCountArgs = {
   where?: UserWhereInput;
 };
 
 export enum QueryMode {
-  Default = 'default',
-  Insensitive = 'insensitive'
+  Default = "default",
+  Insensitive = "insensitive",
 }
 
 export type StringFilter = {
-  contains?: InputMaybe<Scalars['String']['input']>;
-  endsWith?: InputMaybe<Scalars['String']['input']>;
-  equals?: InputMaybe<Scalars['String']['input']>;
-  gt?: InputMaybe<Scalars['String']['input']>;
-  gte?: InputMaybe<Scalars['String']['input']>;
-  in?: InputMaybe<Array<Scalars['String']['input']>>;
-  lt?: InputMaybe<Scalars['String']['input']>;
-  lte?: InputMaybe<Scalars['String']['input']>;
+  contains?: InputMaybe<Scalars["String"]["input"]>;
+  endsWith?: InputMaybe<Scalars["String"]["input"]>;
+  equals?: InputMaybe<Scalars["String"]["input"]>;
+  gt?: InputMaybe<Scalars["String"]["input"]>;
+  gte?: InputMaybe<Scalars["String"]["input"]>;
+  in?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  lt?: InputMaybe<Scalars["String"]["input"]>;
+  lte?: InputMaybe<Scalars["String"]["input"]>;
   mode?: InputMaybe<QueryMode>;
   not?: InputMaybe<NestedStringFilter>;
-  notIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  startsWith?: InputMaybe<Scalars['String']['input']>;
+  notIn?: InputMaybe<Array<Scalars["String"]["input"]>>;
+  startsWith?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type User = {
-  __typename?: 'User';
+  __typename?: "User";
   adminPassword?: Maybe<PasswordState>;
   avatar?: Maybe<ImageFieldOutput>;
-  createdAt?: Maybe<Scalars['DateTime']['output']>;
-  displayName?: Maybe<Scalars['String']['output']>;
-  email?: Maybe<Scalars['String']['output']>;
-  id: Scalars['ID']['output'];
-  lastName?: Maybe<Scalars['String']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
+  createdAt?: Maybe<Scalars["DateTime"]["output"]>;
+  displayName?: Maybe<Scalars["String"]["output"]>;
+  email?: Maybe<Scalars["String"]["output"]>;
+  id: Scalars["ID"]["output"];
+  lastName?: Maybe<Scalars["String"]["output"]>;
+  name?: Maybe<Scalars["String"]["output"]>;
   role?: Maybe<UserRoleType>;
+  wait5s?: Maybe<Scalars["String"]["output"]>;
+  wait15s?: Maybe<Scalars["String"]["output"]>;
+  wait30s?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type UserAuthenticationWithPasswordFailure = {
-  __typename?: 'UserAuthenticationWithPasswordFailure';
-  message: Scalars['String']['output'];
+  __typename?: "UserAuthenticationWithPasswordFailure";
+  message: Scalars["String"]["output"];
 };
 
-export type UserAuthenticationWithPasswordResult = UserAuthenticationWithPasswordFailure | UserAuthenticationWithPasswordSuccess;
+export type UserAuthenticationWithPasswordResult =
+  | UserAuthenticationWithPasswordFailure
+  | UserAuthenticationWithPasswordSuccess;
 
 export type UserAuthenticationWithPasswordSuccess = {
-  __typename?: 'UserAuthenticationWithPasswordSuccess';
+  __typename?: "UserAuthenticationWithPasswordSuccess";
   item: User;
-  sessionToken: Scalars['String']['output'];
+  sessionToken: Scalars["String"]["output"];
 };
 
 export type UserCreateInput = {
-  adminPassword?: InputMaybe<Scalars['String']['input']>;
+  adminPassword?: InputMaybe<Scalars["String"]["input"]>;
   avatar?: InputMaybe<ImageFieldInput>;
-  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
-  email?: InputMaybe<Scalars['String']['input']>;
-  lastName?: InputMaybe<Scalars['String']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
+  createdAt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  email?: InputMaybe<Scalars["String"]["input"]>;
+  lastName?: InputMaybe<Scalars["String"]["input"]>;
+  name?: InputMaybe<Scalars["String"]["input"]>;
   role?: InputMaybe<UserRoleType>;
 };
 
@@ -429,9 +430,9 @@ export type UserOrderByInput = {
 };
 
 export enum UserRoleType {
-  Admin = 'admin',
-  Dev = 'dev',
-  User = 'user'
+  Admin = "admin",
+  Dev = "dev",
+  User = "user",
 }
 
 export type UserRoleTypeNullableFilter = {
@@ -447,12 +448,12 @@ export type UserUpdateArgs = {
 };
 
 export type UserUpdateInput = {
-  adminPassword?: InputMaybe<Scalars['String']['input']>;
+  adminPassword?: InputMaybe<Scalars["String"]["input"]>;
   avatar?: InputMaybe<ImageFieldInput>;
-  createdAt?: InputMaybe<Scalars['DateTime']['input']>;
-  email?: InputMaybe<Scalars['String']['input']>;
-  lastName?: InputMaybe<Scalars['String']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
+  createdAt?: InputMaybe<Scalars["DateTime"]["input"]>;
+  email?: InputMaybe<Scalars["String"]["input"]>;
+  lastName?: InputMaybe<Scalars["String"]["input"]>;
+  name?: InputMaybe<Scalars["String"]["input"]>;
   role?: InputMaybe<UserRoleType>;
 };
 
@@ -471,17 +472,115 @@ export type UserWhereInput = {
 };
 
 export type UserWhereUniqueInput = {
-  email?: InputMaybe<Scalars['String']['input']>;
-  id?: InputMaybe<Scalars['ID']['input']>;
+  email?: InputMaybe<Scalars["String"]["input"]>;
+  id?: InputMaybe<Scalars["ID"]["input"]>;
 };
 
 export type LoginMutationVariables = Exact<{
-  email: Scalars['String']['input'];
-  password: Scalars['String']['input'];
+  email: Scalars["String"]["input"];
+  password: Scalars["String"]["input"];
 }>;
 
+export type LoginMutation = {
+  __typename?: "Mutation";
+  authenticateUserWithPassword?:
+    | { __typename: "UserAuthenticationWithPasswordFailure" }
+    | {
+        __typename: "UserAuthenticationWithPasswordSuccess";
+        sessionToken: string;
+      }
+    | null;
+};
 
-export type LoginMutation = { __typename?: 'Mutation', authenticateUserWithPassword?: { __typename: 'UserAuthenticationWithPasswordFailure' } | { __typename: 'UserAuthenticationWithPasswordSuccess', sessionToken: string } | null };
-
-
-export const LoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"Login"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"email"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"password"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authenticateUserWithPassword"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"email"},"value":{"kind":"Variable","name":{"kind":"Name","value":"email"}}},{"kind":"Argument","name":{"kind":"Name","value":"adminPassword"},"value":{"kind":"Variable","name":{"kind":"Name","value":"password"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"__typename"}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"UserAuthenticationWithPasswordSuccess"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sessionToken"}}]}}]}}]}}]} as unknown as DocumentNode<LoginMutation, LoginMutationVariables>;
+export const LoginDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "Login" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "email" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "password" },
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "authenticateUserWithPassword" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "email" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "email" },
+                },
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "adminPassword" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "password" },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "__typename" } },
+                {
+                  kind: "InlineFragment",
+                  typeCondition: {
+                    kind: "NamedType",
+                    name: {
+                      kind: "Name",
+                      value: "UserAuthenticationWithPasswordSuccess",
+                    },
+                  },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "sessionToken" },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<LoginMutation, LoginMutationVariables>;

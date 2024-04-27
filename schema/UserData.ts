@@ -195,7 +195,7 @@ export const userDataList: Lists = {
             {
               email: item.email,
             },
-            context
+            context,
           );
           console.log(`[System] Reset password for new user: ${item.email}`);
         }

@@ -35,7 +35,7 @@ __export(keystone_exports, {
 module.exports = __toCommonJS(keystone_exports);
 var import_zod_to_openapi4 = require("@asteasolutions/zod-to-openapi");
 var import_core4 = require("@keystone-6/core");
-var import_zod5 = require("zod");
+var import_zod6 = require("zod");
 
 // auth.ts
 var import_auth = require("@keystone-6/auth");
@@ -896,7 +896,7 @@ var userDataList = {
   })
 };
 
-// schema.ts
+// schema/schema.ts
 var lists = {
   ...userDataList
 };
@@ -908,7 +908,7 @@ var import_swagger_ui_express = __toESM(require("swagger-ui-express"));
 
 // server/api/index.ts
 var import_zod_to_openapi2 = require("@asteasolutions/zod-to-openapi");
-var import_zod4 = require("zod");
+var import_zod5 = require("zod");
 
 // server/api/auth/index.ts
 var import_zod3 = require("zod");
@@ -1071,9 +1071,116 @@ authRouteDeclaration.routes.set(
   })
 );
 
+// server/api/health/index.ts
+var import_zod4 = require("zod");
+
+// server/services/s3/minio.ts
+var import_minio = require("minio");
+var minioClient = new import_minio.Client({
+  endPoint: CONFIG.S3_ENDPOINT.replace("https://", "").replace("http://", ""),
+  useSSL: true,
+  accessKey: CONFIG.S3_ACCESS_KEY_ID,
+  secretKey: CONFIG.S3_SECRET_ACCESS_KEY,
+  region: CONFIG.S3_REGION,
+  pathStyle: CONFIG.S3_FORCE_PATH_STYLE === "true"
+});
+
+// server/api/health/index.ts
+var healthRouteDeclaration = {
+  name: "/health",
+  routes: /* @__PURE__ */ new Map()
+};
+healthRouteDeclaration.routes.set(
+  "/",
+  new RouteDeclarationMetadata({
+    method: "get" /* GET */,
+    inputParser: import_zod4.z.object({
+      ["query" /* QUERY */]: import_zod4.z.object({
+        database: import_zod4.z.preprocess((val) => {
+          if (val === "true") {
+            return true;
+          } else {
+            return false;
+          }
+        }, import_zod4.z.boolean().optional()).optional(),
+        s3: import_zod4.z.preprocess((val) => {
+          if (val === "true") {
+            return true;
+          } else {
+            return false;
+          }
+        }, import_zod4.z.boolean().optional()).optional(),
+        unified: import_zod4.z.preprocess((val) => {
+          if (val === "true") {
+            return true;
+          } else {
+            return false;
+          }
+        }, import_zod4.z.boolean().optional()).optional()
+      })
+    }),
+    func: async ({
+      context: { prisma },
+      inputData: {
+        ["query" /* QUERY */]: { database, s3, unified }
+      },
+      res
+    }) => {
+      const serverStatus = true;
+      let databaseStatus = false;
+      let s3Status = false;
+      if (database) {
+        try {
+          await await prisma.$queryRaw`SELECT 1`;
+          databaseStatus = true;
+        } catch (e) {
+          databaseStatus = false;
+        }
+      }
+      if (s3) {
+        try {
+          await minioClient.listBuckets();
+          s3Status = true;
+        } catch (e) {
+          s3Status = false;
+        }
+      }
+      let unifiedStatus = true;
+      if (database) {
+        unifiedStatus = unifiedStatus && databaseStatus;
+      }
+      if (s3) {
+        unifiedStatus = unifiedStatus && s3Status;
+      }
+      if (unified) {
+        if (unifiedStatus) {
+          res.status(200).send({
+            server: serverStatus,
+            database: database ? databaseStatus : void 0,
+            s3: s3 ? s3Status : void 0
+          });
+        } else {
+          res.status(500).send({
+            error: "One or more systems are down",
+            server: serverStatus,
+            database: database ? databaseStatus : void 0,
+            s3: s3 ? s3Status : void 0
+          });
+        }
+      } else {
+        res.status(200).send({
+          server: serverStatus,
+          database: database ? databaseStatus : void 0,
+          s3: s3 ? s3Status : void 0
+        });
+      }
+    }
+  })
+);
+
 // server/api/index.ts
-(0, import_zod_to_openapi2.extendZodWithOpenApi)(import_zod4.z);
-var routeList = [authRouteDeclaration];
+(0, import_zod_to_openapi2.extendZodWithOpenApi)(import_zod5.z);
+var routeList = [authRouteDeclaration, healthRouteDeclaration];
 
 // server/services/middleware/errorHandler.ts
 var devErrorHandler = (err, req, res, next) => {
@@ -1203,12 +1310,12 @@ function bootstrapExpress(app, commonContext) {
       bearerFormat: "JWT"
     }
   };
-  app.use("/api-docs", import_swagger_ui_express.default.serve, import_swagger_ui_express.default.setup(document));
+  app.use("/api/rest", import_swagger_ui_express.default.serve, import_swagger_ui_express.default.setup(document));
   app.use(MAIN_API_ROUTE, mainRouter);
 }
 
 // keystone.ts
-(0, import_zod_to_openapi4.extendZodWithOpenApi)(import_zod5.z);
+(0, import_zod_to_openapi4.extendZodWithOpenApi)(import_zod6.z);
 var keystoneConfig = (0, import_core4.config)({
   db: dbConfig_default,
   lists,
@@ -1218,7 +1325,20 @@ var keystoneConfig = (0, import_core4.config)({
     apolloConfig: {
       introspection: CONFIG.GRAPHQL_INSTROSPECTION === "true",
       // WARN: This is a security risk, should be configured properly, but cant be done in this project
-      csrfPrevention: false
+      csrfPrevention: false,
+      resolvers: [],
+      cache: {
+        set: async (key, value) => {
+          console.log("SET", key, value);
+        },
+        get: async (key) => {
+          console.log("GET", key);
+          return void 0;
+        },
+        delete: async (key) => {
+          console.log("DELETE", key);
+        }
+      }
     }
   },
   server: {

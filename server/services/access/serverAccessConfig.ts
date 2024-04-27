@@ -9,7 +9,7 @@ export type ServerAccessConfigBuilder = (generatorArgs: {
 }) => ServerAccessFunction;
 
 export const serverAccessConfig: ServerAccessConfigBuilder = (
-  generatorArgs
+  generatorArgs,
 ) => {
   const globalMiddleware = (operation: ServerOperationArgs) => {
     if (!operation.session) {

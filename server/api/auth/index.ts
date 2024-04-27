@@ -60,7 +60,7 @@ authRouteDeclaration.routes.set(
         return;
       }
     },
-  })
+  }),
 );
 
 authRouteDeclaration.routes.set(
@@ -86,7 +86,7 @@ authRouteDeclaration.routes.set(
     func: async ({ inputData, res }) => {
       return inputData;
     },
-  })
+  }),
 );
 
 authRouteDeclaration.routes.set(
@@ -116,7 +116,7 @@ authRouteDeclaration.routes.set(
 
       const image = await images(s3ImageConfigKey).getUrl(
         user.avatar_id,
-        user.avatar_extension as ImageExtension
+        user.avatar_extension as ImageExtension,
       );
 
       return {
@@ -124,7 +124,7 @@ authRouteDeclaration.routes.set(
         image: image,
       };
     },
-  })
+  }),
 );
 
 export { authRouteDeclaration };

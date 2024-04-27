@@ -10,7 +10,7 @@ import dbConfig from "./dbConfig";
 import s3FilesStorageConfig, { s3FilesConfigKey } from "./fileConfig";
 import { boostrapGraphqlExtensions } from "./graphql/extensions";
 import s3ImageStorageConfig, { s3ImageConfigKey } from "./imageConfig";
-import { lists } from "./schema";
+import { lists } from "./schema/schema";
 import bootstrapExpress from "./server";
 import { CONFIG } from "./utils/config/env";
 
@@ -24,6 +24,18 @@ const keystoneConfig = config<GlobalTypeInfo>({
       introspection: CONFIG.GRAPHQL_INSTROSPECTION === "true",
       // WARN: This is a security risk, should be configured properly, but cant be done in this project
       csrfPrevention: false,
+      // cache: {
+      //   set: async (key, value) => {
+      //     console.log("SET", key, value);
+      //   },
+      //   get: async (key) => {
+      //     console.log("GET", key);
+      //     return undefined;
+      //   },
+      //   delete: async (key) => {
+      //     console.log("DELETE", key);
+      //   },
+      // },
     },
   },
   server: {
