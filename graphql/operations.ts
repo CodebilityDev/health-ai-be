@@ -506,7 +506,6 @@ export type User = {
   lastName?: Maybe<Scalars["String"]["output"]>;
   name?: Maybe<Scalars["String"]["output"]>;
   role?: Maybe<UserRoleType>;
-  wait5s?: Maybe<Scalars["Boolean"]["output"]>;
 };
 
 export type UserGroupsArgs = {
