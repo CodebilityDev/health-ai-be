@@ -33,6 +33,7 @@ __export(keystone_exports, {
   default: () => keystone_default
 });
 module.exports = __toCommonJS(keystone_exports);
+var import_server_plugin_response_cache = __toESM(require("@apollo/server-plugin-response-cache"));
 var import_zod_to_openapi4 = require("@asteasolutions/zod-to-openapi");
 var import_core4 = require("@keystone-6/core");
 var import_zod6 = require("zod");
@@ -575,98 +576,7 @@ var import_fields = require("@keystone-6/core/fields");
 var import_zod = require("zod");
 
 // graphql/operations.ts
-var LoginDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "Login" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "email" }
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" }
-            }
-          }
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "password" }
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" }
-            }
-          }
-        }
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "authenticateUserWithPassword" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "email" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "email" }
-                }
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "adminPassword" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "password" }
-                }
-              }
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "__typename" } },
-                {
-                  kind: "InlineFragment",
-                  typeCondition: {
-                    kind: "NamedType",
-                    name: {
-                      kind: "Name",
-                      value: "UserAuthenticationWithPasswordSuccess"
-                    }
-                  },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "sessionToken" }
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    }
-  ]
-};
+var LoginDocument = { "kind": "Document", "definitions": [{ "kind": "OperationDefinition", "operation": "mutation", "name": { "kind": "Name", "value": "Login" }, "variableDefinitions": [{ "kind": "VariableDefinition", "variable": { "kind": "Variable", "name": { "kind": "Name", "value": "email" } }, "type": { "kind": "NonNullType", "type": { "kind": "NamedType", "name": { "kind": "Name", "value": "String" } } } }, { "kind": "VariableDefinition", "variable": { "kind": "Variable", "name": { "kind": "Name", "value": "password" } }, "type": { "kind": "NonNullType", "type": { "kind": "NamedType", "name": { "kind": "Name", "value": "String" } } } }], "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "authenticateUserWithPassword" }, "arguments": [{ "kind": "Argument", "name": { "kind": "Name", "value": "email" }, "value": { "kind": "Variable", "name": { "kind": "Name", "value": "email" } } }, { "kind": "Argument", "name": { "kind": "Name", "value": "adminPassword" }, "value": { "kind": "Variable", "name": { "kind": "Name", "value": "password" } } }], "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "__typename" } }, { "kind": "InlineFragment", "typeCondition": { "kind": "NamedType", "name": { "kind": "Name", "value": "UserAuthenticationWithPasswordSuccess" } }, "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "sessionToken" } }] } }] } }] } }] };
 
 // utils/functions/deepMerge.ts
 var deepMerge = (objects) => {
@@ -910,6 +820,10 @@ var userDataList = {
           }
         }
       }),
+      groups: (0, import_fields.relationship)({
+        ref: "Group.members",
+        many: true
+      }),
       createdAt: (0, import_fields.timestamp)({
         defaultValue: { kind: "now" }
       })
@@ -984,6 +898,24 @@ var userDataList = {
     graphql: {
       omit: true
     }
+  }),
+  Group: (0, import_core3.list)({
+    fields: {
+      name: (0, import_fields.text)({ validation: { isRequired: true } }),
+      members: (0, import_fields.relationship)({
+        ref: "User.groups",
+        many: true
+      })
+    },
+    access: accessConfig({
+      isAuthed: true,
+      operations: {
+        all: allow
+      },
+      filter: {
+        all: allow
+      }
+    })
   })
 };
 
@@ -1407,6 +1339,33 @@ function bootstrapExpress(app, commonContext) {
 
 // keystone.ts
 (0, import_zod_to_openapi4.extendZodWithOpenApi)(import_zod6.z);
+var MEM_CACHE = class {
+  cache = /* @__PURE__ */ new Map();
+  async set(key, value) {
+    this.cache.set(key, value);
+  }
+  async get(key) {
+    const val = this.cache.get(key);
+    if (!val) {
+      return void 0;
+    }
+    const valParsed = JSON.parse(val);
+    if (valParsed.cacheTime + valParsed.cachePolicy.maxAge * 1e3 < Date.now()) {
+      this.cache.delete(key);
+      return void 0;
+    }
+    return this.cache.get(key);
+  }
+  async delete(key) {
+    this.cache.delete(key);
+  }
+  processor = {
+    set: this.set.bind(this),
+    get: this.get.bind(this),
+    delete: this.delete.bind(this)
+  };
+};
+var MEM_CACHE_INSTANCE = new MEM_CACHE();
 var keystoneConfig = (0, import_core4.config)({
   db: dbConfig_default,
   lists,
@@ -1416,19 +1375,17 @@ var keystoneConfig = (0, import_core4.config)({
     apolloConfig: {
       introspection: CONFIG.GRAPHQL_INSTROSPECTION === "true",
       // WARN: This is a security risk, should be configured properly, but cant be done in this project
-      csrfPrevention: false
-      // cache: {
-      //   set: async (key, value) => {
-      //     console.log("SET", key, value);
-      //   },
-      //   get: async (key) => {
-      //     console.log("GET", key);
-      //     return undefined;
-      //   },
-      //   delete: async (key) => {
-      //     console.log("DELETE", key);
-      //   },
-      // },
+      csrfPrevention: false,
+      plugins: [
+        // ApolloServerPluginCacheControl({ defaultMaxAge: 1 }),
+        (0, import_server_plugin_response_cache.default)({
+          sessionId: async ({ request }) => {
+            const session2 = request?.http?.headers.get("Authorization") || null;
+            return session2;
+          }
+        })
+      ],
+      cache: MEM_CACHE_INSTANCE.processor
     }
   },
   server: {

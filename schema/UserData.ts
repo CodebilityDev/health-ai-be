@@ -134,6 +134,10 @@ export const userDataList: Lists = {
           },
         },
       }),
+      groups: relationship({
+        ref: "Group.members",
+        many: true,
+      }),
       createdAt: timestamp({
         defaultValue: { kind: "now" },
       }),
@@ -217,5 +221,23 @@ export const userDataList: Lists = {
     graphql: {
       omit: true,
     },
+  }),
+  Group: list({
+    fields: {
+      name: text({ validation: { isRequired: true } }),
+      members: relationship({
+        ref: "User.groups",
+        many: true,
+      }),
+    },
+    access: accessConfig({
+      isAuthed: true,
+      operations: {
+        all: allow,
+      },
+      filter: {
+        all: allow,
+      },
+    }),
   }),
 };

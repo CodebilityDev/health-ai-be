@@ -25,6 +25,7 @@ model User {
   avatar_height    Int?
   avatar_id        String?
   role             UserRoleType?  @default(user)
+  groups           Group[]        @relation("Group_members")
   createdAt        DateTime?      @default(now())
 }
 
@@ -35,6 +36,12 @@ model UserLocalAuth {
   twoFaEmailSecret   String    @default("")
   twoFaEmailLastSent DateTime?
   user               User?     @relation("User_localAuth")
+}
+
+model Group {
+  id      String @id @default(cuid())
+  name    String @default("")
+  members User[] @relation("Group_members")
 }
 
 enum UserRoleType {
