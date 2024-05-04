@@ -116,6 +116,50 @@ export const clientAuthGraphqlExtension = graphql.extend((base) => {
           return { sessionToken, item: user };
         },
       }),
+      authclient_register: graphql.field({
+        type: graphql.Boolean,
+        args: {
+          email: graphql.arg({ type: graphql.nonNull(graphql.String) }),
+          firstName: graphql.arg({ type: graphql.nonNull(graphql.String) }),
+          lastName: graphql.arg({ type: graphql.String }),
+          password: graphql.arg({ type: graphql.nonNull(graphql.String) }),
+        },
+        async resolve(
+          _,
+          { email, firstName, lastName, password },
+          context: GlobalContext,
+        ) {
+          // create new
+          const user = await context.prisma.user.create({
+            data: {
+              email,
+              name: firstName,
+              lastName: lastName || "",
+            },
+          });
+
+          if (!user) {
+            return false;
+          }
+
+          try {
+            await changePassword(
+              {
+                id: user.id,
+              },
+              {
+                oldPassword: "",
+                newPassword: password,
+              },
+              context,
+            );
+            return true;
+          } catch (e) {
+            console.error(e);
+            return false;
+          }
+        },
+      }),
       authclient_requestPasswordReset: graphql.field({
         type: graphql.Boolean,
         args: {

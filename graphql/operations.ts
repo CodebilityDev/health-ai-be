@@ -294,22 +294,35 @@ export type Mutation = {
   authclient_changePassword?: Maybe<Scalars["Boolean"]["output"]>;
   authclient_login?: Maybe<ClientItemAuthenticationWithPasswordResult>;
   authclient_newAccountPasswordReset?: Maybe<Scalars["Boolean"]["output"]>;
+  authclient_register?: Maybe<Scalars["Boolean"]["output"]>;
   authclient_requestPasswordReset?: Maybe<Scalars["Boolean"]["output"]>;
   authclient_resetPassword?: Maybe<Scalars["Boolean"]["output"]>;
   authenticateUserWithPassword?: Maybe<UserAuthenticationWithPasswordResult>;
   createGroup?: Maybe<Group>;
   createGroups?: Maybe<Array<Maybe<Group>>>;
   createInitialUser: UserAuthenticationWithPasswordSuccess;
+  createPost?: Maybe<Post>;
+  createPostTag?: Maybe<PostTag>;
+  createPostTags?: Maybe<Array<Maybe<PostTag>>>;
+  createPosts?: Maybe<Array<Maybe<Post>>>;
   createUser?: Maybe<User>;
   createUsers?: Maybe<Array<Maybe<User>>>;
   deleteGroup?: Maybe<Group>;
   deleteGroups?: Maybe<Array<Maybe<Group>>>;
+  deletePost?: Maybe<Post>;
+  deletePostTag?: Maybe<PostTag>;
+  deletePostTags?: Maybe<Array<Maybe<PostTag>>>;
+  deletePosts?: Maybe<Array<Maybe<Post>>>;
   deleteUser?: Maybe<User>;
   deleteUsers?: Maybe<Array<Maybe<User>>>;
   endSession: Scalars["Boolean"]["output"];
   test?: Maybe<Scalars["String"]["output"]>;
   updateGroup?: Maybe<Group>;
   updateGroups?: Maybe<Array<Maybe<Group>>>;
+  updatePost?: Maybe<Post>;
+  updatePostTag?: Maybe<PostTag>;
+  updatePostTags?: Maybe<Array<Maybe<PostTag>>>;
+  updatePosts?: Maybe<Array<Maybe<Post>>>;
   updateUser?: Maybe<User>;
   updateUsers?: Maybe<Array<Maybe<User>>>;
 };
@@ -326,6 +339,13 @@ export type MutationAuthclient_LoginArgs = {
 
 export type MutationAuthclient_NewAccountPasswordResetArgs = {
   email: Scalars["String"]["input"];
+};
+
+export type MutationAuthclient_RegisterArgs = {
+  email: Scalars["String"]["input"];
+  firstName: Scalars["String"]["input"];
+  lastName?: InputMaybe<Scalars["String"]["input"]>;
+  password: Scalars["String"]["input"];
 };
 
 export type MutationAuthclient_RequestPasswordResetArgs = {
@@ -354,6 +374,22 @@ export type MutationCreateInitialUserArgs = {
   data: CreateInitialUserInput;
 };
 
+export type MutationCreatePostArgs = {
+  data: PostCreateInput;
+};
+
+export type MutationCreatePostTagArgs = {
+  data: PostTagCreateInput;
+};
+
+export type MutationCreatePostTagsArgs = {
+  data: Array<PostTagCreateInput>;
+};
+
+export type MutationCreatePostsArgs = {
+  data: Array<PostCreateInput>;
+};
+
 export type MutationCreateUserArgs = {
   data: UserCreateInput;
 };
@@ -368,6 +404,22 @@ export type MutationDeleteGroupArgs = {
 
 export type MutationDeleteGroupsArgs = {
   where: Array<GroupWhereUniqueInput>;
+};
+
+export type MutationDeletePostArgs = {
+  where: PostWhereUniqueInput;
+};
+
+export type MutationDeletePostTagArgs = {
+  where: PostTagWhereUniqueInput;
+};
+
+export type MutationDeletePostTagsArgs = {
+  where: Array<PostTagWhereUniqueInput>;
+};
+
+export type MutationDeletePostsArgs = {
+  where: Array<PostWhereUniqueInput>;
 };
 
 export type MutationDeleteUserArgs = {
@@ -389,6 +441,24 @@ export type MutationUpdateGroupArgs = {
 
 export type MutationUpdateGroupsArgs = {
   data: Array<GroupUpdateArgs>;
+};
+
+export type MutationUpdatePostArgs = {
+  data: PostUpdateInput;
+  where: PostWhereUniqueInput;
+};
+
+export type MutationUpdatePostTagArgs = {
+  data: PostTagUpdateInput;
+  where: PostTagWhereUniqueInput;
+};
+
+export type MutationUpdatePostTagsArgs = {
+  data: Array<PostTagUpdateArgs>;
+};
+
+export type MutationUpdatePostsArgs = {
+  data: Array<PostUpdateArgs>;
 };
 
 export type MutationUpdateUserArgs = {
@@ -428,6 +498,160 @@ export type PasswordState = {
   isSet: Scalars["Boolean"]["output"];
 };
 
+export type Post = {
+  __typename?: "Post";
+  author?: Maybe<User>;
+  content?: Maybe<Scalars["String"]["output"]>;
+  coverImage?: Maybe<ImageFieldOutput>;
+  id: Scalars["ID"]["output"];
+  tags?: Maybe<Array<PostTag>>;
+  tagsCount?: Maybe<Scalars["Int"]["output"]>;
+  title?: Maybe<Scalars["String"]["output"]>;
+};
+
+export type PostTagsArgs = {
+  cursor?: InputMaybe<PostTagWhereUniqueInput>;
+  orderBy?: Array<PostTagOrderByInput>;
+  skip?: Scalars["Int"]["input"];
+  take?: InputMaybe<Scalars["Int"]["input"]>;
+  where?: PostTagWhereInput;
+};
+
+export type PostTagsCountArgs = {
+  where?: PostTagWhereInput;
+};
+
+export type PostCreateInput = {
+  author?: InputMaybe<UserRelateToOneForCreateInput>;
+  content?: InputMaybe<Scalars["String"]["input"]>;
+  coverImage?: InputMaybe<ImageFieldInput>;
+  tags?: InputMaybe<PostTagRelateToManyForCreateInput>;
+  title?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type PostManyRelationFilter = {
+  every?: InputMaybe<PostWhereInput>;
+  none?: InputMaybe<PostWhereInput>;
+  some?: InputMaybe<PostWhereInput>;
+};
+
+export type PostOrderByInput = {
+  content?: InputMaybe<OrderDirection>;
+  id?: InputMaybe<OrderDirection>;
+  title?: InputMaybe<OrderDirection>;
+};
+
+export type PostRelateToManyForCreateInput = {
+  connect?: InputMaybe<Array<PostWhereUniqueInput>>;
+  create?: InputMaybe<Array<PostCreateInput>>;
+};
+
+export type PostRelateToManyForUpdateInput = {
+  connect?: InputMaybe<Array<PostWhereUniqueInput>>;
+  create?: InputMaybe<Array<PostCreateInput>>;
+  disconnect?: InputMaybe<Array<PostWhereUniqueInput>>;
+  set?: InputMaybe<Array<PostWhereUniqueInput>>;
+};
+
+export type PostTag = {
+  __typename?: "PostTag";
+  id: Scalars["ID"]["output"];
+  name?: Maybe<Scalars["String"]["output"]>;
+  posts?: Maybe<Array<Post>>;
+  postsCount?: Maybe<Scalars["Int"]["output"]>;
+};
+
+export type PostTagPostsArgs = {
+  cursor?: InputMaybe<PostWhereUniqueInput>;
+  orderBy?: Array<PostOrderByInput>;
+  skip?: Scalars["Int"]["input"];
+  take?: InputMaybe<Scalars["Int"]["input"]>;
+  where?: PostWhereInput;
+};
+
+export type PostTagPostsCountArgs = {
+  where?: PostWhereInput;
+};
+
+export type PostTagCreateInput = {
+  name?: InputMaybe<Scalars["String"]["input"]>;
+  posts?: InputMaybe<PostRelateToManyForCreateInput>;
+};
+
+export type PostTagManyRelationFilter = {
+  every?: InputMaybe<PostTagWhereInput>;
+  none?: InputMaybe<PostTagWhereInput>;
+  some?: InputMaybe<PostTagWhereInput>;
+};
+
+export type PostTagOrderByInput = {
+  id?: InputMaybe<OrderDirection>;
+  name?: InputMaybe<OrderDirection>;
+};
+
+export type PostTagRelateToManyForCreateInput = {
+  connect?: InputMaybe<Array<PostTagWhereUniqueInput>>;
+  create?: InputMaybe<Array<PostTagCreateInput>>;
+};
+
+export type PostTagRelateToManyForUpdateInput = {
+  connect?: InputMaybe<Array<PostTagWhereUniqueInput>>;
+  create?: InputMaybe<Array<PostTagCreateInput>>;
+  disconnect?: InputMaybe<Array<PostTagWhereUniqueInput>>;
+  set?: InputMaybe<Array<PostTagWhereUniqueInput>>;
+};
+
+export type PostTagUpdateArgs = {
+  data: PostTagUpdateInput;
+  where: PostTagWhereUniqueInput;
+};
+
+export type PostTagUpdateInput = {
+  name?: InputMaybe<Scalars["String"]["input"]>;
+  posts?: InputMaybe<PostRelateToManyForUpdateInput>;
+};
+
+export type PostTagWhereInput = {
+  AND?: InputMaybe<Array<PostTagWhereInput>>;
+  NOT?: InputMaybe<Array<PostTagWhereInput>>;
+  OR?: InputMaybe<Array<PostTagWhereInput>>;
+  id?: InputMaybe<IdFilter>;
+  name?: InputMaybe<StringFilter>;
+  posts?: InputMaybe<PostManyRelationFilter>;
+};
+
+export type PostTagWhereUniqueInput = {
+  id?: InputMaybe<Scalars["ID"]["input"]>;
+};
+
+export type PostUpdateArgs = {
+  data: PostUpdateInput;
+  where: PostWhereUniqueInput;
+};
+
+export type PostUpdateInput = {
+  author?: InputMaybe<UserRelateToOneForUpdateInput>;
+  content?: InputMaybe<Scalars["String"]["input"]>;
+  coverImage?: InputMaybe<ImageFieldInput>;
+  tags?: InputMaybe<PostTagRelateToManyForUpdateInput>;
+  title?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type PostWhereInput = {
+  AND?: InputMaybe<Array<PostWhereInput>>;
+  NOT?: InputMaybe<Array<PostWhereInput>>;
+  OR?: InputMaybe<Array<PostWhereInput>>;
+  author?: InputMaybe<UserWhereInput>;
+  content?: InputMaybe<StringFilter>;
+  id?: InputMaybe<IdFilter>;
+  tags?: InputMaybe<PostTagManyRelationFilter>;
+  title?: InputMaybe<StringFilter>;
+};
+
+export type PostWhereUniqueInput = {
+  id?: InputMaybe<Scalars["ID"]["input"]>;
+};
+
 export type Query = {
   __typename?: "Query";
   authenticatedItem?: Maybe<AuthenticatedItem>;
@@ -435,6 +659,12 @@ export type Query = {
   groups?: Maybe<Array<Group>>;
   groupsCount?: Maybe<Scalars["Int"]["output"]>;
   keystone: KeystoneMeta;
+  post?: Maybe<Post>;
+  postTag?: Maybe<PostTag>;
+  postTags?: Maybe<Array<PostTag>>;
+  postTagsCount?: Maybe<Scalars["Int"]["output"]>;
+  posts?: Maybe<Array<Post>>;
+  postsCount?: Maybe<Scalars["Int"]["output"]>;
   test?: Maybe<Scalars["String"]["output"]>;
   user?: Maybe<User>;
   users?: Maybe<Array<User>>;
@@ -455,6 +685,38 @@ export type QueryGroupsArgs = {
 
 export type QueryGroupsCountArgs = {
   where?: GroupWhereInput;
+};
+
+export type QueryPostArgs = {
+  where: PostWhereUniqueInput;
+};
+
+export type QueryPostTagArgs = {
+  where: PostTagWhereUniqueInput;
+};
+
+export type QueryPostTagsArgs = {
+  cursor?: InputMaybe<PostTagWhereUniqueInput>;
+  orderBy?: Array<PostTagOrderByInput>;
+  skip?: Scalars["Int"]["input"];
+  take?: InputMaybe<Scalars["Int"]["input"]>;
+  where?: PostTagWhereInput;
+};
+
+export type QueryPostTagsCountArgs = {
+  where?: PostTagWhereInput;
+};
+
+export type QueryPostsArgs = {
+  cursor?: InputMaybe<PostWhereUniqueInput>;
+  orderBy?: Array<PostOrderByInput>;
+  skip?: Scalars["Int"]["input"];
+  take?: InputMaybe<Scalars["Int"]["input"]>;
+  where?: PostWhereInput;
+};
+
+export type QueryPostsCountArgs = {
+  where?: PostWhereInput;
 };
 
 export type QueryUserArgs = {
@@ -505,6 +767,8 @@ export type User = {
   id: Scalars["ID"]["output"];
   lastName?: Maybe<Scalars["String"]["output"]>;
   name?: Maybe<Scalars["String"]["output"]>;
+  posts?: Maybe<Array<Post>>;
+  postsCount?: Maybe<Scalars["Int"]["output"]>;
   role?: Maybe<UserRoleType>;
 };
 
@@ -518,6 +782,18 @@ export type UserGroupsArgs = {
 
 export type UserGroupsCountArgs = {
   where?: GroupWhereInput;
+};
+
+export type UserPostsArgs = {
+  cursor?: InputMaybe<PostWhereUniqueInput>;
+  orderBy?: Array<PostOrderByInput>;
+  skip?: Scalars["Int"]["input"];
+  take?: InputMaybe<Scalars["Int"]["input"]>;
+  where?: PostWhereInput;
+};
+
+export type UserPostsCountArgs = {
+  where?: PostWhereInput;
 };
 
 export type UserAuthenticationWithPasswordFailure = {
@@ -543,6 +819,7 @@ export type UserCreateInput = {
   groups?: InputMaybe<GroupRelateToManyForCreateInput>;
   lastName?: InputMaybe<Scalars["String"]["input"]>;
   name?: InputMaybe<Scalars["String"]["input"]>;
+  posts?: InputMaybe<PostRelateToManyForCreateInput>;
   role?: InputMaybe<UserRoleType>;
 };
 
@@ -580,6 +857,17 @@ export type UserRelateToManyForUpdateInput = {
   set?: InputMaybe<Array<UserWhereUniqueInput>>;
 };
 
+export type UserRelateToOneForCreateInput = {
+  connect?: InputMaybe<UserWhereUniqueInput>;
+  create?: InputMaybe<UserCreateInput>;
+};
+
+export type UserRelateToOneForUpdateInput = {
+  connect?: InputMaybe<UserWhereUniqueInput>;
+  create?: InputMaybe<UserCreateInput>;
+  disconnect?: InputMaybe<Scalars["Boolean"]["input"]>;
+};
+
 export enum UserRoleType {
   Admin = "admin",
   Dev = "dev",
@@ -606,6 +894,7 @@ export type UserUpdateInput = {
   groups?: InputMaybe<GroupRelateToManyForUpdateInput>;
   lastName?: InputMaybe<Scalars["String"]["input"]>;
   name?: InputMaybe<Scalars["String"]["input"]>;
+  posts?: InputMaybe<PostRelateToManyForUpdateInput>;
   role?: InputMaybe<UserRoleType>;
 };
 
@@ -621,6 +910,7 @@ export type UserWhereInput = {
   lastName?: InputMaybe<StringFilter>;
   localAuth?: InputMaybe<UserLocalAuthWhereInput>;
   name?: InputMaybe<StringFilter>;
+  posts?: InputMaybe<PostManyRelationFilter>;
   role?: InputMaybe<UserRoleTypeNullableFilter>;
 };
 

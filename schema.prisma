@@ -26,6 +26,7 @@ model User {
   avatar_id        String?
   role             UserRoleType?  @default(user)
   groups           Group[]        @relation("Group_members")
+  posts            Post[]         @relation("Post_author")
   createdAt        DateTime?      @default(now())
 }
 
@@ -42,6 +43,28 @@ model Group {
   id      String @id @default(cuid())
   name    String @default("")
   members User[] @relation("Group_members")
+}
+
+model Post {
+  id                   String    @id @default(cuid())
+  title                String    @default("")
+  content              String    @default("")
+  tags                 PostTag[] @relation("Post_tags")
+  coverImage_filesize  Int?
+  coverImage_extension String?
+  coverImage_width     Int?
+  coverImage_height    Int?
+  coverImage_id        String?
+  author               User?     @relation("Post_author", fields: [authorId], references: [id])
+  authorId             String?   @map("author")
+
+  @@index([authorId])
+}
+
+model PostTag {
+  id    String @id @default(cuid())
+  name  String @default("")
+  posts Post[] @relation("Post_tags")
 }
 
 enum UserRoleType {

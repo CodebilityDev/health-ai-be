@@ -1,4 +1,4 @@
-import { compareSync, hashSync } from "bcrypt";
+import { hashSync } from "bcrypt";
 import { GlobalContext } from "../../../common/types";
 import { CONFIG } from "../../../utils/config/env";
 import { jwt_sign, jwt_verify } from "../jwt";
@@ -155,19 +155,4 @@ export async function changePassword(
 
     return;
   }
-
-  const validate = compareSync(
-    passwordInput.oldPassword,
-    userObj.localAuth.password,
-  );
-  if (!validate) throw new Error("Wrong password");
-
-  const hashedPassword = hashSync(passwordInput.newPassword, 10);
-
-  await context.prisma.userLocalAuth.update({
-    where: { id: userObj.localAuth.id },
-    data: {
-      password: hashedPassword,
-    },
-  });
 }

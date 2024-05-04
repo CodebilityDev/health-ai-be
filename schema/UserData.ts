@@ -138,6 +138,10 @@ export const userDataList: Lists = {
         ref: "Group.members",
         many: true,
       }),
+      posts: relationship({
+        ref: "Post.author",
+        many: true,
+      }),
       createdAt: timestamp({
         defaultValue: { kind: "now" },
       }),

@@ -35,7 +35,7 @@ __export(keystone_exports, {
 module.exports = __toCommonJS(keystone_exports);
 var import_server_plugin_response_cache = __toESM(require("@apollo/server-plugin-response-cache"));
 var import_zod_to_openapi4 = require("@asteasolutions/zod-to-openapi");
-var import_core4 = require("@keystone-6/core");
+var import_core5 = require("@keystone-6/core");
 var import_zod6 = require("zod");
 
 // auth.ts
@@ -318,10 +318,10 @@ async function changePassword(user, passwordInput, context) {
   if (!userObj)
     throw new Error("User not found");
   if (!userObj.localAuth) {
-    const hashedPassword2 = (0, import_bcrypt2.hashSync)(passwordInput.newPassword, 10);
+    const hashedPassword = (0, import_bcrypt2.hashSync)(passwordInput.newPassword, 10);
     await context.prisma.userLocalAuth.create({
       data: {
-        password: hashedPassword2,
+        password: hashedPassword,
         user: {
           connect: {
             id: user.id
@@ -331,19 +331,6 @@ async function changePassword(user, passwordInput, context) {
     });
     return;
   }
-  const validate = (0, import_bcrypt2.compareSync)(
-    passwordInput.oldPassword,
-    userObj.localAuth.password
-  );
-  if (!validate)
-    throw new Error("Wrong password");
-  const hashedPassword = (0, import_bcrypt2.hashSync)(passwordInput.newPassword, 10);
-  await context.prisma.userLocalAuth.update({
-    where: { id: userObj.localAuth.id },
-    data: {
-      password: hashedPassword
-    }
-  });
 }
 
 // graphql/extensions/auth.ts
@@ -429,6 +416,43 @@ var clientAuthGraphqlExtension = import_core.graphql.extend((base) => {
             return { code: "FAILURE", message: "Failed to start session." };
           }
           return { sessionToken, item: user };
+        }
+      }),
+      authclient_register: import_core.graphql.field({
+        type: import_core.graphql.Boolean,
+        args: {
+          email: import_core.graphql.arg({ type: import_core.graphql.nonNull(import_core.graphql.String) }),
+          firstName: import_core.graphql.arg({ type: import_core.graphql.nonNull(import_core.graphql.String) }),
+          lastName: import_core.graphql.arg({ type: import_core.graphql.String }),
+          password: import_core.graphql.arg({ type: import_core.graphql.nonNull(import_core.graphql.String) })
+        },
+        async resolve(_, { email, firstName, lastName, password: password2 }, context) {
+          const user = await context.prisma.user.create({
+            data: {
+              email,
+              name: firstName,
+              lastName: lastName || ""
+            }
+          });
+          if (!user) {
+            return false;
+          }
+          try {
+            await changePassword(
+              {
+                id: user.id
+              },
+              {
+                oldPassword: "",
+                newPassword: password2
+              },
+              context
+            );
+            return true;
+          } catch (e) {
+            console.error(e);
+            return false;
+          }
         }
       }),
       authclient_requestPasswordReset: import_core.graphql.field({
@@ -569,105 +593,40 @@ var s3ImageStorageConfig = {
 var s3ImageConfigKey = "my_S3_images";
 var imageConfig_default = s3ImageStorageConfig;
 
-// schema/UserData.ts
+// schema/PostData.ts
 var import_core3 = require("@keystone-6/core");
 var import_access = require("@keystone-6/core/access");
 var import_fields = require("@keystone-6/core/fields");
+var postDataList = {
+  Post: (0, import_core3.list)({
+    fields: {
+      title: (0, import_fields.text)({ validation: { isRequired: true } }),
+      content: (0, import_fields.text)({ validation: { isRequired: true } }),
+      tags: (0, import_fields.relationship)({ ref: "PostTag.posts", many: true }),
+      coverImage: (0, import_fields.image)({
+        storage: s3ImageConfigKey
+      }),
+      author: (0, import_fields.relationship)({ ref: "User.posts", many: false })
+    },
+    access: import_access.allowAll
+  }),
+  PostTag: (0, import_core3.list)({
+    fields: {
+      name: (0, import_fields.text)({ validation: { isRequired: true } }),
+      posts: (0, import_fields.relationship)({ ref: "Post.tags", many: true })
+    },
+    access: import_access.allowAll
+  })
+};
+
+// schema/UserData.ts
+var import_core4 = require("@keystone-6/core");
+var import_access2 = require("@keystone-6/core/access");
+var import_fields2 = require("@keystone-6/core/fields");
 var import_zod = require("zod");
 
 // graphql/operations.ts
-var LoginDocument = {
-  kind: "Document",
-  definitions: [
-    {
-      kind: "OperationDefinition",
-      operation: "mutation",
-      name: { kind: "Name", value: "Login" },
-      variableDefinitions: [
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "email" }
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" }
-            }
-          }
-        },
-        {
-          kind: "VariableDefinition",
-          variable: {
-            kind: "Variable",
-            name: { kind: "Name", value: "password" }
-          },
-          type: {
-            kind: "NonNullType",
-            type: {
-              kind: "NamedType",
-              name: { kind: "Name", value: "String" }
-            }
-          }
-        }
-      ],
-      selectionSet: {
-        kind: "SelectionSet",
-        selections: [
-          {
-            kind: "Field",
-            name: { kind: "Name", value: "authenticateUserWithPassword" },
-            arguments: [
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "email" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "email" }
-                }
-              },
-              {
-                kind: "Argument",
-                name: { kind: "Name", value: "adminPassword" },
-                value: {
-                  kind: "Variable",
-                  name: { kind: "Name", value: "password" }
-                }
-              }
-            ],
-            selectionSet: {
-              kind: "SelectionSet",
-              selections: [
-                { kind: "Field", name: { kind: "Name", value: "__typename" } },
-                {
-                  kind: "InlineFragment",
-                  typeCondition: {
-                    kind: "NamedType",
-                    name: {
-                      kind: "Name",
-                      value: "UserAuthenticationWithPasswordSuccess"
-                    }
-                  },
-                  selectionSet: {
-                    kind: "SelectionSet",
-                    selections: [
-                      {
-                        kind: "Field",
-                        name: { kind: "Name", value: "sessionToken" }
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          }
-        ]
-      }
-    }
-  ]
-};
+var LoginDocument = { "kind": "Document", "definitions": [{ "kind": "OperationDefinition", "operation": "mutation", "name": { "kind": "Name", "value": "Login" }, "variableDefinitions": [{ "kind": "VariableDefinition", "variable": { "kind": "Variable", "name": { "kind": "Name", "value": "email" } }, "type": { "kind": "NonNullType", "type": { "kind": "NamedType", "name": { "kind": "Name", "value": "String" } } } }, { "kind": "VariableDefinition", "variable": { "kind": "Variable", "name": { "kind": "Name", "value": "password" } }, "type": { "kind": "NonNullType", "type": { "kind": "NamedType", "name": { "kind": "Name", "value": "String" } } } }], "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "authenticateUserWithPassword" }, "arguments": [{ "kind": "Argument", "name": { "kind": "Name", "value": "email" }, "value": { "kind": "Variable", "name": { "kind": "Name", "value": "email" } } }, { "kind": "Argument", "name": { "kind": "Name", "value": "adminPassword" }, "value": { "kind": "Variable", "name": { "kind": "Name", "value": "password" } } }], "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "__typename" } }, { "kind": "InlineFragment", "typeCondition": { "kind": "NamedType", "name": { "kind": "Name", "value": "UserAuthenticationWithPasswordSuccess" } }, "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "sessionToken" } }] } }] } }] } }] };
 
 // utils/functions/deepMerge.ts
 var deepMerge = (objects) => {
@@ -820,19 +779,19 @@ var checkRole = (role, allowedRoles) => {
 
 // schema/UserData.ts
 var userDataList = {
-  User: (0, import_core3.list)({
+  User: (0, import_core4.list)({
     fields: {
-      name: (0, import_fields.text)({ validation: { isRequired: true } }),
-      lastName: (0, import_fields.text)(),
-      displayName: (0, import_fields.virtual)({
-        field: import_core3.graphql.field({
-          type: import_core3.graphql.String,
+      name: (0, import_fields2.text)({ validation: { isRequired: true } }),
+      lastName: (0, import_fields2.text)(),
+      displayName: (0, import_fields2.virtual)({
+        field: import_core4.graphql.field({
+          type: import_core4.graphql.String,
           async resolve(item, {}, context) {
             return `${item.name} ${item.lastName}`.trim();
           }
         })
       }),
-      email: (0, import_fields.text)({
+      email: (0, import_fields2.text)({
         validation: { isRequired: true },
         isIndexed: "unique"
         // hooks: {
@@ -844,7 +803,7 @@ var userDataList = {
         //   },
         // },
       }),
-      adminPassword: (0, import_fields.password)({
+      adminPassword: (0, import_fields2.password)({
         validation: { isRequired: false },
         hooks: {
           validateInput: async ({
@@ -867,15 +826,15 @@ var userDataList = {
           }
         }
       }),
-      localAuth: (0, import_fields.relationship)({
+      localAuth: (0, import_fields2.relationship)({
         ref: "UserLocalAuth.user",
         many: false,
-        access: import_access.denyAll
+        access: import_access2.denyAll
       }),
-      avatar: (0, import_fields.image)({
+      avatar: (0, import_fields2.image)({
         storage: s3ImageConfigKey
       }),
-      role: (0, import_fields.select)({
+      role: (0, import_fields2.select)({
         type: "enum",
         options: [
           { label: "Dev", value: PERMISSION_ENUM.DEV },
@@ -911,11 +870,15 @@ var userDataList = {
           }
         }
       }),
-      groups: (0, import_fields.relationship)({
+      groups: (0, import_fields2.relationship)({
         ref: "Group.members",
         many: true
       }),
-      createdAt: (0, import_fields.timestamp)({
+      posts: (0, import_fields2.relationship)({
+        ref: "Post.author",
+        many: true
+      }),
+      createdAt: (0, import_fields2.timestamp)({
         defaultValue: { kind: "now" }
       })
     },
@@ -974,26 +937,26 @@ var userDataList = {
       }
     }
   }),
-  UserLocalAuth: (0, import_core3.list)({
+  UserLocalAuth: (0, import_core4.list)({
     fields: {
-      password: (0, import_fields.text)(),
-      twoFaEmail: (0, import_fields.text)(),
-      twoFaEmailSecret: (0, import_fields.text)(),
-      twoFaEmailLastSent: (0, import_fields.timestamp)(),
-      user: (0, import_fields.relationship)({
+      password: (0, import_fields2.text)(),
+      twoFaEmail: (0, import_fields2.text)(),
+      twoFaEmailSecret: (0, import_fields2.text)(),
+      twoFaEmailLastSent: (0, import_fields2.timestamp)(),
+      user: (0, import_fields2.relationship)({
         ref: "User.localAuth",
         many: false
       })
     },
-    access: import_access.denyAll,
+    access: import_access2.denyAll,
     graphql: {
       omit: true
     }
   }),
-  Group: (0, import_core3.list)({
+  Group: (0, import_core4.list)({
     fields: {
-      name: (0, import_fields.text)({ validation: { isRequired: true } }),
-      members: (0, import_fields.relationship)({
+      name: (0, import_fields2.text)({ validation: { isRequired: true } }),
+      members: (0, import_fields2.relationship)({
         ref: "User.groups",
         many: true
       })
@@ -1012,7 +975,8 @@ var userDataList = {
 
 // schema/schema.ts
 var lists = {
-  ...userDataList
+  ...userDataList,
+  ...postDataList
 };
 
 // server/index.ts
@@ -1173,13 +1137,13 @@ authRouteDeclaration.routes.set(
           error: "Profile picture not found"
         });
       }
-      const image2 = await images(s3ImageConfigKey).getUrl(
+      const image3 = await images(s3ImageConfigKey).getUrl(
         user.avatar_id,
         user.avatar_extension
       );
       return {
         session: session2,
-        image: image2
+        image: image3
       };
     }
   })
@@ -1457,7 +1421,7 @@ var MEM_CACHE = class {
   };
 };
 var MEM_CACHE_INSTANCE = new MEM_CACHE();
-var keystoneConfig = (0, import_core4.config)({
+var keystoneConfig = (0, import_core5.config)({
   db: dbConfig_default,
   lists,
   session,

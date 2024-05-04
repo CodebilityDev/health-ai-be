@@ -12,6 +12,8 @@ type User {
   role: UserRoleType
   groups(where: GroupWhereInput! = {}, orderBy: [GroupOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupWhereUniqueInput): [Group!]
   groupsCount(where: GroupWhereInput! = {}): Int
+  posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostWhereUniqueInput): [Post!]
+  postsCount(where: PostWhereInput! = {}): Int
   createdAt: DateTime
 }
 
@@ -60,6 +62,7 @@ input UserWhereInput {
   localAuth: UserLocalAuthWhereInput
   role: UserRoleTypeNullableFilter
   groups: GroupManyRelationFilter
+  posts: PostManyRelationFilter
   createdAt: DateTimeNullableFilter
 }
 
@@ -132,6 +135,12 @@ input GroupManyRelationFilter {
   none: GroupWhereInput
 }
 
+input PostManyRelationFilter {
+  every: PostWhereInput
+  some: PostWhereInput
+  none: PostWhereInput
+}
+
 input DateTimeNullableFilter {
   equals: DateTime
   in: [DateTime!]
@@ -165,6 +174,7 @@ input UserUpdateInput {
   avatar: ImageFieldInput
   role: UserRoleType
   groups: GroupRelateToManyForUpdateInput
+  posts: PostRelateToManyForUpdateInput
   createdAt: DateTime
 }
 
@@ -182,6 +192,13 @@ input GroupRelateToManyForUpdateInput {
   connect: [GroupWhereUniqueInput!]
 }
 
+input PostRelateToManyForUpdateInput {
+  disconnect: [PostWhereUniqueInput!]
+  set: [PostWhereUniqueInput!]
+  create: [PostCreateInput!]
+  connect: [PostWhereUniqueInput!]
+}
+
 input UserUpdateArgs {
   where: UserWhereUniqueInput!
   data: UserUpdateInput!
@@ -195,12 +212,18 @@ input UserCreateInput {
   avatar: ImageFieldInput
   role: UserRoleType
   groups: GroupRelateToManyForCreateInput
+  posts: PostRelateToManyForCreateInput
   createdAt: DateTime
 }
 
 input GroupRelateToManyForCreateInput {
   create: [GroupCreateInput!]
   connect: [GroupWhereUniqueInput!]
+}
+
+input PostRelateToManyForCreateInput {
+  create: [PostCreateInput!]
+  connect: [PostWhereUniqueInput!]
 }
 
 type Group {
@@ -261,6 +284,127 @@ input UserRelateToManyForCreateInput {
   connect: [UserWhereUniqueInput!]
 }
 
+type Post {
+  id: ID!
+  title: String
+  content: String
+  tags(where: PostTagWhereInput! = {}, orderBy: [PostTagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostTagWhereUniqueInput): [PostTag!]
+  tagsCount(where: PostTagWhereInput! = {}): Int
+  coverImage: ImageFieldOutput
+  author: User
+}
+
+input PostWhereUniqueInput {
+  id: ID
+}
+
+input PostWhereInput {
+  AND: [PostWhereInput!]
+  OR: [PostWhereInput!]
+  NOT: [PostWhereInput!]
+  id: IDFilter
+  title: StringFilter
+  content: StringFilter
+  tags: PostTagManyRelationFilter
+  author: UserWhereInput
+}
+
+input PostTagManyRelationFilter {
+  every: PostTagWhereInput
+  some: PostTagWhereInput
+  none: PostTagWhereInput
+}
+
+input PostOrderByInput {
+  id: OrderDirection
+  title: OrderDirection
+  content: OrderDirection
+}
+
+input PostUpdateInput {
+  title: String
+  content: String
+  tags: PostTagRelateToManyForUpdateInput
+  coverImage: ImageFieldInput
+  author: UserRelateToOneForUpdateInput
+}
+
+input PostTagRelateToManyForUpdateInput {
+  disconnect: [PostTagWhereUniqueInput!]
+  set: [PostTagWhereUniqueInput!]
+  create: [PostTagCreateInput!]
+  connect: [PostTagWhereUniqueInput!]
+}
+
+input UserRelateToOneForUpdateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+  disconnect: Boolean
+}
+
+input PostUpdateArgs {
+  where: PostWhereUniqueInput!
+  data: PostUpdateInput!
+}
+
+input PostCreateInput {
+  title: String
+  content: String
+  tags: PostTagRelateToManyForCreateInput
+  coverImage: ImageFieldInput
+  author: UserRelateToOneForCreateInput
+}
+
+input PostTagRelateToManyForCreateInput {
+  create: [PostTagCreateInput!]
+  connect: [PostTagWhereUniqueInput!]
+}
+
+input UserRelateToOneForCreateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+}
+
+type PostTag {
+  id: ID!
+  name: String
+  posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostWhereUniqueInput): [Post!]
+  postsCount(where: PostWhereInput! = {}): Int
+}
+
+input PostTagWhereUniqueInput {
+  id: ID
+}
+
+input PostTagWhereInput {
+  AND: [PostTagWhereInput!]
+  OR: [PostTagWhereInput!]
+  NOT: [PostTagWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  posts: PostManyRelationFilter
+}
+
+input PostTagOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+}
+
+input PostTagUpdateInput {
+  name: String
+  posts: PostRelateToManyForUpdateInput
+}
+
+input PostTagUpdateArgs {
+  where: PostTagWhereUniqueInput!
+  data: PostTagUpdateInput!
+}
+
+input PostTagCreateInput {
+  name: String
+  posts: PostRelateToManyForCreateInput
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -279,11 +423,24 @@ type Mutation {
   updateGroups(data: [GroupUpdateArgs!]!): [Group]
   deleteGroup(where: GroupWhereUniqueInput!): Group
   deleteGroups(where: [GroupWhereUniqueInput!]!): [Group]
+  createPost(data: PostCreateInput!): Post
+  createPosts(data: [PostCreateInput!]!): [Post]
+  updatePost(where: PostWhereUniqueInput!, data: PostUpdateInput!): Post
+  updatePosts(data: [PostUpdateArgs!]!): [Post]
+  deletePost(where: PostWhereUniqueInput!): Post
+  deletePosts(where: [PostWhereUniqueInput!]!): [Post]
+  createPostTag(data: PostTagCreateInput!): PostTag
+  createPostTags(data: [PostTagCreateInput!]!): [PostTag]
+  updatePostTag(where: PostTagWhereUniqueInput!, data: PostTagUpdateInput!): PostTag
+  updatePostTags(data: [PostTagUpdateArgs!]!): [PostTag]
+  deletePostTag(where: PostTagWhereUniqueInput!): PostTag
+  deletePostTags(where: [PostTagWhereUniqueInput!]!): [PostTag]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, adminPassword: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
   test(email: String): String
   authclient_login(email: String!, password: String!): ClientItemAuthenticationWithPasswordResult
+  authclient_register(email: String!, firstName: String!, lastName: String, password: String!): Boolean
   authclient_requestPasswordReset(email: String!): Boolean
   authclient_newAccountPasswordReset(email: String!): Boolean
   authclient_resetPassword(token: String!, password: String!): Boolean
@@ -325,6 +482,12 @@ type Query {
   groups(where: GroupWhereInput! = {}, orderBy: [GroupOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupWhereUniqueInput): [Group!]
   group(where: GroupWhereUniqueInput!): Group
   groupsCount(where: GroupWhereInput! = {}): Int
+  posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostWhereUniqueInput): [Post!]
+  post(where: PostWhereUniqueInput!): Post
+  postsCount(where: PostWhereInput! = {}): Int
+  postTags(where: PostTagWhereInput! = {}, orderBy: [PostTagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostTagWhereUniqueInput): [PostTag!]
+  postTag(where: PostTagWhereUniqueInput!): PostTag
+  postTagsCount(where: PostTagWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
   test: String
