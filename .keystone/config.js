@@ -34,9 +34,9 @@ __export(keystone_exports, {
 });
 module.exports = __toCommonJS(keystone_exports);
 var import_server_plugin_response_cache = __toESM(require("@apollo/server-plugin-response-cache"));
-var import_zod_to_openapi4 = require("@asteasolutions/zod-to-openapi");
+var import_zod_to_openapi3 = require("@asteasolutions/zod-to-openapi");
 var import_core5 = require("@keystone-6/core");
-var import_zod6 = require("zod");
+var import_zod5 = require("zod");
 
 // auth.ts
 var import_auth = require("@keystone-6/auth");
@@ -122,10 +122,293 @@ var s3FilesStorageConfig = {
 var s3FilesConfigKey = "my_S3_files";
 var fileConfig_default = s3FilesStorageConfig;
 
-// graphql/extensions/auth.ts
+// imageConfig.ts
+var s3ImageStorageConfig = {
+  kind: "s3",
+  type: "image",
+  bucketName: CONFIG.S3_BUCKET_NAME,
+  region: CONFIG.S3_REGION,
+  accessKeyId: CONFIG.S3_ACCESS_KEY_ID,
+  secretAccessKey: CONFIG.S3_SECRET_ACCESS_KEY,
+  signed: { expiry: 5e3 },
+  endpoint: CONFIG.S3_ENDPOINT,
+  forcePathStyle: CONFIG.S3_FORCE_PATH_STYLE === "true"
+};
+var s3ImageConfigKey = "my_S3_images";
+var imageConfig_default = s3ImageStorageConfig;
+
+// server/index.ts
+var import_zod_to_openapi2 = require("@asteasolutions/zod-to-openapi");
+var import_express = require("express");
+var import_swagger_ui_express = __toESM(require("swagger-ui-express"));
+
+// server/api/health/index.ts
+var import_zod2 = require("zod");
+
+// common/s3/minio.ts
+var import_minio = require("minio");
+var minioClient = new import_minio.Client({
+  endPoint: CONFIG.S3_ENDPOINT.replace("https://", "").replace("http://", ""),
+  useSSL: true,
+  accessKey: CONFIG.S3_ACCESS_KEY_ID,
+  secretKey: CONFIG.S3_SECRET_ACCESS_KEY,
+  region: CONFIG.S3_REGION,
+  pathStyle: CONFIG.S3_FORCE_PATH_STYLE === "true"
+});
+
+// server/declarations.ts
+var import_zod = require("zod");
+var import_zod_to_openapi = require("@asteasolutions/zod-to-openapi");
+(0, import_zod_to_openapi.extendZodWithOpenApi)(import_zod.z);
+var NO_INPUT = import_zod.z.object({});
+var RouteDeclarationMetadata = class {
+  method;
+  inputParser;
+  outputParser;
+  accessConfig;
+  // @ts-expect-error T does not satisfy the constraint 'z.ZodType<any>'.
+  function;
+  constructor(args) {
+    this.method = args.method;
+    this.function = args.func;
+    this.inputParser = args.inputParser;
+    this.accessConfig = args.accessConfig;
+    this.outputParser = args.outputParser;
+  }
+};
+
+// server/api/health/index.ts
+var healthRouteDeclaration = {
+  name: "/health",
+  routes: /* @__PURE__ */ new Map()
+};
+healthRouteDeclaration.routes.set(
+  "/",
+  new RouteDeclarationMetadata({
+    method: "get" /* GET */,
+    inputParser: import_zod2.z.object({
+      ["query" /* QUERY */]: import_zod2.z.object({
+        database: import_zod2.z.preprocess((val) => {
+          if (val === "true") {
+            return true;
+          } else {
+            return false;
+          }
+        }, import_zod2.z.boolean().optional()).optional(),
+        s3: import_zod2.z.preprocess((val) => {
+          if (val === "true") {
+            return true;
+          } else {
+            return false;
+          }
+        }, import_zod2.z.boolean().optional()).optional(),
+        unified: import_zod2.z.preprocess((val) => {
+          if (val === "true") {
+            return true;
+          } else {
+            return false;
+          }
+        }, import_zod2.z.boolean().optional()).optional()
+      })
+    }),
+    func: async ({
+      context: { prisma },
+      inputData: {
+        ["query" /* QUERY */]: { database, s3, unified }
+      },
+      res
+    }) => {
+      const serverStatus = true;
+      let databaseStatus = false;
+      let s3Status = false;
+      if (database) {
+        try {
+          await await prisma.$queryRaw`SELECT 1`;
+          databaseStatus = true;
+        } catch (e) {
+          databaseStatus = false;
+        }
+      }
+      if (s3) {
+        try {
+          await minioClient.listBuckets();
+          s3Status = true;
+        } catch (e) {
+          s3Status = false;
+        }
+      }
+      let unifiedStatus = true;
+      if (database) {
+        unifiedStatus = unifiedStatus && databaseStatus;
+      }
+      if (s3) {
+        unifiedStatus = unifiedStatus && s3Status;
+      }
+      if (unified) {
+        if (unifiedStatus) {
+          res.status(200).send({
+            server: serverStatus,
+            database: database ? databaseStatus : void 0,
+            s3: s3 ? s3Status : void 0
+          });
+        } else {
+          res.status(500).send({
+            error: "One or more systems are down",
+            server: serverStatus,
+            database: database ? databaseStatus : void 0,
+            s3: s3 ? s3Status : void 0
+          });
+        }
+      } else {
+        res.status(200).send({
+          server: serverStatus,
+          database: database ? databaseStatus : void 0,
+          s3: s3 ? s3Status : void 0
+        });
+      }
+    }
+  })
+);
+
+// server/api/index.ts
+var routeList = [healthRouteDeclaration];
+
+// server/services/middleware/errorHandler.ts
+var devErrorHandler = (err, req, res, next) => {
+  err.stack = err.stack || "";
+  const status = err.status || 500;
+  const error = { message: err.message };
+  res.status(status);
+  return res.json({ status, error });
+};
+
+// server/index.ts
+var registry = new import_zod_to_openapi2.OpenAPIRegistry();
+var MAIN_API_ROUTE = "/api";
+function convertExpressRouteToOpenApiRoute(route) {
+  return route.replace(/:(\w+)/g, "{$1}");
+}
+function implementRouteDeclaration(mainRouter, commonContext, data) {
+  const router = (0, import_express.Router)();
+  for (const [route, routeData] of data.routes) {
+    const method = routeData.method;
+    registry.registerPath({
+      method,
+      path: convertExpressRouteToOpenApiRoute(
+        MAIN_API_ROUTE + data.name + route
+      ),
+      tags: [data.name],
+      security: routeData.accessConfig ? [{ bearerAuth: [] }] : void 0,
+      request: {
+        query: routeData.inputParser.pick({
+          ["query" /* QUERY */]: true
+        }).shape?.query,
+        params: routeData.inputParser.pick({
+          ["params" /* PARAMS */]: true
+        }).shape?.params,
+        headers: routeData.inputParser.pick({
+          ["headers" /* HEADERS */]: true
+        }).shape?.headers,
+        body: ["get"].includes(method) ? void 0 : {
+          content: {
+            "application/json": {
+              schema: routeData.inputParser.pick({
+                ["body" /* BODY */]: true
+              }).shape?.body
+            }
+          }
+        }
+      },
+      responses: {
+        200: {
+          description: "Successful response",
+          content: {
+            "application/json": {
+              schema: routeData.outputParser ? routeData.outputParser : {}
+            }
+          }
+        }
+      }
+    });
+    router[method](route, async (req, res, next) => {
+      const context = await commonContext.withRequest(req, res);
+      const parsedData = routeData.inputParser.safeParse({
+        ["query" /* QUERY */]: req.query,
+        ["body" /* BODY */]: req.body,
+        ["params" /* PARAMS */]: req.params,
+        ["headers" /* HEADERS */]: req.headers
+      });
+      if (!parsedData.success)
+        return res.status(400).json({ error: parsedData.error });
+      const session2 = context.session;
+      if (routeData.accessConfig) {
+        const accessResult = routeData.accessConfig({
+          context,
+          session: session2,
+          operation: method
+        });
+        if (!accessResult)
+          return res.status(403).json({ error: "Forbidden" });
+      }
+      try {
+        const returnValue = await routeData.function({
+          context,
+          inputData: parsedData.data,
+          req,
+          res
+        });
+        if (returnValue) {
+          if (routeData.outputParser) {
+            const outputData = routeData.outputParser.safeParse(returnValue);
+            if (!outputData.success)
+              return res.status(500).json({ error: outputData.error });
+            return res.json(outputData.data);
+          } else {
+            return res.json(returnValue);
+          }
+        }
+      } catch (error) {
+        next(error);
+      }
+    });
+  }
+  mainRouter.use(data.name, router);
+}
+function bootstrapExpress(app, commonContext, extraRouteList) {
+  app.use((0, import_express.json)());
+  app.use(devErrorHandler);
+  const mainRouter = (0, import_express.Router)();
+  for (const routeData of [...routeList, ...extraRouteList]) {
+    implementRouteDeclaration(mainRouter, commonContext, routeData);
+  }
+  const definitions = registry.definitions;
+  const generator = new import_zod_to_openapi2.OpenApiGeneratorV3(definitions);
+  const document = generator.generateDocument({
+    info: {
+      title: "Server API",
+      version: "1.0.0"
+    },
+    openapi: "3.0.0"
+    // add bearerAuth security definition
+  });
+  document.components["securitySchemes"] = {
+    bearerAuth: {
+      type: "http",
+      in: "header",
+      name: "Authorization",
+      description: "Bearer token to access these api endpoints",
+      scheme: "bearer",
+      bearerFormat: "JWT"
+    }
+  };
+  app.use("/api/rest", import_swagger_ui_express.default.serve, import_swagger_ui_express.default.setup(document));
+  app.use(MAIN_API_ROUTE, mainRouter);
+}
+
+// modules/auth/graphql.ts
 var import_core = require("@keystone-6/core");
 
-// server/services/auth/login.ts
+// modules/auth/services/login.ts
 var import_bcrypt = require("bcrypt");
 async function authenticateUser(args, context) {
   return validateUserViaPassword(args, context);
@@ -155,10 +438,10 @@ async function validateUserViaPassword(args, context) {
   };
 }
 
-// server/services/auth/reset_password.ts
+// modules/auth/services/reset_password.ts
 var import_bcrypt2 = require("bcrypt");
 
-// server/services/jwt/index.ts
+// common/jwt/index.ts
 var import_jsonwebtoken = __toESM(require("jsonwebtoken"));
 async function jwt_sign(data, options) {
   const token = import_jsonwebtoken.default.sign(data, CONFIG.JWT_SECRET, options);
@@ -169,7 +452,7 @@ async function jwt_verify(token) {
   return data;
 }
 
-// server/services/mail/index.ts
+// common/mail/index.ts
 var SibApiV3Sdk = __toESM(require("sib-api-v3-typescript"));
 async function sendEmailByBrevoTemplate(to, subject, templateId, params) {
   const messageId = await _sendEmailRoutine(
@@ -213,7 +496,7 @@ async function _sendEmailRoutine(options, extra) {
   return await apiInstance.sendTransacEmail(sendSmtpEmail);
 }
 
-// server/services/auth/reset_password.ts
+// modules/auth/services/reset_password.ts
 async function resetPasswordForNewUser(args, context) {
   const user = await context.prisma.user.findUnique({
     where: { email: args.email }
@@ -333,7 +616,7 @@ async function changePassword(user, passwordInput, context) {
   }
 }
 
-// graphql/extensions/auth.ts
+// modules/auth/graphql.ts
 var gqlNames = {
   ItemAuthenticationWithPasswordSuccess: "ClientItemAuthenticationWithPasswordSuccess",
   ItemAuthenticationWithPasswordFailure: "ClientItemAuthenticationWithPasswordFailure",
@@ -537,96 +820,154 @@ var clientAuthGraphqlExtension = import_core.graphql.extend((base) => {
   };
 });
 
-// graphql/extensions/test.ts
-var import_core2 = require("@keystone-6/core");
-var testGraphqlExtension = import_core2.graphql.extend((base) => {
-  return {
-    query: {
-      test: import_core2.graphql.field({
-        type: import_core2.graphql.String,
-        resolve() {
-          return "Hello world!";
-        }
-      })
-    },
-    mutation: {
-      test: import_core2.graphql.field({
-        type: import_core2.graphql.String,
-        args: {
-          email: import_core2.graphql.arg({ type: import_core2.graphql.String })
-        },
-        async resolve(source, { email }, context) {
-          const user = await context.db.User.findOne({
-            where: {
-              email
-            }
-          });
-          return `Hello ${user?.name}!`;
-        }
-      })
-    }
-  };
-});
-
-// graphql/extensions/index.ts
-function boostrapGraphqlExtensions(schema) {
-  let _schema = schema;
-  const extensionList = [testGraphqlExtension, clientAuthGraphqlExtension];
-  extensionList.forEach((extension) => {
-    _schema = extension(_schema);
-  });
-  return _schema;
-}
-
-// imageConfig.ts
-var s3ImageStorageConfig = {
-  kind: "s3",
-  type: "image",
-  bucketName: CONFIG.S3_BUCKET_NAME,
-  region: CONFIG.S3_REGION,
-  accessKeyId: CONFIG.S3_ACCESS_KEY_ID,
-  secretAccessKey: CONFIG.S3_SECRET_ACCESS_KEY,
-  signed: { expiry: 5e3 },
-  endpoint: CONFIG.S3_ENDPOINT,
-  forcePathStyle: CONFIG.S3_FORCE_PATH_STYLE === "true"
-};
-var s3ImageConfigKey = "my_S3_images";
-var imageConfig_default = s3ImageStorageConfig;
-
-// schema/PostData.ts
-var import_core3 = require("@keystone-6/core");
-var import_access = require("@keystone-6/core/access");
-var import_fields = require("@keystone-6/core/fields");
-var postDataList = {
-  Post: (0, import_core3.list)({
-    fields: {
-      title: (0, import_fields.text)({ validation: { isRequired: true } }),
-      content: (0, import_fields.text)({ validation: { isRequired: true } }),
-      tags: (0, import_fields.relationship)({ ref: "PostTag.posts", many: true }),
-      coverImage: (0, import_fields.image)({
-        storage: s3ImageConfigKey
-      }),
-      author: (0, import_fields.relationship)({ ref: "User.posts", many: false })
-    },
-    access: import_access.allowAll
-  }),
-  PostTag: (0, import_core3.list)({
-    fields: {
-      name: (0, import_fields.text)({ validation: { isRequired: true } }),
-      posts: (0, import_fields.relationship)({ ref: "Post.tags", many: true })
-    },
-    access: import_access.allowAll
-  })
-};
-
-// schema/UserData.ts
-var import_core4 = require("@keystone-6/core");
-var import_access2 = require("@keystone-6/core/access");
-var import_fields2 = require("@keystone-6/core/fields");
-var import_zod = require("zod");
+// modules/auth/rest-api/index.ts
+var import_zod3 = require("zod");
 
 // graphql/operations.ts
 var LoginDocument = { "kind": "Document", "definitions": [{ "kind": "OperationDefinition", "operation": "mutation", "name": { "kind": "Name", "value": "Login" }, "variableDefinitions": [{ "kind": "VariableDefinition", "variable": { "kind": "Variable", "name": { "kind": "Name", "value": "email" } }, "type": { "kind": "NonNullType", "type": { "kind": "NamedType", "name": { "kind": "Name", "value": "String" } } } }, { "kind": "VariableDefinition", "variable": { "kind": "Variable", "name": { "kind": "Name", "value": "password" } }, "type": { "kind": "NonNullType", "type": { "kind": "NamedType", "name": { "kind": "Name", "value": "String" } } } }], "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "authenticateUserWithPassword" }, "arguments": [{ "kind": "Argument", "name": { "kind": "Name", "value": "email" }, "value": { "kind": "Variable", "name": { "kind": "Name", "value": "email" } } }, { "kind": "Argument", "name": { "kind": "Name", "value": "adminPassword" }, "value": { "kind": "Variable", "name": { "kind": "Name", "value": "password" } } }], "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "__typename" } }, { "kind": "InlineFragment", "typeCondition": { "kind": "NamedType", "name": { "kind": "Name", "value": "UserAuthenticationWithPasswordSuccess" } }, "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "sessionToken" } }] } }] } }] } }] };
+
+// server/services/access/serverAccessConfig.ts
+var serverAccessConfig = (generatorArgs) => {
+  const globalMiddleware = (operation) => {
+    if (!operation.session) {
+      throw new Error("Not Authenticated");
+    }
+    if (!operation.context.session?.itemId) {
+      throw new Error("Not Authenticated");
+    }
+    const superAccessRoles = [
+      ...generatorArgs.superAccess || [],
+      "dev" /* Dev */
+    ];
+    if (superAccessRoles.includes(operation.session.data.role)) {
+      return true;
+    }
+    return false;
+  };
+  return (operation) => {
+    let isAllowed = false;
+    isAllowed = isAllowed || globalMiddleware(operation);
+    for (const condition of generatorArgs.conditions || []) {
+      if (isAllowed) {
+        isAllowed = isAllowed || condition(operation);
+      }
+      if (!isAllowed) {
+        break;
+      }
+    }
+    return isAllowed;
+  };
+};
+var hasRole = (args) => (operation) => {
+  console.log(operation.session?.data?.role);
+  return args.roles.includes(operation.session?.data?.role ?? "xxnorolexx");
+};
+
+// modules/auth/rest-api/index.ts
+var authRouteDeclaration = {
+  name: "/auth",
+  routes: /* @__PURE__ */ new Map()
+};
+authRouteDeclaration.routes.set(
+  "/signin",
+  new RouteDeclarationMetadata({
+    method: "post" /* POST */,
+    inputParser: import_zod3.z.object({
+      ["body" /* BODY */]: import_zod3.z.object({
+        username: import_zod3.z.string(),
+        password: import_zod3.z.string()
+      })
+    }),
+    func: async ({
+      context: { graphql: graphql4 },
+      inputData: {
+        ["body" /* BODY */]: { username, password: password2 }
+      },
+      res
+    }) => {
+      const request = await graphql4.run({
+        query: LoginDocument,
+        variables: {
+          email: username,
+          password: password2
+        }
+      });
+      if (request.authenticateUserWithPassword?.__typename == "UserAuthenticationWithPasswordSuccess") {
+        return {
+          token: request.authenticateUserWithPassword.sessionToken
+        };
+      } else {
+        res.status(401).json({
+          error: "Invalid credentials"
+        });
+        return;
+      }
+    }
+  })
+);
+authRouteDeclaration.routes.set(
+  "/test/:id/:id2",
+  new RouteDeclarationMetadata({
+    method: "get" /* GET */,
+    accessConfig: serverAccessConfig({
+      conditions: [hasRole({ roles: [PERMISSION_ENUM.ADMIN] })]
+    }),
+    inputParser: import_zod3.z.object({
+      ["params" /* PARAMS */]: import_zod3.z.object({
+        id: import_zod3.z.preprocess((val) => parseInt(val), import_zod3.z.number()),
+        id2: import_zod3.z.preprocess((val) => parseInt(val), import_zod3.z.number())
+      }),
+      ["query" /* QUERY */]: import_zod3.z.object({
+        name: import_zod3.z.string()
+      }),
+      ["headers" /* HEADERS */]: import_zod3.z.object({
+        whoosh: import_zod3.z.string().default("whoosh")
+      })
+    }),
+    func: async ({ inputData, res }) => {
+      return inputData;
+    }
+  })
+);
+authRouteDeclaration.routes.set(
+  "/profile_picture",
+  new RouteDeclarationMetadata({
+    method: "get" /* GET */,
+    accessConfig: serverAccessConfig({}),
+    inputParser: NO_INPUT,
+    func: async ({ context: { session: session2, prisma, images }, res }) => {
+      const user = await prisma.user.findUnique({
+        where: {
+          id: session2?.data?.id
+        }
+      });
+      if (!user) {
+        return res.status(404).json({
+          error: "User not found"
+        });
+      }
+      if (!user.avatar_id || !user.avatar_extension) {
+        return res.status(404).json({
+          error: "Profile picture not found"
+        });
+      }
+      const image3 = await images(s3ImageConfigKey).getUrl(
+        user.avatar_id,
+        user.avatar_extension
+      );
+      return {
+        session: session2,
+        image: image3
+      };
+    }
+  })
+);
+
+// modules/auth/schema.ts
+var import_core2 = require("@keystone-6/core");
+var import_access = require("@keystone-6/core/access");
+var import_fields = require("@keystone-6/core/fields");
+var import_zod4 = require("zod");
 
 // utils/functions/deepMerge.ts
 var deepMerge = (objects) => {
@@ -749,7 +1090,7 @@ var accessConfig = (generatorArgs) => {
 };
 
 // common/access/definitions/templates.ts
-var hasRole = (args) => (operation) => {
+var hasRole2 = (args) => (operation) => {
   return args.roles.includes(operation.session?.data?.role);
 };
 var isOwner = (args) => (operation) => {
@@ -777,21 +1118,21 @@ var checkRole = (role, allowedRoles) => {
   return allowedRoles.includes(role);
 };
 
-// schema/UserData.ts
+// modules/auth/schema.ts
 var userDataList = {
-  User: (0, import_core4.list)({
+  User: (0, import_core2.list)({
     fields: {
-      name: (0, import_fields2.text)({ validation: { isRequired: true } }),
-      lastName: (0, import_fields2.text)(),
-      displayName: (0, import_fields2.virtual)({
-        field: import_core4.graphql.field({
-          type: import_core4.graphql.String,
+      name: (0, import_fields.text)({ validation: { isRequired: true } }),
+      lastName: (0, import_fields.text)(),
+      displayName: (0, import_fields.virtual)({
+        field: import_core2.graphql.field({
+          type: import_core2.graphql.String,
           async resolve(item, {}, context) {
             return `${item.name} ${item.lastName}`.trim();
           }
         })
       }),
-      email: (0, import_fields2.text)({
+      email: (0, import_fields.text)({
         validation: { isRequired: true },
         isIndexed: "unique"
         // hooks: {
@@ -803,7 +1144,7 @@ var userDataList = {
         //   },
         // },
       }),
-      adminPassword: (0, import_fields2.password)({
+      adminPassword: (0, import_fields.password)({
         validation: { isRequired: false },
         hooks: {
           validateInput: async ({
@@ -826,15 +1167,15 @@ var userDataList = {
           }
         }
       }),
-      localAuth: (0, import_fields2.relationship)({
+      localAuth: (0, import_fields.relationship)({
         ref: "UserLocalAuth.user",
         many: false,
-        access: import_access2.denyAll
+        access: import_access.denyAll
       }),
-      avatar: (0, import_fields2.image)({
+      avatar: (0, import_fields.image)({
         storage: s3ImageConfigKey
       }),
-      role: (0, import_fields2.select)({
+      role: (0, import_fields.select)({
         type: "enum",
         options: [
           { label: "Dev", value: PERMISSION_ENUM.DEV },
@@ -870,15 +1211,15 @@ var userDataList = {
           }
         }
       }),
-      groups: (0, import_fields2.relationship)({
+      groups: (0, import_fields.relationship)({
         ref: "Group.members",
         many: true
       }),
-      posts: (0, import_fields2.relationship)({
+      posts: (0, import_fields.relationship)({
         ref: "Post.author",
         many: true
       }),
-      createdAt: (0, import_fields2.timestamp)({
+      createdAt: (0, import_fields.timestamp)({
         defaultValue: { kind: "now" }
       })
     },
@@ -887,13 +1228,13 @@ var userDataList = {
       // superAccess: [PERMISSION_ENUM.ADMIN],
       operations: {
         read: allow,
-        write: hasRole({ roles: [PERMISSION_ENUM.ADMIN] }),
+        write: hasRole2({ roles: [PERMISSION_ENUM.ADMIN] }),
         update: allow
       },
       filter: {
         read: allow,
         write: sequential([
-          hasRole({ roles: [PERMISSION_ENUM.ADMIN] }),
+          hasRole2({ roles: [PERMISSION_ENUM.ADMIN] }),
           isOwner()
         ])
       }
@@ -919,11 +1260,14 @@ var userDataList = {
         if (operation === "create") {
           if (!item.role)
             return;
-          const check = import_zod.z.string().email().safeParse(item.email);
+          const check = import_zod4.z.string().email().safeParse(item.email);
           if (!check.success) {
             return;
           }
           if (checkRole(item.role, [PERMISSION_ENUM.DEV])) {
+            return;
+          }
+          if (item.localAuthId) {
             return;
           }
           await resetPasswordForNewUser(
@@ -937,26 +1281,26 @@ var userDataList = {
       }
     }
   }),
-  UserLocalAuth: (0, import_core4.list)({
+  UserLocalAuth: (0, import_core2.list)({
     fields: {
-      password: (0, import_fields2.text)(),
-      twoFaEmail: (0, import_fields2.text)(),
-      twoFaEmailSecret: (0, import_fields2.text)(),
-      twoFaEmailLastSent: (0, import_fields2.timestamp)(),
-      user: (0, import_fields2.relationship)({
+      password: (0, import_fields.text)(),
+      twoFaEmail: (0, import_fields.text)(),
+      twoFaEmailSecret: (0, import_fields.text)(),
+      twoFaEmailLastSent: (0, import_fields.timestamp)(),
+      user: (0, import_fields.relationship)({
         ref: "User.localAuth",
         many: false
       })
     },
-    access: import_access2.denyAll,
+    access: import_access.denyAll,
     graphql: {
       omit: true
     }
   }),
-  Group: (0, import_core4.list)({
+  Group: (0, import_core2.list)({
     fields: {
-      name: (0, import_fields2.text)({ validation: { isRequired: true } }),
-      members: (0, import_fields2.relationship)({
+      name: (0, import_fields.text)({ validation: { isRequired: true } }),
+      members: (0, import_fields.relationship)({
         ref: "User.groups",
         many: true
       })
@@ -973,427 +1317,127 @@ var userDataList = {
   })
 };
 
-// schema/schema.ts
-var lists = {
-  ...userDataList,
-  ...postDataList
+// modules/auth/index.ts
+var authDefinition = {
+  schema: [userDataList],
+  graphqlExtensions: [clientAuthGraphqlExtension],
+  restExtensions: [authRouteDeclaration]
 };
 
-// server/index.ts
-var import_zod_to_openapi3 = require("@asteasolutions/zod-to-openapi");
-var import_express = require("express");
-var import_swagger_ui_express = __toESM(require("swagger-ui-express"));
-
-// server/api/index.ts
-var import_zod_to_openapi2 = require("@asteasolutions/zod-to-openapi");
-var import_zod5 = require("zod");
-
-// server/api/auth/index.ts
-var import_zod3 = require("zod");
-
-// server/declarations.ts
-var import_zod2 = require("zod");
-var import_zod_to_openapi = require("@asteasolutions/zod-to-openapi");
-(0, import_zod_to_openapi.extendZodWithOpenApi)(import_zod2.z);
-var NO_INPUT = import_zod2.z.object({});
-var RouteDeclarationMetadata = class {
-  method;
-  inputParser;
-  outputParser;
-  accessConfig;
-  // @ts-expect-error T does not satisfy the constraint 'z.ZodType<any>'.
-  function;
-  constructor(args) {
-    this.method = args.method;
-    this.function = args.func;
-    this.inputParser = args.inputParser;
-    this.accessConfig = args.accessConfig;
-    this.outputParser = args.outputParser;
-  }
-};
-
-// server/services/access/serverAccessConfig.ts
-var serverAccessConfig = (generatorArgs) => {
-  const globalMiddleware = (operation) => {
-    if (!operation.session) {
-      throw new Error("Not Authenticated");
-    }
-    if (!operation.context.session?.itemId) {
-      throw new Error("Not Authenticated");
-    }
-    const superAccessRoles = [
-      ...generatorArgs.superAccess || [],
-      "dev" /* Dev */
-    ];
-    if (superAccessRoles.includes(operation.session.data.role)) {
-      return true;
-    }
-    return false;
-  };
-  return (operation) => {
-    let isAllowed = false;
-    isAllowed = isAllowed || globalMiddleware(operation);
-    for (const condition of generatorArgs.conditions || []) {
-      if (isAllowed) {
-        isAllowed = isAllowed || condition(operation);
-      }
-      if (!isAllowed) {
-        break;
-      }
-    }
-    return isAllowed;
-  };
-};
-var hasRole2 = (args) => (operation) => {
-  console.log(operation.session?.data?.role);
-  return args.roles.includes(operation.session?.data?.role ?? "xxnorolexx");
-};
-
-// server/api/auth/index.ts
-var authRouteDeclaration = {
-  name: "/auth",
-  routes: /* @__PURE__ */ new Map()
-};
-authRouteDeclaration.routes.set(
-  "/signin",
-  new RouteDeclarationMetadata({
-    method: "post" /* POST */,
-    inputParser: import_zod3.z.object({
-      ["body" /* BODY */]: import_zod3.z.object({
-        username: import_zod3.z.string(),
-        password: import_zod3.z.string()
-      })
-    }),
-    func: async ({
-      context: { graphql: graphql4 },
-      inputData: {
-        ["body" /* BODY */]: { username, password: password2 }
-      },
-      res
-    }) => {
-      const request = await graphql4.run({
-        query: LoginDocument,
-        variables: {
-          email: username,
-          password: password2
-        }
-      });
-      if (request.authenticateUserWithPassword?.__typename == "UserAuthenticationWithPasswordSuccess") {
-        return {
-          token: request.authenticateUserWithPassword.sessionToken
-        };
-      } else {
-        res.status(401).json({
-          error: "Invalid credentials"
-        });
-        return;
-      }
-    }
-  })
-);
-authRouteDeclaration.routes.set(
-  "/test/:id/:id2",
-  new RouteDeclarationMetadata({
-    method: "get" /* GET */,
-    accessConfig: serverAccessConfig({
-      conditions: [hasRole2({ roles: [PERMISSION_ENUM.ADMIN] })]
-    }),
-    inputParser: import_zod3.z.object({
-      ["params" /* PARAMS */]: import_zod3.z.object({
-        id: import_zod3.z.preprocess((val) => parseInt(val), import_zod3.z.number()),
-        id2: import_zod3.z.preprocess((val) => parseInt(val), import_zod3.z.number())
+// modules/posts/schema.ts
+var import_core3 = require("@keystone-6/core");
+var import_access3 = require("@keystone-6/core/access");
+var import_fields2 = require("@keystone-6/core/fields");
+var postDataList = {
+  Post: (0, import_core3.list)({
+    fields: {
+      title: (0, import_fields2.text)({ validation: { isRequired: true } }),
+      content: (0, import_fields2.text)({ validation: { isRequired: true } }),
+      tags: (0, import_fields2.relationship)({ ref: "PostTag.posts", many: true }),
+      coverImage: (0, import_fields2.image)({
+        storage: s3ImageConfigKey
       }),
-      ["query" /* QUERY */]: import_zod3.z.object({
-        name: import_zod3.z.string()
-      }),
-      ["headers" /* HEADERS */]: import_zod3.z.object({
-        whoosh: import_zod3.z.string().default("whoosh")
-      })
-    }),
-    func: async ({ inputData, res }) => {
-      return inputData;
-    }
-  })
-);
-authRouteDeclaration.routes.set(
-  "/profile_picture",
-  new RouteDeclarationMetadata({
-    method: "get" /* GET */,
-    accessConfig: serverAccessConfig({}),
-    inputParser: NO_INPUT,
-    func: async ({ context: { session: session2, prisma, images }, res }) => {
-      const user = await prisma.user.findUnique({
-        where: {
-          id: session2?.data?.id
-        }
-      });
-      if (!user) {
-        return res.status(404).json({
-          error: "User not found"
-        });
-      }
-      if (!user.avatar_id || !user.avatar_extension) {
-        return res.status(404).json({
-          error: "Profile picture not found"
-        });
-      }
-      const image3 = await images(s3ImageConfigKey).getUrl(
-        user.avatar_id,
-        user.avatar_extension
-      );
-      return {
-        session: session2,
-        image: image3
-      };
-    }
-  })
-);
-
-// server/api/health/index.ts
-var import_zod4 = require("zod");
-
-// server/services/s3/minio.ts
-var import_minio = require("minio");
-var minioClient = new import_minio.Client({
-  endPoint: CONFIG.S3_ENDPOINT.replace("https://", "").replace("http://", ""),
-  useSSL: true,
-  accessKey: CONFIG.S3_ACCESS_KEY_ID,
-  secretKey: CONFIG.S3_SECRET_ACCESS_KEY,
-  region: CONFIG.S3_REGION,
-  pathStyle: CONFIG.S3_FORCE_PATH_STYLE === "true"
-});
-
-// server/api/health/index.ts
-var healthRouteDeclaration = {
-  name: "/health",
-  routes: /* @__PURE__ */ new Map()
-};
-healthRouteDeclaration.routes.set(
-  "/",
-  new RouteDeclarationMetadata({
-    method: "get" /* GET */,
-    inputParser: import_zod4.z.object({
-      ["query" /* QUERY */]: import_zod4.z.object({
-        database: import_zod4.z.preprocess((val) => {
-          if (val === "true") {
-            return true;
-          } else {
-            return false;
-          }
-        }, import_zod4.z.boolean().optional()).optional(),
-        s3: import_zod4.z.preprocess((val) => {
-          if (val === "true") {
-            return true;
-          } else {
-            return false;
-          }
-        }, import_zod4.z.boolean().optional()).optional(),
-        unified: import_zod4.z.preprocess((val) => {
-          if (val === "true") {
-            return true;
-          } else {
-            return false;
-          }
-        }, import_zod4.z.boolean().optional()).optional()
-      })
-    }),
-    func: async ({
-      context: { prisma },
-      inputData: {
-        ["query" /* QUERY */]: { database, s3, unified }
-      },
-      res
-    }) => {
-      const serverStatus = true;
-      let databaseStatus = false;
-      let s3Status = false;
-      if (database) {
-        try {
-          await await prisma.$queryRaw`SELECT 1`;
-          databaseStatus = true;
-        } catch (e) {
-          databaseStatus = false;
-        }
-      }
-      if (s3) {
-        try {
-          await minioClient.listBuckets();
-          s3Status = true;
-        } catch (e) {
-          s3Status = false;
-        }
-      }
-      let unifiedStatus = true;
-      if (database) {
-        unifiedStatus = unifiedStatus && databaseStatus;
-      }
-      if (s3) {
-        unifiedStatus = unifiedStatus && s3Status;
-      }
-      if (unified) {
-        if (unifiedStatus) {
-          res.status(200).send({
-            server: serverStatus,
-            database: database ? databaseStatus : void 0,
-            s3: s3 ? s3Status : void 0
-          });
-        } else {
-          res.status(500).send({
-            error: "One or more systems are down",
-            server: serverStatus,
-            database: database ? databaseStatus : void 0,
-            s3: s3 ? s3Status : void 0
-          });
-        }
-      } else {
-        res.status(200).send({
-          server: serverStatus,
-          database: database ? databaseStatus : void 0,
-          s3: s3 ? s3Status : void 0
-        });
-      }
-    }
-  })
-);
-
-// server/api/index.ts
-(0, import_zod_to_openapi2.extendZodWithOpenApi)(import_zod5.z);
-var routeList = [authRouteDeclaration, healthRouteDeclaration];
-
-// server/services/middleware/errorHandler.ts
-var devErrorHandler = (err, req, res, next) => {
-  err.stack = err.stack || "";
-  const status = err.status || 500;
-  const error = { message: err.message };
-  res.status(status);
-  return res.json({ status, error });
-};
-
-// server/index.ts
-var registry = new import_zod_to_openapi3.OpenAPIRegistry();
-var MAIN_API_ROUTE = "/api";
-function convertExpressRouteToOpenApiRoute(route) {
-  return route.replace(/:(\w+)/g, "{$1}");
-}
-function implementRouteDeclaration(mainRouter, commonContext, data) {
-  const router = (0, import_express.Router)();
-  for (const [route, routeData] of data.routes) {
-    const method = routeData.method;
-    registry.registerPath({
-      method,
-      path: convertExpressRouteToOpenApiRoute(
-        MAIN_API_ROUTE + data.name + route
-      ),
-      tags: [data.name],
-      security: routeData.accessConfig ? [{ bearerAuth: [] }] : void 0,
-      request: {
-        query: routeData.inputParser.pick({
-          ["query" /* QUERY */]: true
-        }).shape?.query,
-        params: routeData.inputParser.pick({
-          ["params" /* PARAMS */]: true
-        }).shape?.params,
-        headers: routeData.inputParser.pick({
-          ["headers" /* HEADERS */]: true
-        }).shape?.headers,
-        body: ["get"].includes(method) ? void 0 : {
-          content: {
-            "application/json": {
-              schema: routeData.inputParser.pick({
-                ["body" /* BODY */]: true
-              }).shape?.body
-            }
-          }
-        }
-      },
-      responses: {
-        200: {
-          description: "Successful response",
-          content: {
-            "application/json": {
-              schema: routeData.outputParser ? routeData.outputParser : {}
-            }
-          }
-        }
-      }
-    });
-    router[method](route, async (req, res, next) => {
-      const context = await commonContext.withRequest(req, res);
-      const parsedData = routeData.inputParser.safeParse({
-        ["query" /* QUERY */]: req.query,
-        ["body" /* BODY */]: req.body,
-        ["params" /* PARAMS */]: req.params,
-        ["headers" /* HEADERS */]: req.headers
-      });
-      if (!parsedData.success)
-        return res.status(400).json({ error: parsedData.error });
-      const session2 = context.session;
-      if (routeData.accessConfig) {
-        const accessResult = routeData.accessConfig({
-          context,
-          session: session2,
-          operation: method
-        });
-        if (!accessResult)
-          return res.status(403).json({ error: "Forbidden" });
-      }
-      try {
-        const returnValue = await routeData.function({
-          context,
-          inputData: parsedData.data,
-          req,
-          res
-        });
-        if (returnValue) {
-          if (routeData.outputParser) {
-            const outputData = routeData.outputParser.safeParse(returnValue);
-            if (!outputData.success)
-              return res.status(500).json({ error: outputData.error });
-            return res.json(outputData.data);
-          } else {
-            return res.json(returnValue);
-          }
-        }
-      } catch (error) {
-        next(error);
-      }
-    });
-  }
-  mainRouter.use(data.name, router);
-}
-function bootstrapExpress(app, commonContext) {
-  app.use((0, import_express.json)());
-  app.use(devErrorHandler);
-  const mainRouter = (0, import_express.Router)();
-  for (const routeData of routeList) {
-    implementRouteDeclaration(mainRouter, commonContext, routeData);
-  }
-  const definitions = registry.definitions;
-  const generator = new import_zod_to_openapi3.OpenApiGeneratorV3(definitions);
-  const document = generator.generateDocument({
-    info: {
-      title: "Server API",
-      version: "1.0.0"
+      author: (0, import_fields2.relationship)({ ref: "User.posts", many: false })
     },
-    openapi: "3.0.0"
-    // add bearerAuth security definition
-  });
-  document.components["securitySchemes"] = {
-    bearerAuth: {
-      type: "http",
-      in: "header",
-      name: "Authorization",
-      description: "Bearer token to access these api endpoints",
-      scheme: "bearer",
-      bearerFormat: "JWT"
+    access: import_access3.allowAll
+  }),
+  PostTag: (0, import_core3.list)({
+    fields: {
+      name: (0, import_fields2.text)({ validation: { isRequired: true } }),
+      posts: (0, import_fields2.relationship)({ ref: "Post.tags", many: true })
+    },
+    access: import_access3.allowAll
+  })
+};
+
+// modules/posts/index.ts
+var postDefiniton = {
+  schema: [postDataList],
+  graphqlExtensions: [],
+  restExtensions: []
+};
+
+// modules/test/index.ts
+var import_core4 = require("@keystone-6/core");
+var testDefinition = {
+  schema: [],
+  graphqlExtensions: [
+    import_core4.graphql.extend((base) => {
+      return {
+        query: {
+          test: import_core4.graphql.field({
+            type: import_core4.graphql.String,
+            resolve() {
+              return "Hello world!";
+            }
+          })
+        },
+        mutation: {
+          test: import_core4.graphql.field({
+            type: import_core4.graphql.String,
+            args: {
+              email: import_core4.graphql.arg({ type: import_core4.graphql.String })
+            },
+            async resolve(source, { email }, context) {
+              const user = await context.db.User.findOne({
+                where: {
+                  email
+                }
+              });
+              return `Hello ${user?.name}!`;
+            }
+          })
+        }
+      };
+    })
+  ],
+  restExtensions: []
+};
+
+// modules/index.ts
+var modules = [
+  testDefinition,
+  authDefinition,
+  postDefiniton
+];
+function injectModules(config3) {
+  for (const module2 of modules) {
+    for (const schema of module2.schema) {
+      config3.lists = { ...config3.lists, ...schema };
     }
+  }
+  const allExtensions = modules.reduce(
+    (acc, module2) => [...acc, ...module2.graphqlExtensions],
+    []
+  );
+  const existingExtendGraphqlSchema = config3.extendGraphqlSchema;
+  config3.extendGraphqlSchema = (schema) => {
+    let _schema = schema;
+    const extensionList = allExtensions;
+    if (existingExtendGraphqlSchema) {
+      _schema = existingExtendGraphqlSchema(_schema);
+    }
+    extensionList.forEach((extension) => {
+      _schema = extension(_schema);
+    });
+    return _schema;
   };
-  app.use("/api/rest", import_swagger_ui_express.default.serve, import_swagger_ui_express.default.setup(document));
-  app.use(MAIN_API_ROUTE, mainRouter);
+  const allRestExtensions = modules.reduce(
+    (acc, module2) => [...acc, ...module2.restExtensions],
+    []
+  );
+  if (!config3.server?.extendExpressApp) {
+    config3.server = { ...config3.server, extendExpressApp: () => {
+    } };
+  }
+  config3.server.extendExpressApp = (app, context) => {
+    bootstrapExpress(app, context, allRestExtensions);
+  };
+  return config3;
 }
 
 // keystone.ts
-(0, import_zod_to_openapi4.extendZodWithOpenApi)(import_zod6.z);
+(0, import_zod_to_openapi3.extendZodWithOpenApi)(import_zod5.z);
 var MEM_CACHE = class {
   cache = /* @__PURE__ */ new Map();
   async set(key, value) {
@@ -1421,9 +1465,9 @@ var MEM_CACHE = class {
   };
 };
 var MEM_CACHE_INSTANCE = new MEM_CACHE();
-var keystoneConfig = (0, import_core5.config)({
+var configDef = injectModules({
   db: dbConfig_default,
-  lists,
+  lists: {},
   session,
   graphql: {
     playground: CONFIG.GRAPHQL_INSTROSPECTION === "true",
@@ -1446,15 +1490,13 @@ var keystoneConfig = (0, import_core5.config)({
   server: {
     cors: {
       origin: CONFIG.SERVER_CORS_URL.split(",")
-      // secure: true,
-    },
-    extendExpressApp: bootstrapExpress
+    }
   },
-  extendGraphqlSchema: boostrapGraphqlExtensions,
   storage: {
     [s3FilesConfigKey]: fileConfig_default,
     [s3ImageConfigKey]: imageConfig_default
   }
 });
+var keystoneConfig = (0, import_core5.config)(configDef);
 var keystone_default = withAuth(keystoneConfig);
 //# sourceMappingURL=config.js.map

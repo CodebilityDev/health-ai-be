@@ -1,5 +1,5 @@
 import * as SibApiV3Sdk from "sib-api-v3-typescript";
-import { CONFIG } from "../../../utils/config/env";
+import { CONFIG } from "../../utils/config/env";
 
 async function _sendBatchEmailTemplateRoutine(
   options: {

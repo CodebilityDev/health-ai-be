@@ -1,5 +1,5 @@
 import jwt, { SignOptions } from "jsonwebtoken";
-import { CONFIG } from "../../../utils/config/env";
+import { CONFIG } from "../../utils/config/env";
 
 export async function jwt_sign(
   data: Record<string, any>,

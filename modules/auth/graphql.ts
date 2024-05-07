@@ -1,14 +1,13 @@
 import { graphql } from "@keystone-6/core";
 import { BaseItem } from "@keystone-6/core/types";
 import { GlobalContext } from "../../common/types";
-import { authenticateUser } from "../../server/services/auth/login";
+import { authenticateUser } from "./services/login";
 import {
   changePassword,
   requestResetPassword,
   resetPassword,
   resetPasswordForNewUser,
-} from "../../server/services/auth/reset_password";
-
+} from "./services/reset_password";
 const gqlNames = {
   ItemAuthenticationWithPasswordSuccess:
     "ClientItemAuthenticationWithPasswordSuccess",

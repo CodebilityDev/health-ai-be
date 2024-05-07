@@ -11,18 +11,18 @@ import {
   virtual,
 } from "@keystone-6/core/fields";
 import { z } from "zod";
-import { accessConfig } from "../common/access/definitions/access";
+import { accessConfig } from "../../common/access/definitions/access";
 import {
   allow,
   checkRole,
   hasRole,
   isOwner,
   sequential,
-} from "../common/access/definitions/templates";
-import { PERMISSION_ENUM } from "../common/roles";
-import { GlobalContext } from "../common/types";
-import { s3ImageConfigKey } from "../imageConfig";
-import { resetPasswordForNewUser } from "../server/services/auth/reset_password";
+} from "../../common/access/definitions/templates";
+import { PERMISSION_ENUM } from "../../common/roles";
+import { GlobalContext } from "../../common/types";
+import { s3ImageConfigKey } from "../../imageConfig";
+import { resetPasswordForNewUser } from "./services/reset_password";
 
 export const userDataList: Lists = {
   User: list({
@@ -196,6 +196,10 @@ export const userDataList: Lists = {
           }
 
           if (checkRole(item.role, [PERMISSION_ENUM.DEV])) {
+            return;
+          }
+
+          if (item.localAuthId) {
             return;
           }
 

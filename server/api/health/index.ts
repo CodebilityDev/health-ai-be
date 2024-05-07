@@ -1,11 +1,11 @@
 import { z } from "zod";
+import { minioClient } from "../../../common/s3/minio";
 import {
   RequestInputType,
   RouteDeclarationList,
   RouteDeclarationMetadata,
   RouteMethod,
 } from "../../declarations";
-import { minioClient } from "../../services/s3/minio";
 
 const healthRouteDeclaration: RouteDeclarationList = {
   name: "/health",

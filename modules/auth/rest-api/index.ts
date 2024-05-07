@@ -9,11 +9,11 @@ import {
   RouteDeclarationList,
   RouteDeclarationMetadata,
   RouteMethod,
-} from "../../declarations";
+} from "../../../server/declarations";
 import {
   hasRole,
   serverAccessConfig,
-} from "../../services/access/serverAccessConfig";
+} from "../../../server/services/access/serverAccessConfig";
 
 const authRouteDeclaration: RouteDeclarationList = {
   name: "/auth",

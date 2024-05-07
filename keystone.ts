@@ -9,10 +9,8 @@ import { session, withAuth } from "./auth";
 import { GlobalTypeInfo } from "./common/types";
 import dbConfig from "./dbConfig";
 import s3FilesStorageConfig, { s3FilesConfigKey } from "./fileConfig";
-import { boostrapGraphqlExtensions } from "./graphql/extensions";
 import s3ImageStorageConfig, { s3ImageConfigKey } from "./imageConfig";
-import { lists } from "./schema/schema";
-import bootstrapExpress from "./server";
+import { injectModules } from "./modules";
 import { CONFIG } from "./utils/config/env";
 
 class MEM_CACHE {
@@ -53,9 +51,9 @@ class MEM_CACHE {
 
 const MEM_CACHE_INSTANCE = new MEM_CACHE();
 
-const keystoneConfig = config<GlobalTypeInfo>({
+const configDef = injectModules({
   db: dbConfig,
-  lists,
+  lists: {},
   session,
   graphql: {
     playground: CONFIG.GRAPHQL_INSTROSPECTION === "true",
@@ -79,15 +77,14 @@ const keystoneConfig = config<GlobalTypeInfo>({
   server: {
     cors: {
       origin: CONFIG.SERVER_CORS_URL.split(","),
-      // secure: true,
     },
-    extendExpressApp: bootstrapExpress,
   },
-  extendGraphqlSchema: boostrapGraphqlExtensions,
   storage: {
     [s3FilesConfigKey]: s3FilesStorageConfig,
     [s3ImageConfigKey]: s3ImageStorageConfig,
   },
 });
+
+const keystoneConfig = config<GlobalTypeInfo>(configDef);
 
 export default withAuth(keystoneConfig);

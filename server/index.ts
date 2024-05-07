@@ -122,12 +122,13 @@ function implementRouteDeclaration(
 export default function bootstrapExpress(
   app: Express,
   commonContext: GlobalContext,
+  extraRouteList: RouteDeclarationList[],
 ) {
   app.use(json());
   app.use(devErrorHandler);
   const mainRouter = Router();
 
-  for (const routeData of routeList) {
+  for (const routeData of [...routeList, ...extraRouteList]) {
     implementRouteDeclaration(mainRouter, commonContext, routeData);
   }
 
