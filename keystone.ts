@@ -76,7 +76,9 @@ const configDef = injectModules({
   },
   server: {
     cors: {
-      origin: CONFIG.SERVER_CORS_URL.split(","),
+      origin: CONFIG.SERVER_CORS_URL.includes("*")
+        ? true
+        : CONFIG.SERVER_CORS_URL.split(","),
     },
   },
   storage: {

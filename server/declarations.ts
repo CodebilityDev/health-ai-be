@@ -4,6 +4,7 @@ import { z } from "zod";
 import { AuthedSession, GlobalContext, GlobalTypeInfo } from "../common/types";
 
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
+import { Server, Socket } from "socket.io";
 import { ServerAccessFunction } from "./services/access/serverAccessConfig";
 
 extendZodWithOpenApi(z);
@@ -62,7 +63,24 @@ export class RouteDeclarationMetadata<T = any, U = any> {
   }
 }
 
+export type SocketFunction = (args: {
+  context: GlobalContext;
+  socket: Socket;
+  server: Server;
+  namespaceContext: Record<string, any>;
+  args: {
+    args1: any;
+    args2: any;
+    callback: any;
+  };
+}) => any;
+
 export type RouteDeclarationList = {
   name: string;
   routes: Map<string, RouteDeclarationMetadata>;
+};
+
+export type SocketDeclarationList = {
+  name: string;
+  socket: Map<string, Map<string, SocketFunction>>;
 };

@@ -1,7 +1,7 @@
 import { KeystoneConfig } from "@keystone-6/core/types";
 import type { GraphQLSchema } from "graphql/type/schema";
 import { GlobalTypeInfo } from "../common/types";
-import bootstrapExpress from "../server";
+import { bootstrapExpress, bootstrapHttp } from "../server";
 import { authDefinition } from "./auth";
 import { ModuleDefinition } from "./definition";
 import { postDefiniton } from "./posts";
@@ -50,11 +50,32 @@ export function injectModules(config: KeystoneConfig<GlobalTypeInfo>) {
     [] as ModuleDefinition["restExtensions"],
   );
 
+  const allSocketExtensions = modules.reduce(
+    (acc, module) => {
+      if (!acc) {
+        return module.socketExtensions || [];
+      }
+      if (module.socketExtensions) {
+        return [...acc, ...module.socketExtensions];
+      }
+      return acc;
+    },
+    [] as ModuleDefinition["socketExtensions"],
+  );
+
   if (!config.server?.extendExpressApp) {
-    config.server = { ...config.server, extendExpressApp: () => {} };
+    config.server = {
+      ...config.server,
+      extendExpressApp: () => {},
+      extendHttpServer: () => {},
+    };
   }
   config.server.extendExpressApp = (app, context) => {
     bootstrapExpress(app, context, allRestExtensions);
+  };
+
+  config.server.extendHttpServer = (server, context) => {
+    bootstrapHttp(server, context, allSocketExtensions ?? []);
   };
 
   return config;

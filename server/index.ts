@@ -3,10 +3,16 @@ import {
   OpenApiGeneratorV3,
 } from "@asteasolutions/zod-to-openapi";
 import { Express, Router, json } from "express";
+import { Server } from "http";
+import { Server as WsServer } from "socket.io";
 import swaggerUi from "swagger-ui-express";
 import { GlobalContext } from "../common/types";
 import { routeList } from "./api";
-import { RequestInputType, RouteDeclarationList } from "./declarations";
+import {
+  RequestInputType,
+  RouteDeclarationList,
+  SocketDeclarationList,
+} from "./declarations";
 import { devErrorHandler } from "./services/middleware/errorHandler";
 
 const registry = new OpenAPIRegistry();
@@ -45,17 +51,21 @@ function implementRouteDeclaration(
         headers: routeData.inputParser.pick({
           [RequestInputType.HEADERS]: true,
         }).shape?.headers,
-        body: ["get"].includes(method)
-          ? undefined
-          : {
-              content: {
-                "application/json": {
-                  schema: routeData.inputParser.pick({
-                    [RequestInputType.BODY]: true,
-                  }).shape?.body,
+        body:
+          !["get"].includes(method) &&
+          routeData.inputParser.pick({
+            [RequestInputType.BODY]: true,
+          }).shape?.body
+            ? {
+                content: {
+                  "application/json": {
+                    schema: routeData.inputParser.pick({
+                      [RequestInputType.BODY]: true,
+                    }).shape?.body,
+                  },
                 },
-              },
-            },
+              }
+            : undefined,
       },
       responses: {
         200: {
@@ -119,7 +129,38 @@ function implementRouteDeclaration(
   mainRouter.use(data.name, router);
 }
 
-export default function bootstrapExpress(
+function implementSocketDeclaration(
+  io: WsServer,
+  commonContext: GlobalContext,
+  data: SocketDeclarationList,
+) {
+  if (data.socket) {
+    for (const [namespace, fxList] of data.socket) {
+      io.of(`${data.name}/${namespace}`).on("connection", (socket) => {
+        // console.log("connected fx");
+        const sessionContext = {};
+
+        for (const [event, fx] of fxList) {
+          socket.on(event, (arg1, arg2, callback) => {
+            return fx({
+              context: commonContext,
+              server: io,
+              socket,
+              namespaceContext: sessionContext,
+              args: {
+                args1: arg1,
+                args2: arg2,
+                callback,
+              },
+            });
+          });
+        }
+      });
+    }
+  }
+}
+
+export function bootstrapExpress(
   app: Express,
   commonContext: GlobalContext,
   extraRouteList: RouteDeclarationList[],
@@ -156,4 +197,20 @@ export default function bootstrapExpress(
 
   app.use("/api/rest", swaggerUi.serve, swaggerUi.setup(document));
   app.use(MAIN_API_ROUTE, mainRouter);
+}
+
+export function bootstrapHttp(
+  server: Server,
+  commonContext: GlobalContext,
+  socketList: SocketDeclarationList[],
+) {
+  const ioInstance = new WsServer(server, {
+    cors: {
+      origin: "*",
+    },
+  });
+
+  for (const socketData of socketList) {
+    implementSocketDeclaration(ioInstance, commonContext, socketData);
+  }
 }

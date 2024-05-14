@@ -140,6 +140,7 @@ var imageConfig_default = s3ImageStorageConfig;
 // server/index.ts
 var import_zod_to_openapi2 = require("@asteasolutions/zod-to-openapi");
 var import_express = require("express");
+var import_socket = require("socket.io");
 var import_swagger_ui_express = __toESM(require("swagger-ui-express"));
 
 // server/api/health/index.ts
@@ -309,7 +310,9 @@ function implementRouteDeclaration(mainRouter, commonContext, data) {
         headers: routeData.inputParser.pick({
           ["headers" /* HEADERS */]: true
         }).shape?.headers,
-        body: ["get"].includes(method) ? void 0 : {
+        body: !["get"].includes(method) && routeData.inputParser.pick({
+          ["body" /* BODY */]: true
+        }).shape?.body ? {
           content: {
             "application/json": {
               schema: routeData.inputParser.pick({
@@ -317,7 +320,7 @@ function implementRouteDeclaration(mainRouter, commonContext, data) {
               }).shape?.body
             }
           }
-        }
+        } : void 0
       },
       responses: {
         200: {
@@ -374,6 +377,30 @@ function implementRouteDeclaration(mainRouter, commonContext, data) {
   }
   mainRouter.use(data.name, router);
 }
+function implementSocketDeclaration(io, commonContext, data) {
+  if (data.socket) {
+    for (const [namespace, fxList] of data.socket) {
+      io.of(`${data.name}/${namespace}`).on("connection", (socket) => {
+        const sessionContext = {};
+        for (const [event, fx] of fxList) {
+          socket.on(event, (arg1, arg2, callback) => {
+            return fx({
+              context: commonContext,
+              server: io,
+              socket,
+              namespaceContext: sessionContext,
+              args: {
+                args1: arg1,
+                args2: arg2,
+                callback
+              }
+            });
+          });
+        }
+      });
+    }
+  }
+}
 function bootstrapExpress(app, commonContext, extraRouteList) {
   app.use((0, import_express.json)());
   app.use(devErrorHandler);
@@ -403,6 +430,16 @@ function bootstrapExpress(app, commonContext, extraRouteList) {
   };
   app.use("/api/rest", import_swagger_ui_express.default.serve, import_swagger_ui_express.default.setup(document));
   app.use(MAIN_API_ROUTE, mainRouter);
+}
+function bootstrapHttp(server, commonContext, socketList) {
+  const ioInstance = new import_socket.Server(server, {
+    cors: {
+      origin: "*"
+    }
+  });
+  for (const socketData of socketList) {
+    implementSocketDeclaration(ioInstance, commonContext, socketData);
+  }
 }
 
 // modules/auth/graphql.ts
@@ -824,7 +861,98 @@ var clientAuthGraphqlExtension = import_core.graphql.extend((base) => {
 var import_zod3 = require("zod");
 
 // graphql/operations.ts
-var LoginDocument = { "kind": "Document", "definitions": [{ "kind": "OperationDefinition", "operation": "mutation", "name": { "kind": "Name", "value": "Login" }, "variableDefinitions": [{ "kind": "VariableDefinition", "variable": { "kind": "Variable", "name": { "kind": "Name", "value": "email" } }, "type": { "kind": "NonNullType", "type": { "kind": "NamedType", "name": { "kind": "Name", "value": "String" } } } }, { "kind": "VariableDefinition", "variable": { "kind": "Variable", "name": { "kind": "Name", "value": "password" } }, "type": { "kind": "NonNullType", "type": { "kind": "NamedType", "name": { "kind": "Name", "value": "String" } } } }], "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "authenticateUserWithPassword" }, "arguments": [{ "kind": "Argument", "name": { "kind": "Name", "value": "email" }, "value": { "kind": "Variable", "name": { "kind": "Name", "value": "email" } } }, { "kind": "Argument", "name": { "kind": "Name", "value": "adminPassword" }, "value": { "kind": "Variable", "name": { "kind": "Name", "value": "password" } } }], "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "__typename" } }, { "kind": "InlineFragment", "typeCondition": { "kind": "NamedType", "name": { "kind": "Name", "value": "UserAuthenticationWithPasswordSuccess" } }, "selectionSet": { "kind": "SelectionSet", "selections": [{ "kind": "Field", "name": { "kind": "Name", "value": "sessionToken" } }] } }] } }] } }] };
+var LoginDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "Login" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "email" }
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" }
+            }
+          }
+        },
+        {
+          kind: "VariableDefinition",
+          variable: {
+            kind: "Variable",
+            name: { kind: "Name", value: "password" }
+          },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "NamedType",
+              name: { kind: "Name", value: "String" }
+            }
+          }
+        }
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "authenticateUserWithPassword" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "email" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "email" }
+                }
+              },
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "adminPassword" },
+                value: {
+                  kind: "Variable",
+                  name: { kind: "Name", value: "password" }
+                }
+              }
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "__typename" } },
+                {
+                  kind: "InlineFragment",
+                  typeCondition: {
+                    kind: "NamedType",
+                    name: {
+                      kind: "Name",
+                      value: "UserAuthenticationWithPasswordSuccess"
+                    }
+                  },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "sessionToken" }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+};
 
 // server/services/access/serverAccessConfig.ts
 var serverAccessConfig = (generatorArgs) => {
@@ -1317,11 +1445,30 @@ var userDataList = {
   })
 };
 
+// modules/auth/socket/index.ts
+var authSocketDeclaration = {
+  name: "/auth",
+  socket: /* @__PURE__ */ new Map()
+};
+authSocketDeclaration.socket?.set("test", /* @__PURE__ */ new Map());
+authSocketDeclaration.socket?.get("test")?.set("set", async ({ namespaceContext }) => {
+  console.log("setting test");
+  namespaceContext["test"] = (/* @__PURE__ */ new Date()).toISOString();
+});
+authSocketDeclaration.socket?.get("test")?.set("get", async ({ namespaceContext, args }) => {
+  console.log("getting test", namespaceContext["test"]);
+  if (args.callback) {
+    args.callback(namespaceContext["test"]);
+  }
+  return namespaceContext["test"];
+});
+
 // modules/auth/index.ts
 var authDefinition = {
   schema: [userDataList],
   graphqlExtensions: [clientAuthGraphqlExtension],
-  restExtensions: [authRouteDeclaration]
+  restExtensions: [authRouteDeclaration],
+  socketExtensions: [authSocketDeclaration]
 };
 
 // modules/posts/schema.ts
@@ -1426,12 +1573,32 @@ function injectModules(config3) {
     (acc, module2) => [...acc, ...module2.restExtensions],
     []
   );
+  const allSocketExtensions = modules.reduce(
+    (acc, module2) => {
+      if (!acc) {
+        return module2.socketExtensions || [];
+      }
+      if (module2.socketExtensions) {
+        return [...acc, ...module2.socketExtensions];
+      }
+      return acc;
+    },
+    []
+  );
   if (!config3.server?.extendExpressApp) {
-    config3.server = { ...config3.server, extendExpressApp: () => {
-    } };
+    config3.server = {
+      ...config3.server,
+      extendExpressApp: () => {
+      },
+      extendHttpServer: () => {
+      }
+    };
   }
   config3.server.extendExpressApp = (app, context) => {
     bootstrapExpress(app, context, allRestExtensions);
+  };
+  config3.server.extendHttpServer = (server, context) => {
+    bootstrapHttp(server, context, allSocketExtensions ?? []);
   };
   return config3;
 }
@@ -1489,7 +1656,7 @@ var configDef = injectModules({
   },
   server: {
     cors: {
-      origin: CONFIG.SERVER_CORS_URL.split(",")
+      origin: CONFIG.SERVER_CORS_URL.includes("*") ? true : CONFIG.SERVER_CORS_URL.split(",")
     }
   },
   storage: {

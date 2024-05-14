@@ -46,6 +46,7 @@
     "node-cron": "^3.0.3",
     "prettier": "^3.2.5",
     "sib-api-v3-typescript": "^2.2.2",
+    "socket.io": "^4.7.5",
     "swagger-ui-express": "^5.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.2",
@@ -54,6 +55,7 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/node-fetch": "^2.6.11",
+    "@types/socket.io": "^3.0.2",
     "husky": "^9.0.11"
   }
 }
