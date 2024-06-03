@@ -4,6 +4,7 @@ import { PERMISSION_ENUM } from "../../../common/roles";
 import { LoginDocument } from "../../../graphql/operations";
 import { s3ImageConfigKey } from "../../../imageConfig";
 import {
+  FILE_TYPE,
   NO_INPUT,
   RequestInputType,
   RouteDeclarationList,
@@ -122,6 +123,34 @@ authRouteDeclaration.routes.set(
       return {
         session,
         image: image,
+      };
+    },
+  }),
+);
+
+authRouteDeclaration.routes.set(
+  "/file_upload",
+  new RouteDeclarationMetadata({
+    method: RouteMethod.POST,
+    useJsonParser: false,
+    useFileParser: true,
+    inputParser: z.object({
+      [RequestInputType.FILES]: z.object({
+        file: FILE_TYPE,
+      }),
+      [RequestInputType.BODY]: z.object({
+        index: z.string(),
+      }),
+    }),
+    func: async ({
+      inputData: {
+        body: { index },
+        files: { file },
+      },
+      context,
+    }) => {
+      return {
+        message: "File uploaded",
       };
     },
   }),

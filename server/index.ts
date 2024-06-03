@@ -2,7 +2,15 @@ import {
   OpenAPIRegistry,
   OpenApiGeneratorV3,
 } from "@asteasolutions/zod-to-openapi";
-import { Express, Router, json } from "express";
+import {
+  Express,
+  NextFunction,
+  Request,
+  Response,
+  Router,
+  json,
+} from "express";
+import fileUpload from "express-fileupload";
 import { Server } from "http";
 import { Server as WsServer } from "socket.io";
 import swaggerUi from "swagger-ui-express";
@@ -79,13 +87,37 @@ function implementRouteDeclaration(
       },
     });
 
-    router[method](route, async (req, res, next) => {
+    let assignments: ((
+      req: Request,
+      res: Response,
+      next: NextFunction,
+    ) => void)[] = [];
+
+    if (routeData.useJsonParser) {
+      assignments.push(
+        json({
+          limit: "10mb",
+        }),
+      );
+    }
+
+    if (routeData.useFileParser) {
+      assignments.push(
+        fileUpload({
+          limits: { fileSize: 50 * 1024 * 1024 },
+        }),
+      );
+    }
+
+    assignments.push(async (req, res, next) => {
       const context = await commonContext.withRequest(req, res);
       const parsedData = routeData.inputParser.safeParse({
         [RequestInputType.QUERY]: req.query,
         [RequestInputType.BODY]: req.body,
         [RequestInputType.PARAMS]: req.params,
         [RequestInputType.HEADERS]: req.headers,
+        [RequestInputType.FILES]: req.files,
+        [RequestInputType.FORMS]: req.body,
       });
       if (!parsedData.success)
         return res.status(400).json({ error: parsedData.error });
@@ -124,6 +156,8 @@ function implementRouteDeclaration(
         next(error);
       }
     });
+
+    router[method](route, ...assignments);
   }
 
   mainRouter.use(data.name, router);
@@ -204,6 +238,13 @@ export function bootstrapHttp(
   commonContext: GlobalContext,
   socketList: SocketDeclarationList[],
 ) {
+  // const wss = new WebSocketServer({
+  //   server: server,
+  //   path: "/api/graphql",
+  // });
+
+  // wsUseServer({ schema: commonContext.graphql.schema }, wss);
+
   const ioInstance = new WsServer(server, {
     cors: {
       origin: "*",

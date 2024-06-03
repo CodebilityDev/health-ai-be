@@ -245,5 +245,14 @@ export const clientAuthGraphqlExtension = graphql.extend((base) => {
         },
       }),
     },
+    subscription: {
+      sub_test: graphql.field({
+        type: graphql.String,
+
+        resolve() {
+          return "test";
+        },
+      }),
+    },
   };
 });
