@@ -35,8 +35,8 @@ __export(keystone_exports, {
 module.exports = __toCommonJS(keystone_exports);
 var import_server_plugin_response_cache = __toESM(require("@apollo/server-plugin-response-cache"));
 var import_zod_to_openapi3 = require("@asteasolutions/zod-to-openapi");
-var import_core5 = require("@keystone-6/core");
-var import_zod5 = require("zod");
+var import_core4 = require("@keystone-6/core");
+var import_zod6 = require("zod");
 
 // auth.ts
 var import_auth = require("@keystone-6/auth");
@@ -140,6 +140,7 @@ var imageConfig_default = s3ImageStorageConfig;
 // server/index.ts
 var import_zod_to_openapi2 = require("@asteasolutions/zod-to-openapi");
 var import_express = require("express");
+var import_express_fileupload = __toESM(require("express-fileupload"));
 var import_socket = require("socket.io");
 var import_swagger_ui_express = __toESM(require("swagger-ui-express"));
 
@@ -162,9 +163,22 @@ var import_zod = require("zod");
 var import_zod_to_openapi = require("@asteasolutions/zod-to-openapi");
 (0, import_zod_to_openapi.extendZodWithOpenApi)(import_zod.z);
 var NO_INPUT = import_zod.z.object({});
+var FILE_TYPE = import_zod.z.object({
+  name: import_zod.z.string(),
+  data: import_zod.z.any(),
+  // Buffer
+  size: import_zod.z.number(),
+  encoding: import_zod.z.string(),
+  tempFilePath: import_zod.z.string(),
+  truncated: import_zod.z.boolean(),
+  mimetype: import_zod.z.string(),
+  md5: import_zod.z.string()
+});
 var RouteDeclarationMetadata = class {
   method;
   inputParser;
+  useJsonParser;
+  useFileParser;
   outputParser;
   accessConfig;
   // @ts-expect-error T does not satisfy the constraint 'z.ZodType<any>'.
@@ -175,6 +189,8 @@ var RouteDeclarationMetadata = class {
     this.inputParser = args.inputParser;
     this.accessConfig = args.accessConfig;
     this.outputParser = args.outputParser;
+    this.useJsonParser = args.useJsonParser ?? true;
+    this.useFileParser = args.useFileParser ?? false;
   }
 };
 
@@ -333,13 +349,30 @@ function implementRouteDeclaration(mainRouter, commonContext, data) {
         }
       }
     });
-    router[method](route, async (req, res, next) => {
+    let assignments = [];
+    if (routeData.useJsonParser) {
+      assignments.push(
+        (0, import_express.json)({
+          limit: "10mb"
+        })
+      );
+    }
+    if (routeData.useFileParser) {
+      assignments.push(
+        (0, import_express_fileupload.default)({
+          limits: { fileSize: 50 * 1024 * 1024 }
+        })
+      );
+    }
+    assignments.push(async (req, res, next) => {
       const context = await commonContext.withRequest(req, res);
       const parsedData = routeData.inputParser.safeParse({
         ["query" /* QUERY */]: req.query,
         ["body" /* BODY */]: req.body,
         ["params" /* PARAMS */]: req.params,
-        ["headers" /* HEADERS */]: req.headers
+        ["headers" /* HEADERS */]: req.headers,
+        ["files" /* FILES */]: req.files,
+        ["forms" /* FORMS */]: req.body
       });
       if (!parsedData.success)
         return res.status(400).json({ error: parsedData.error });
@@ -374,6 +407,7 @@ function implementRouteDeclaration(mainRouter, commonContext, data) {
         next(error);
       }
     });
+    router[method](route, ...assignments);
   }
   mainRouter.use(data.name, router);
 }
@@ -1007,13 +1041,13 @@ authRouteDeclaration.routes.set(
       })
     }),
     func: async ({
-      context: { graphql: graphql4 },
+      context: { graphql: graphql3 },
       inputData: {
         ["body" /* BODY */]: { username, password: password2 }
       },
       res
     }) => {
-      const request = await graphql4.run({
+      const request = await graphql3.run({
         query: LoginDocument,
         variables: {
           email: username,
@@ -1086,6 +1120,33 @@ authRouteDeclaration.routes.set(
       return {
         session: session2,
         image: image3
+      };
+    }
+  })
+);
+authRouteDeclaration.routes.set(
+  "/file_upload",
+  new RouteDeclarationMetadata({
+    method: "post" /* POST */,
+    useJsonParser: false,
+    useFileParser: true,
+    inputParser: import_zod3.z.object({
+      ["files" /* FILES */]: import_zod3.z.object({
+        file: FILE_TYPE
+      }),
+      ["body" /* BODY */]: import_zod3.z.object({
+        index: import_zod3.z.string()
+      })
+    }),
+    func: async ({
+      inputData: {
+        body: { index },
+        files: { file }
+      },
+      context
+    }) => {
+      return {
+        message: "File uploaded"
       };
     }
   })
@@ -1445,30 +1506,11 @@ var userDataList = {
   })
 };
 
-// modules/auth/socket/index.ts
-var authSocketDeclaration = {
-  name: "/auth",
-  socket: /* @__PURE__ */ new Map()
-};
-authSocketDeclaration.socket?.set("test", /* @__PURE__ */ new Map());
-authSocketDeclaration.socket?.get("test")?.set("set", async ({ namespaceContext }) => {
-  console.log("setting test");
-  namespaceContext["test"] = (/* @__PURE__ */ new Date()).toISOString();
-});
-authSocketDeclaration.socket?.get("test")?.set("get", async ({ namespaceContext, args }) => {
-  console.log("getting test", namespaceContext["test"]);
-  if (args.callback) {
-    args.callback(namespaceContext["test"]);
-  }
-  return namespaceContext["test"];
-});
-
 // modules/auth/index.ts
 var authDefinition = {
   schema: [userDataList],
   graphqlExtensions: [clientAuthGraphqlExtension],
-  restExtensions: [authRouteDeclaration],
-  socketExtensions: [authSocketDeclaration]
+  restExtensions: [authRouteDeclaration]
 };
 
 // modules/posts/schema.ts
@@ -1505,40 +1547,225 @@ var postDefiniton = {
 };
 
 // modules/test/index.ts
-var import_core4 = require("@keystone-6/core");
+var import_zod5 = require("zod");
+
+// common/types.ts
+var GlobalDataType = (_key) => _key;
+
+// server/graphqlObject.ts
+var import_schema3 = require("@graphql-tools/schema");
+var import_get_graphql_from_jsonschema = require("get-graphql-from-jsonschema");
+var import_zod_to_json_schema = require("zod-to-json-schema");
+function array(s) {
+  return `[${s}]`;
+}
+function jsonTypeToGraphql(definitions, inputName = "schema") {
+  const schema = (0, import_get_graphql_from_jsonschema.getGraphqlSchemaFromJsonSchema)({
+    rootName: inputName,
+    schema: definitions
+  });
+  return schema;
+}
+var GraphqlActionMetadata = class {
+  type;
+  name;
+  args;
+  // @ts-expect-error T does not satisfy the constraint 'z.ZodType<any>'.
+  resolve;
+  output;
+  description;
+  constructor({
+    type,
+    name,
+    input,
+    resolve,
+    output,
+    description
+  }) {
+    this.type = type;
+    this.name = name;
+    this.args = input;
+    this.resolve = resolve;
+    this.output = output;
+    this.description = description;
+  }
+};
+function graphqlFields(args) {
+  let typeDefs = [];
+  let resolvers = {};
+  for (let action of args.actions) {
+    if (!resolvers[action.type]) {
+      resolvers[action.type] = {};
+    }
+    let outputType;
+    if (typeof action.output === "string") {
+      outputType = action.output;
+    } else {
+      let outputName;
+      for (let output of action.output) {
+        let outName = output.name;
+        if (output.isMain) {
+          outputName = outName;
+        }
+        if (output.fields) {
+          typeDefs.push(`
+            type ${outName} {
+              ${Object.keys(output.fields).map((key) => `${key}: ${output.fields[key]}`).join(", ")}
+            }
+          `);
+        } else if (output.schema) {
+          let jsonSchemaOutput = (0, import_zod_to_json_schema.zodToJsonSchema)(output.schema, "schema");
+          let propertiesOutput = jsonSchemaOutput?.definitions?.schema || false;
+          let outputType2;
+          if (propertiesOutput) {
+            const defs = jsonTypeToGraphql(propertiesOutput, output.name);
+            for (let def of defs.typeDefinitions) {
+              def = def.replace(/T0/g, "");
+              typeDefs.push(def);
+            }
+          }
+        }
+      }
+      if (!outputName) {
+        outputName = action.output[0].name;
+      }
+      outputType = outputName;
+    }
+    let jsonSchema = action.args ? (0, import_zod_to_json_schema.zodToJsonSchema)(action.args, "schema") : {};
+    let properties = jsonSchema?.definitions?.schema || false;
+    let inputName;
+    if (properties) {
+      const defs = jsonTypeToGraphql(properties, action.name + "Input");
+      for (let def of defs.typeDefinitions) {
+        def = def.replace("type ", "input ");
+        def = def.replace(/T0/g, "");
+        typeDefs.push(def);
+      }
+      defs.typeName = defs.typeName.replace("T0", "");
+      inputName = defs.typeName + "!";
+    }
+    typeDefs.push(`
+      type ${action.type} {
+        ${action.name}${properties ? `(input: ${inputName})` : ""}: ${outputType}
+      }
+    `);
+    resolvers[action.type][action.name] = (root, args2, context) => {
+      let _args = args2 || {};
+      if (action.args) {
+        _args = action.args.safeParse(args2.input);
+        if (!_args.success) {
+          throw new Error(
+            "Invalid arguments: " + _args.error.errors[0].message + "." + JSON.stringify(_args.error.errors[0].path)
+          );
+        }
+        _args = _args.data;
+      }
+      return action.resolve(root, _args, context);
+    };
+  }
+  const stringifiedTypeDefs = typeDefs.join("\n");
+  return (schema) => (0, import_schema3.mergeSchemas)({
+    schemas: [schema],
+    typeDefs: stringifiedTypeDefs,
+    resolvers
+  });
+}
+
+// modules/test/socket/index.ts
+var extraSocketDeclaration = {
+  name: "/post-ws",
+  socket: /* @__PURE__ */ new Map([
+    [
+      "test",
+      /* @__PURE__ */ new Map([
+        [
+          "set",
+          async ({ namespaceContext }) => {
+            console.log("setting test");
+            namespaceContext["test"] = (/* @__PURE__ */ new Date()).toISOString();
+          }
+        ],
+        [
+          "get",
+          async ({ namespaceContext, args }) => {
+            console.log("getting test", namespaceContext["test"]);
+            if (args.callback) {
+              args.callback(namespaceContext["test"]);
+            }
+          }
+        ]
+      ])
+    ]
+  ])
+};
+
+// modules/test/index.ts
 var testDefinition = {
   schema: [],
   graphqlExtensions: [
-    import_core4.graphql.extend((base) => {
-      return {
-        query: {
-          test: import_core4.graphql.field({
-            type: import_core4.graphql.String,
-            resolve() {
-              return "Hello world!";
-            }
-          })
-        },
-        mutation: {
-          test: import_core4.graphql.field({
-            type: import_core4.graphql.String,
-            args: {
-              email: import_core4.graphql.arg({ type: import_core4.graphql.String })
+    graphqlFields({
+      actions: [
+        new GraphqlActionMetadata({
+          type: "Query" /* Query */,
+          name: "TestMethod",
+          input: import_zod5.z.object({
+            input: import_zod5.z.string().default("test"),
+            x: import_zod5.z.number().default(1)
+          }),
+          output: [
+            {
+              name: "TestMethodOutput",
+              isMain: true,
+              fields: {
+                output: "String" /* String */,
+                args: "TestMethodOutput_Args",
+                posts: array(GlobalDataType("Post"))
+              }
             },
-            async resolve(source, { email }, context) {
-              const user = await context.db.User.findOne({
-                where: {
-                  email
-                }
-              });
-              return `Hello ${user?.name}!`;
+            {
+              name: "TestMethodOutput_Args",
+              schema: import_zod5.z.object({
+                input: import_zod5.z.string(),
+                x: import_zod5.z.number()
+              })
             }
-          })
-        }
-      };
+          ],
+          resolve: async (_, args, context) => {
+            return {
+              output: "Hello",
+              args
+            };
+          }
+        }),
+        new GraphqlActionMetadata({
+          type: "Mutation" /* Mutation */,
+          name: "TestMethodMutation",
+          output: [
+            {
+              name: "TestMethodMutationOutput",
+              isMain: true,
+              schema: import_zod5.z.object({
+                post: import_zod5.z.string(),
+                details: import_zod5.z.object({
+                  id: import_zod5.z.string(),
+                  name: import_zod5.z.string()
+                })
+              })
+            }
+          ],
+          resolve: async (_, args, context) => {
+            const _post = await context.prisma.post.findFirst();
+            return {
+              post: _post?.id || "",
+              details: { id: "1", name: "test" }
+            };
+          }
+        })
+      ]
     })
   ],
-  restExtensions: []
+  restExtensions: [],
+  socketExtensions: [extraSocketDeclaration]
 };
 
 // modules/index.ts
@@ -1604,7 +1831,7 @@ function injectModules(config3) {
 }
 
 // keystone.ts
-(0, import_zod_to_openapi3.extendZodWithOpenApi)(import_zod5.z);
+(0, import_zod_to_openapi3.extendZodWithOpenApi)(import_zod6.z);
 var MEM_CACHE = class {
   cache = /* @__PURE__ */ new Map();
   async set(key, value) {
@@ -1664,6 +1891,6 @@ var configDef = injectModules({
     [s3ImageConfigKey]: imageConfig_default
   }
 });
-var keystoneConfig = (0, import_core5.config)(configDef);
+var keystoneConfig = (0, import_core4.config)(configDef);
 var keystone_default = withAuth(keystoneConfig);
 //# sourceMappingURL=config.js.map

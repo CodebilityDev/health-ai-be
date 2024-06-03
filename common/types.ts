@@ -14,3 +14,6 @@ export type AuthedSession = {
 
 export type GlobalTypeInfo = TypeInfo<AuthedSession>;
 export type GlobalContext = KeystoneContext<GlobalTypeInfo>;
+
+export type GlobalDataTypes = keyof GlobalTypeInfo["lists"];
+export const GlobalDataType = (_key: GlobalDataTypes): GlobalDataTypes => _key;

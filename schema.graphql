@@ -438,7 +438,7 @@ type Mutation {
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, adminPassword: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
-  test(email: String): String
+  TestMethodMutation: TestMethodMutationOutput
   authclient_login(email: String!, password: String!): ClientItemAuthenticationWithPasswordResult
   authclient_register(email: String!, firstName: String!, lastName: String, password: String!): Boolean
   authclient_requestPasswordReset(email: String!): Boolean
@@ -490,7 +490,7 @@ type Query {
   postTagsCount(where: PostTagWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
-  test: String
+  TestMethod(input: TestMethodInput!): TestMethodOutput
 }
 
 union AuthenticatedItem = User
@@ -595,4 +595,30 @@ type KeystoneAdminUISort {
 enum KeystoneAdminUISortDirection {
   ASC
   DESC
+}
+
+type TestMethodOutput {
+  output: String
+  args: TestMethodOutput_Args
+  posts: [Post]
+}
+
+type TestMethodOutput_Args {
+  input: String!
+  x: Float!
+}
+
+input TestMethodInput {
+  input: String
+  x: Float
+}
+
+type TestMethodMutationOutputDetails {
+  id: String!
+  name: String!
+}
+
+type TestMethodMutationOutput {
+  post: String!
+  details: TestMethodMutationOutputDetails!
 }
