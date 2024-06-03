@@ -33,6 +33,20 @@ export type Scalars = {
   Upload: { input: any; output: any };
 };
 
+export type AsyncTypeInput = {
+  input?: InputMaybe<Scalars["String"]["input"]>;
+  x?: InputMaybe<Scalars["Float"]["input"]>;
+};
+
+export type AsyncTypeReturn = {
+  __typename?: "AsyncTypeReturn";
+  id: Scalars["String"]["output"];
+  input: Scalars["String"]["output"];
+  title: Scalars["String"]["output"];
+  word: Scalars["String"]["output"];
+  x: Scalars["Float"]["output"];
+};
+
 export type AuthenticatedItem = User;
 
 export type ClientItemAuthenticationWithPasswordFailure = {
@@ -768,7 +782,16 @@ export type SubOutput = {
 
 export type Subscription = {
   __typename?: "Subscription";
+  asyncType?: Maybe<AsyncTypeReturn>;
   time?: Maybe<Time>;
+};
+
+export type SubscriptionAsyncTypeArgs = {
+  input: AsyncTypeInput;
+};
+
+export type SubscriptionTimeArgs = {
+  input: TimeInput;
 };
 
 export type TestMethodInput = {
@@ -809,6 +832,10 @@ export type TestMethodOutput_Args = {
 export type Time = {
   __typename?: "Time";
   iso: Scalars["String"]["output"];
+};
+
+export type TimeInput = {
+  repoFullName: Scalars["String"]["input"];
 };
 
 export type User = {

@@ -5,3 +5,4 @@ npm run generate-types
 npm run format
 git add .
 npm run build:prod:win
+git add .
