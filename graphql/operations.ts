@@ -291,6 +291,7 @@ export type KeystoneMeta = {
 
 export type Mutation = {
   __typename?: "Mutation";
+  TestMethodMutation?: Maybe<TestMethodMutationOutput>;
   authclient_changePassword?: Maybe<Scalars["Boolean"]["output"]>;
   authclient_login?: Maybe<ClientItemAuthenticationWithPasswordResult>;
   authclient_newAccountPasswordReset?: Maybe<Scalars["Boolean"]["output"]>;
@@ -316,7 +317,6 @@ export type Mutation = {
   deleteUser?: Maybe<User>;
   deleteUsers?: Maybe<Array<Maybe<User>>>;
   endSession: Scalars["Boolean"]["output"];
-  test?: Maybe<Scalars["String"]["output"]>;
   updateGroup?: Maybe<Group>;
   updateGroups?: Maybe<Array<Maybe<Group>>>;
   updatePost?: Maybe<Post>;
@@ -428,10 +428,6 @@ export type MutationDeleteUserArgs = {
 
 export type MutationDeleteUsersArgs = {
   where: Array<UserWhereUniqueInput>;
-};
-
-export type MutationTestArgs = {
-  email?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type MutationUpdateGroupArgs = {
@@ -654,6 +650,7 @@ export type PostWhereUniqueInput = {
 
 export type Query = {
   __typename?: "Query";
+  TestMethod?: Maybe<TestMethodOutput>;
   authenticatedItem?: Maybe<AuthenticatedItem>;
   group?: Maybe<Group>;
   groups?: Maybe<Array<Group>>;
@@ -665,10 +662,13 @@ export type Query = {
   postTagsCount?: Maybe<Scalars["Int"]["output"]>;
   posts?: Maybe<Array<Post>>;
   postsCount?: Maybe<Scalars["Int"]["output"]>;
-  test?: Maybe<Scalars["String"]["output"]>;
   user?: Maybe<User>;
   users?: Maybe<Array<User>>;
   usersCount?: Maybe<Scalars["Int"]["output"]>;
+};
+
+export type QueryTestMethodArgs = {
+  input: TestMethodInput;
 };
 
 export type QueryGroupArgs = {
@@ -753,6 +753,36 @@ export type StringFilter = {
   not?: InputMaybe<NestedStringFilter>;
   notIn?: InputMaybe<Array<Scalars["String"]["input"]>>;
   startsWith?: InputMaybe<Scalars["String"]["input"]>;
+};
+
+export type TestMethodInput = {
+  input?: InputMaybe<Scalars["String"]["input"]>;
+  x?: InputMaybe<Scalars["Float"]["input"]>;
+};
+
+export type TestMethodMutationOutput = {
+  __typename?: "TestMethodMutationOutput";
+  details: TestMethodMutationOutputDetails;
+  post: Scalars["String"]["output"];
+};
+
+export type TestMethodMutationOutputDetails = {
+  __typename?: "TestMethodMutationOutputDetails";
+  id: Scalars["String"]["output"];
+  name: Scalars["String"]["output"];
+};
+
+export type TestMethodOutput = {
+  __typename?: "TestMethodOutput";
+  args?: Maybe<TestMethodOutput_Args>;
+  output?: Maybe<Scalars["String"]["output"]>;
+  posts?: Maybe<Array<Maybe<Post>>>;
+};
+
+export type TestMethodOutput_Args = {
+  __typename?: "TestMethodOutput_Args";
+  input: Scalars["String"]["output"];
+  x: Scalars["Float"]["output"];
 };
 
 export type User = {
