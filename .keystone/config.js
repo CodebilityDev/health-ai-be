@@ -1567,7 +1567,7 @@ function jsonTypeToGraphql(definitions, inputName = "schema") {
   return schema;
 }
 var GraphqlActionMetadata = class {
-  type;
+  root;
   name;
   args;
   // @ts-expect-error T does not satisfy the constraint 'z.ZodType<any>'.
@@ -1575,14 +1575,14 @@ var GraphqlActionMetadata = class {
   output;
   description;
   constructor({
-    type,
+    root,
     name,
     input,
     resolve,
     output,
     description
   }) {
-    this.type = type;
+    this.root = root;
     this.name = name;
     this.args = input;
     this.resolve = resolve;
@@ -1594,8 +1594,8 @@ function graphqlFields(args) {
   let typeDefs = [];
   let resolvers = {};
   for (let action of args.actions) {
-    if (!resolvers[action.type]) {
-      resolvers[action.type] = {};
+    if (!resolvers[action.root]) {
+      resolvers[action.root] = {};
     }
     let outputType;
     if (typeof action.output === "string") {
@@ -1645,11 +1645,11 @@ function graphqlFields(args) {
       inputName = defs.typeName + "!";
     }
     typeDefs.push(`
-      type ${action.type} {
+      type ${action.root} {
         ${action.name}${properties ? `(input: ${inputName})` : ""}: ${outputType}
       }
     `);
-    resolvers[action.type][action.name] = (root, args2, context) => {
+    resolvers[action.root][action.name] = (root, args2, context) => {
       let _args = args2 || {};
       if (action.args) {
         _args = action.args.safeParse(args2.input);
@@ -1706,7 +1706,7 @@ var testDefinition = {
     graphqlFields({
       actions: [
         new GraphqlActionMetadata({
-          type: "Query" /* Query */,
+          root: "Query" /* Query */,
           name: "TestMethod",
           input: import_zod5.z.object({
             input: import_zod5.z.string().default("test"),
@@ -1738,7 +1738,7 @@ var testDefinition = {
           }
         }),
         new GraphqlActionMetadata({
-          type: "Mutation" /* Mutation */,
+          root: "Mutation" /* Mutation */,
           name: "TestMethodMutation",
           output: [
             {
@@ -1758,6 +1758,30 @@ var testDefinition = {
             return {
               post: _post?.id || "",
               details: { id: "1", name: "test" }
+            };
+          }
+        }),
+        new GraphqlActionMetadata({
+          root: "TestMethodMutationOutput",
+          name: "sub",
+          output: [
+            {
+              name: "SubOutput",
+              isMain: true,
+              schema: import_zod5.z.object({
+                parentID: import_zod5.z.string(),
+                sum: import_zod5.z.number()
+              })
+            }
+          ],
+          input: import_zod5.z.object({
+            x: import_zod5.z.number(),
+            y: import_zod5.z.number()
+          }),
+          resolve: async (parent, args) => {
+            return {
+              parentID: parent.post,
+              sum: args.x + args.y
             };
           }
         })

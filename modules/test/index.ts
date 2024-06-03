@@ -16,7 +16,7 @@ export const testDefinition: ModuleDefinition = {
     graphqlFields({
       actions: [
         new GraphqlActionMetadata({
-          type: GraphqlMethods.Query,
+          root: GraphqlMethods.Query,
           name: "TestMethod",
           input: z.object({
             input: z.string().default("test"),
@@ -48,7 +48,7 @@ export const testDefinition: ModuleDefinition = {
           },
         }),
         new GraphqlActionMetadata({
-          type: GraphqlMethods.Mutation,
+          root: GraphqlMethods.Mutation,
           name: "TestMethodMutation",
           output: [
             {
@@ -68,6 +68,30 @@ export const testDefinition: ModuleDefinition = {
             return {
               post: _post?.id || "",
               details: { id: "1", name: "test" },
+            };
+          },
+        }),
+        new GraphqlActionMetadata({
+          root: "TestMethodMutationOutput",
+          name: "sub",
+          output: [
+            {
+              name: "SubOutput",
+              isMain: true,
+              schema: z.object({
+                parentID: z.string(),
+                sum: z.number(),
+              }),
+            },
+          ],
+          input: z.object({
+            x: z.number(),
+            y: z.number(),
+          }),
+          resolve: async (parent, args) => {
+            return {
+              parentID: parent.post,
+              sum: args.x + args.y,
             };
           },
         }),

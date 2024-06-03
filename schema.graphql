@@ -621,4 +621,15 @@ type TestMethodMutationOutputDetails {
 type TestMethodMutationOutput {
   post: String!
   details: TestMethodMutationOutputDetails!
+  sub(input: SubInput!): SubOutput
+}
+
+type SubOutput {
+  parentID: String!
+  sum: Float!
+}
+
+input SubInput {
+  x: Float!
+  y: Float!
 }

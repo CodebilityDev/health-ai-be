@@ -56,7 +56,7 @@ function jsonTypeToGraphql(definitions: any, inputName: string = "schema") {
 }
 
 export class GraphqlActionMetadata<T = any> {
-  type: GraphqlMethods;
+  root: GraphqlMethods | string;
   name: string;
   args?: T;
   // @ts-expect-error T does not satisfy the constraint 'z.ZodType<any>'.
@@ -77,14 +77,14 @@ export class GraphqlActionMetadata<T = any> {
   description?: string;
 
   constructor({
-    type,
+    root,
     name,
     input,
     resolve,
     output,
     description,
   }: {
-    type: GraphqlMethods;
+    root: GraphqlMethods | string;
     name: string;
     input?: T;
     inputRequired?: boolean;
@@ -104,7 +104,7 @@ export class GraphqlActionMetadata<T = any> {
         }[];
     description?: string;
   }) {
-    this.type = type;
+    this.root = root;
     this.name = name;
     this.args = input;
     this.resolve = resolve;
@@ -129,8 +129,8 @@ export function graphqlFields(
 
   for (let action of args.actions) {
     // check if query or mutation exist in resolvers already
-    if (!resolvers[action.type]) {
-      resolvers[action.type] = {};
+    if (!resolvers[action.root]) {
+      resolvers[action.root] = {};
     }
 
     // ==================== Process Output
@@ -198,7 +198,7 @@ export function graphqlFields(
 
     // Create Action Type
     typeDefs.push(`
-      type ${action.type} {
+      type ${action.root} {
         ${action.name}${
           properties ? `(input: ${inputName})` : ""
         }: ${outputType}
@@ -206,7 +206,7 @@ export function graphqlFields(
     `);
 
     // add action to resolvers
-    resolvers[action.type][action.name] = (root, args, context) => {
+    resolvers[action.root][action.name] = (root, args, context) => {
       let _args = args || {};
       // parse args
       if (action.args) {
