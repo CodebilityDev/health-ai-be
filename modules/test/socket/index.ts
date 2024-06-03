@@ -9,14 +9,14 @@ const extraSocketDeclaration: SocketDeclarationList = {
         [
           "set",
           async ({ namespaceContext }) => {
-            console.log("setting test");
+            console.log("setting value");
             namespaceContext["test"] = new Date().toISOString();
           },
         ],
         [
           "get",
           async ({ namespaceContext, args }) => {
-            console.log("getting test", namespaceContext["test"]);
+            console.log("getting value", namespaceContext["test"]);
             if (args.callback) {
               args.callback(namespaceContext["test"]);
             }

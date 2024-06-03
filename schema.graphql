@@ -633,3 +633,29 @@ input SubInput {
   x: Float!
   y: Float!
 }
+
+type Time {
+  iso: String!
+}
+
+input TimeInput {
+  repoFullName: String!
+}
+
+type Subscription {
+  time(input: TimeInput!): Time
+  asyncType(input: AsyncTypeInput!): AsyncTypeReturn
+}
+
+type AsyncTypeReturn {
+  word: String!
+  id: String!
+  title: String!
+  input: String!
+  x: Float!
+}
+
+input AsyncTypeInput {
+  input: String
+  x: Float
+}

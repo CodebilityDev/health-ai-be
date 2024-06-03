@@ -31,6 +31,7 @@ export function array(s: string) {
 export enum GraphqlMethods {
   Query = "Query",
   Mutation = "Mutation",
+  Subscription = "Subscription",
 }
 
 function jsTypeToGraphqlScalarType(type: string): GraphqlScalarType {
@@ -205,24 +206,48 @@ export function graphqlFields(
       }
     `);
 
-    // add action to resolvers
-    resolvers[action.root][action.name] = (root, args, context) => {
-      let _args = args || {};
-      // parse args
-      if (action.args) {
-        _args = action.args.safeParse(args.input);
-        if (!_args.success) {
-          throw new Error(
-            "Invalid arguments: " +
-              _args.error.errors[0].message +
-              "." +
-              JSON.stringify(_args.error.errors[0].path),
-          );
+    if (action.root === GraphqlMethods.Subscription) {
+      // add action to resolvers
+      resolvers[action.root][action.name] = {
+        // @ts-ignore
+        subscribe: (root, args, context) => {
+          let _args = args || {};
+          // parse args
+          if (action.args) {
+            _args = action.args.safeParse(args.input);
+            if (!_args.success) {
+              throw new Error(
+                "Invalid arguments: " +
+                  _args.error.errors[0].message +
+                  "." +
+                  JSON.stringify(_args.error.errors[0].path),
+              );
+            }
+            _args = _args.data;
+          }
+          return action.resolve(root, _args, context);
+        },
+      };
+    } else {
+      // add action to resolvers
+      resolvers[action.root][action.name] = (root, args, context) => {
+        let _args = args || {};
+        // parse args
+        if (action.args) {
+          _args = action.args.safeParse(args.input);
+          if (!_args.success) {
+            throw new Error(
+              "Invalid arguments: " +
+                _args.error.errors[0].message +
+                "." +
+                JSON.stringify(_args.error.errors[0].path),
+            );
+          }
+          _args = _args.data;
         }
-        _args = _args.data;
-      }
-      return action.resolve(root, _args, context);
-    };
+        return action.resolve(root, _args, context);
+      };
+    }
   }
 
   const stringifiedTypeDefs = typeDefs.join("\n");

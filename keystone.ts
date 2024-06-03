@@ -89,4 +89,19 @@ const configDef = injectModules({
 
 const keystoneConfig = config<GlobalTypeInfo>(configDef);
 
+// update package.json time
+
+import * as fs from "fs";
+import * as path from "path";
+
+const packageJsonPath = path.join(process.cwd(), "reload.json");
+const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+
+// get last time and only rewrite if its older than 10 seconds
+if (new Date().getTime() - new Date(packageJson.time).getTime() > 10000) {
+  // console.log(new Date().getTime() - new Date(packageJson.time).getTime());
+  packageJson.time = new Date().toISOString();
+  fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+}
+
 export default withAuth(keystoneConfig);

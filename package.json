@@ -5,6 +5,7 @@
   "scripts": {
     "dev:unsafe": "keystone dev",
     "dev:safe": "npm run generate-types && npm run migrate:dev && npm run dev:nodbpush",
+    "dev:reload": "nodemon --exec keystone dev --no-db-push",
     "dev:start": "npm run dev:nodbpush",
     "dev:nodbpush": "keystone dev --no-db-push",
     "start:prod:win": "set NODE_ENV=production && keystone start",
@@ -41,6 +42,8 @@
     "bcrypt": "^5.1.1",
     "express-fileupload": "^1.5.0",
     "get-graphql-from-jsonschema": "^8.1.0",
+    "graphql-subscriptions": "^2.0.0",
+    "graphql-ws": "^5.16.0",
     "jsonwebtoken": "^9.0.2",
     "minio": "^7.1.4",
     "moment": "^2.30.1",
@@ -52,6 +55,7 @@
     "swagger-ui-express": "^5.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.2",
+    "ws": "^8.17.0",
     "zod": "^3.22.4",
     "zod-to-json-schema": "^3.23.0"
   },
@@ -60,6 +64,7 @@
     "@types/express-fileupload": "^1.5.0",
     "@types/node-fetch": "^2.6.11",
     "@types/socket.io": "^3.0.2",
-    "husky": "^9.0.11"
+    "husky": "^9.0.11",
+    "nodemon": "^3.1.2"
   }
 }

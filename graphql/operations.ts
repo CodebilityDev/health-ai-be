@@ -755,6 +755,22 @@ export type StringFilter = {
   startsWith?: InputMaybe<Scalars["String"]["input"]>;
 };
 
+export type SubInput = {
+  x: Scalars["Float"]["input"];
+  y: Scalars["Float"]["input"];
+};
+
+export type SubOutput = {
+  __typename?: "SubOutput";
+  parentID: Scalars["String"]["output"];
+  sum: Scalars["Float"]["output"];
+};
+
+export type Subscription = {
+  __typename?: "Subscription";
+  time?: Maybe<Time>;
+};
+
 export type TestMethodInput = {
   input?: InputMaybe<Scalars["String"]["input"]>;
   x?: InputMaybe<Scalars["Float"]["input"]>;
@@ -764,6 +780,11 @@ export type TestMethodMutationOutput = {
   __typename?: "TestMethodMutationOutput";
   details: TestMethodMutationOutputDetails;
   post: Scalars["String"]["output"];
+  sub?: Maybe<SubOutput>;
+};
+
+export type TestMethodMutationOutputSubArgs = {
+  input: SubInput;
 };
 
 export type TestMethodMutationOutputDetails = {
@@ -783,6 +804,11 @@ export type TestMethodOutput_Args = {
   __typename?: "TestMethodOutput_Args";
   input: Scalars["String"]["output"];
   x: Scalars["Float"]["output"];
+};
+
+export type Time = {
+  __typename?: "Time";
+  iso: Scalars["String"]["output"];
 };
 
 export type User = {
