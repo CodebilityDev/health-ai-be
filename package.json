@@ -16,7 +16,7 @@
     "build:prod:docker": "NODE_ENV=production node build_job.js && keystone build",
     "migrate:dev": "keystone prisma migrate dev",
     "migrate:prod": "keystone prisma migrate deploy",
-    "generate-types": "npm run codegen-env && keystone postinstall --fix && keystone postinstall",
+    "generate-types": "npm run codegen-env && node build_job.js && keystone postinstall --fix && keystone postinstall",
     "commit": "npm run generate-types && npm run migrate:dev",
     "prepare": "husky",
     "format": "prettier --write \"./**/*.ts\"",
