@@ -1,4 +1,4 @@
-import { ModuleDefinition } from "../definition";
+import { ModuleDefinition } from "~modules/definition";
 import { testGraphqlDeclarations } from "./graphql-subs";
 import { postSocketDeclaration } from "./socket";
 

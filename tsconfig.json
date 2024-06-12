@@ -9,8 +9,10 @@
     "jsx": "react-jsx",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"]
+      "~graphql/*": ["graphql/*"],
+      "~modules/*": ["src/modules/*"],
+      "~/*": ["src/*"]
     }
   },
-  "include": ["src/**/*", "keystone.ts"]
+  "include": ["src/**/*", "graphql/**/*"]
 }

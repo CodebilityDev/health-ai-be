@@ -3,7 +3,7 @@ import { useServer as wsUseServer } from "graphql-ws/lib/use/ws";
 import { Server } from "http";
 import { Server as WsServer } from "socket.io";
 import { WebSocketServer } from "ws";
-import { GlobalContext } from "../common/types";
+import { GlobalContext } from "~/common/types";
 import { SocketDeclarationList } from "./declarations";
 import { pubSub } from "./graphqlPubsub";
 

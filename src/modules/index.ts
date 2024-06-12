@@ -1,8 +1,8 @@
 import { KeystoneConfig } from "@keystone-6/core/types";
 import type { GraphQLSchema } from "graphql/type/schema";
-import { GlobalTypeInfo } from "../common/types";
-import { bootstrapExpress } from "../server";
-import { bootstrapHttp } from "../server/bootstrapHttp";
+import { GlobalTypeInfo } from "~/common/types";
+import { bootstrapExpress } from "~/server";
+import { bootstrapHttp } from "~/server/bootstrapHttp";
 import { authDefinition } from "./auth";
 import { ModuleDefinition } from "./definition";
 import { postDefiniton } from "./posts";

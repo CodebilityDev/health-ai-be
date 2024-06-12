@@ -1,6 +1,6 @@
 import { graphql } from "@keystone-6/core";
 import { BaseItem } from "@keystone-6/core/types";
-import { GlobalContext } from "../../common/types";
+import { GlobalContext } from "~/common/types";
 import { authenticateUser } from "./services/login";
 import {
   changePassword,

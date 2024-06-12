@@ -1,5 +1,5 @@
 import { compareSync } from "bcrypt";
-import { GlobalContext } from "../../../common/types";
+import { GlobalContext } from "~/common/types";
 import { IUserJwt } from "./UserJWT.dto";
 
 export async function authenticateUser(

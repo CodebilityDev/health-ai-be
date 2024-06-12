@@ -12,7 +12,7 @@ import {
 } from "express";
 import fileUpload from "express-fileupload";
 import swaggerUi from "swagger-ui-express";
-import { GlobalContext } from "../common/types";
+import { GlobalContext } from "~/common/types";
 import { routeList } from "./api";
 import { RequestInputType, RouteDeclarationList } from "./declarations";
 import { devErrorHandler } from "./services/middleware/errorHandler";

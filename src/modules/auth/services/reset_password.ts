@@ -1,8 +1,8 @@
 import { hashSync } from "bcrypt";
-import { jwt_sign, jwt_verify } from "../../../common/jwt";
-import { sendEmailByBrevoTemplate } from "../../../common/mail";
-import { GlobalContext } from "../../../common/types";
-import { CONFIG } from "../../../utils/config/env";
+import { jwt_sign, jwt_verify } from "~/common/jwt";
+import { sendEmailByBrevoTemplate } from "~/common/mail";
+import { GlobalContext } from "~/common/types";
+import { CONFIG } from "~/utils/config/env";
 import { IChangePassword, IUserJwt } from "./UserJWT.dto";
 
 export async function resetPasswordForNewUser(

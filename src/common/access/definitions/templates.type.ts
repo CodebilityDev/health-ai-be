@@ -1,4 +1,4 @@
-import { AuthedSession, GlobalContext } from "../../types";
+import { AuthedSession, GlobalContext } from "~/common/types";
 
 export type OperationArgs = {
   session: AuthedSession;

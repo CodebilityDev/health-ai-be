@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { minioClient } from "../../../common/s3/minio";
+import { minioClient } from "~/common/s3/minio";
 import {
   RequestInputType,
   RouteDeclarationList,

@@ -1,4 +1,4 @@
-import { ModuleDefinition } from "../definition";
+import { ModuleDefinition } from "~modules/definition";
 import { clientAuthGraphqlExtension } from "./graphql";
 import { authRouteDeclaration } from "./rest-api";
 import { userDataList } from "./schema";

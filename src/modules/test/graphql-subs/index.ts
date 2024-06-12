@@ -1,14 +1,14 @@
 import { withFilter } from "graphql-subscriptions";
 import { z } from "zod";
-import { GlobalDataType } from "../../../common/types";
+import { GlobalDataType } from "~/common/types";
 import {
   GraphqlActionMetadata,
   GraphqlMethods,
   GraphqlScalarType,
   array,
   graphqlFields,
-} from "../../../server/graphqlObject";
-import { pubSub } from "../../../server/graphqlPubsub";
+} from "~/server/graphqlObject";
+import { pubSub } from "~/server/graphqlPubsub";
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));

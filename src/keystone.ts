@@ -5,51 +5,19 @@ import { z } from "zod";
 
 extendZodWithOpenApi(z);
 
-import { session, withAuth } from "./src/authConfig";
-import { GlobalTypeInfo } from "./src/common/types";
-import dbConfig from "./src/dbConfig";
-import s3FilesStorageConfig, { s3FilesConfigKey } from "./src/fileConfig";
-import s3ImageStorageConfig, { s3ImageConfigKey } from "./src/imageConfig";
-import { injectModules } from "./src/modules";
-import { CONFIG } from "./src/utils/config/env";
+import { session, withAuth } from "~/authConfig";
+import { GlobalTypeInfo } from "~/common/types";
+import dbConfig from "~/dbConfig";
+import s3FilesStorageConfig, { s3FilesConfigKey } from "~/fileConfig";
+import s3ImageStorageConfig, { s3ImageConfigKey } from "~/imageConfig";
+import { injectModules } from "~/modules";
+import { CONFIG } from "~/utils/config/env";
 
-class MEM_CACHE {
-  cache = new Map<string, string>();
+// update package.json time
 
-  async set(key: string, value: string) {
-    // console.log("SET", key, value);
-    this.cache.set(key, value);
-  }
-
-  async get(key: string) {
-    // console.log("GET", key);
-    const val = this.cache.get(key);
-    if (!val) {
-      return undefined;
-    }
-    const valParsed = JSON.parse(val);
-    if (
-      valParsed.cacheTime + valParsed.cachePolicy.maxAge * 1000 <
-      Date.now()
-    ) {
-      this.cache.delete(key);
-      return undefined;
-    }
-    return this.cache.get(key);
-  }
-
-  async delete(key: string) {
-    this.cache.delete(key);
-  }
-
-  processor = {
-    set: this.set.bind(this),
-    get: this.get.bind(this),
-    delete: this.delete.bind(this),
-  };
-}
-
-const MEM_CACHE_INSTANCE = new MEM_CACHE();
+import * as fs from "fs";
+import * as path from "path";
+import { MEM_CACHE_INSTANCE } from "./server/memcache";
 
 const configDef = injectModules({
   db: dbConfig,
@@ -88,11 +56,6 @@ const configDef = injectModules({
 });
 
 const keystoneConfig = config<GlobalTypeInfo>(configDef);
-
-// update package.json time
-
-import * as fs from "fs";
-import * as path from "path";
 
 // if reload.json doesnt exist, create it
 if (!fs.existsSync(path.join(process.cwd(), "reload.json"))) {

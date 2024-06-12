@@ -1,7 +1,7 @@
 import { KeystoneContext } from "@keystone-6/core/types";
 import type { Request, Response } from "express";
 import { z } from "zod";
-import { AuthedSession, GlobalContext, GlobalTypeInfo } from "../common/types";
+import { AuthedSession, GlobalContext, GlobalTypeInfo } from "~/common/types";
 
 import { extendZodWithOpenApi } from "@asteasolutions/zod-to-openapi";
 import { Server, Socket } from "socket.io";

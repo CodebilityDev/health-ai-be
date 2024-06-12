@@ -1,6 +1,6 @@
 import { KeystoneContext } from "@keystone-6/core/types";
-import { Request, Response, NextFunction } from "express";
-import { GlobalTypeInfo } from "../../../common/types";
+import { NextFunction, Request, Response } from "express";
+import { GlobalTypeInfo } from "~/common/types";
 
 /**
  * Handler to catch `async` operation errors.

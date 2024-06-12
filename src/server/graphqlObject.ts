@@ -4,7 +4,7 @@ import { getGraphqlSchemaFromJsonSchema } from "get-graphql-from-jsonschema";
 import { GraphQLSchema } from "graphql";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import { GlobalDataTypes, GlobalTypeInfo } from "../common/types";
+import { GlobalDataTypes, GlobalTypeInfo } from "~/common/types";
 
 export type GraphqlActionDeclaration<T = any> = (
   root: any,
