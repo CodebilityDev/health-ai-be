@@ -94,6 +94,14 @@ const keystoneConfig = config<GlobalTypeInfo>(configDef);
 import * as fs from "fs";
 import * as path from "path";
 
+// if reload.json doesnt exist, create it
+if (!fs.existsSync(path.join(process.cwd(), "reload.json"))) {
+  fs.writeFileSync(
+    path.join(process.cwd(), "reload.json"),
+    JSON.stringify({ time: new Date().toISOString() }, null, 2),
+  );
+}
+
 const packageJsonPath = path.join(process.cwd(), "reload.json");
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
 
