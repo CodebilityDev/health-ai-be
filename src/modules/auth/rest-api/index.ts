@@ -1,7 +1,7 @@
 import { ImageExtension } from "@keystone-6/core/types";
 import { z } from "zod";
+import { LoginDocument } from "../../../../graphql/operations";
 import { PERMISSION_ENUM } from "../../../common/roles";
-import { LoginDocument } from "../../../graphql/operations";
 import { s3ImageConfigKey } from "../../../imageConfig";
 import {
   FILE_TYPE,

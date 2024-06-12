@@ -6,12 +6,14 @@ import { format } from "prettier";
 async function main() {
   let envFile;
   try {
-    envFile = readFileSync(join(__dirname, "..", "..", ".env"));
+    envFile = readFileSync(join(__dirname, "..", "..", "..", ".env"));
   } catch (e) {
     console.warn("No env file found, creating one");
     // copy .env.sample to .env
-    const envSample = readFileSync(join(__dirname, "..", "..", ".env.sample"));
-    writeFileSync(join(__dirname, "..", "..", ".env"), envSample);
+    const envSample = readFileSync(
+      join(__dirname, "..", "..", "..", ".env.sample"),
+    );
+    writeFileSync(join(__dirname, "..", "..", "..", ".env"), envSample);
     envFile = envSample;
   }
 

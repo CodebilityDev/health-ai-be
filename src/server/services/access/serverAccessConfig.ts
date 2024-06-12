@@ -1,4 +1,4 @@
-import { UserRoleType } from "../../../graphql/operations";
+import { UserRoleType } from "../../../../graphql/operations";
 import { ServerOperationArgs } from "../../declarations";
 
 export type ServerAccessFunction = (operation: ServerOperationArgs) => boolean;

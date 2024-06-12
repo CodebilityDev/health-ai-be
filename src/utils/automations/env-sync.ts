@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
 // read .env file, keep all lines as it is, with only the values being obfuscated
-const envFile = readFileSync(join(__dirname, "..", "..", ".env"));
+const envFile = readFileSync(join(__dirname, "..", "..", "..", ".env"));
 
 // if env file is not found, throw an error
 if (!envFile) {
@@ -49,4 +49,7 @@ const envVars = envFile
 const obfuscatedEnvFile = envVars.join("\n");
 
 // write the obfuscated env file
-writeFileSync(join(__dirname, "..", "..", ".env.sample"), obfuscatedEnvFile);
+writeFileSync(
+  join(__dirname, "..", "..", "..", ".env.sample"),
+  obfuscatedEnvFile,
+);

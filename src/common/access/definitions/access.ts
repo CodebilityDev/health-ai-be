@@ -1,4 +1,4 @@
-import { UserRoleType } from "../../../graphql/operations";
+import { UserRoleType } from "../../../../graphql/operations";
 import { deepMerge } from "../../../utils/functions/deepMerge";
 import { ItemArgs, OperationArgs } from "./templates.type";
 

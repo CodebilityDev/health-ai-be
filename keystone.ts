@@ -5,13 +5,13 @@ import { z } from "zod";
 
 extendZodWithOpenApi(z);
 
-import { session, withAuth } from "./auth";
-import { GlobalTypeInfo } from "./common/types";
-import dbConfig from "./dbConfig";
-import s3FilesStorageConfig, { s3FilesConfigKey } from "./fileConfig";
-import s3ImageStorageConfig, { s3ImageConfigKey } from "./imageConfig";
-import { injectModules } from "./modules";
-import { CONFIG } from "./utils/config/env";
+import { session, withAuth } from "./src/authConfig";
+import { GlobalTypeInfo } from "./src/common/types";
+import dbConfig from "./src/dbConfig";
+import s3FilesStorageConfig, { s3FilesConfigKey } from "./src/fileConfig";
+import s3ImageStorageConfig, { s3ImageConfigKey } from "./src/imageConfig";
+import { injectModules } from "./src/modules";
+import { CONFIG } from "./src/utils/config/env";
 
 class MEM_CACHE {
   cache = new Map<string, string>();
