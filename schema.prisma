@@ -25,9 +25,8 @@ model User {
   avatar_height    Int?
   avatar_id        String?
   role             UserRoleType?  @default(user)
-  groups           Group[]        @relation("Group_members")
-  posts            Post[]         @relation("Post_author")
   createdAt        DateTime?      @default(now())
+  groups           GroupMember[]  @relation("GroupMember_user")
 }
 
 model UserLocalAuth {
@@ -40,9 +39,21 @@ model UserLocalAuth {
 }
 
 model Group {
-  id      String @id @default(cuid())
-  name    String @default("")
-  members User[] @relation("Group_members")
+  id      String        @id @default(cuid())
+  name    String        @default("")
+  members GroupMember[] @relation("GroupMember_group")
+}
+
+model GroupMember {
+  id      String  @id @default(cuid())
+  group   Group?  @relation("GroupMember_group", fields: [groupId], references: [id])
+  groupId String? @map("group")
+  user    User?   @relation("GroupMember_user", fields: [userId], references: [id])
+  userId  String? @map("user")
+  access  Int?    @default(1)
+
+  @@index([groupId])
+  @@index([userId])
 }
 
 model Post {
@@ -55,10 +66,6 @@ model Post {
   coverImage_width     Int?
   coverImage_height    Int?
   coverImage_id        String?
-  author               User?     @relation("Post_author", fields: [authorId], references: [id])
-  authorId             String?   @map("author")
-
-  @@index([authorId])
 }
 
 model PostTag {

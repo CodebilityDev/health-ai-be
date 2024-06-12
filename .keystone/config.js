@@ -49,6 +49,11 @@ var PERMISSION_ENUM = {
   USER: "user"
 };
 var ALL_PERMISSIONS_LIST = Object.values(PERMISSION_ENUM);
+var ACCESS_LEVELS = {
+  VIEW: 1,
+  EDIT: 2,
+  ADMIN: 3
+};
 
 // utils/config/env.ts
 var dotenv = __toESM(require("dotenv"));
@@ -1200,6 +1205,109 @@ var import_access = require("@keystone-6/core/access");
 var import_fields = require("@keystone-6/core/fields");
 var import_zod4 = require("zod");
 
+// common/access/definitions/templates.ts
+var hasRole2 = (args) => (operation) => {
+  return args.roles.includes(operation.session?.data?.role);
+};
+var isOwner = (args) => (operation) => {
+  const userID = operation.session?.data?.id;
+  if (!userID) {
+    return false;
+  }
+  return {
+    [args?.itemIDKey || "id"]: {
+      equals: userID
+    }
+  };
+};
+var sequential = (checkers) => (operation) => {
+  for (let checker of checkers) {
+    const check = checker(operation);
+    if (check) {
+      return check;
+    }
+  }
+  return false;
+};
+var allow = () => true;
+var checkRole = (role, allowedRoles) => {
+  return allowedRoles.includes(role);
+};
+var memberhipCheckString = (check, args) => {
+  switch (check.type) {
+    case "user": {
+      return {
+        [args.tableKey]: {
+          some: {
+            [args.userKey]: {
+              [args.userIdKey]: {
+                equals: check.userId
+              }
+            },
+            [args.accessKey]: {
+              gte: check.permissionLevel
+            }
+          }
+        }
+      };
+    }
+    case "public": {
+      return {
+        members: {
+          some: {
+            isPublic: {
+              equals: true
+            },
+            access: {
+              gte: check.permissionLevel
+            }
+          }
+        }
+      };
+    }
+  }
+};
+
+// common/access/accessTable.ts
+var groupMemberKeymap = {
+  accessKey: "access",
+  tableKey: "members",
+  userKey: "user",
+  userIdKey: "id",
+  type: "user"
+};
+var quickMembershipCheck = (fargs) => (args) => {
+  if (fargs?.nest)
+    return fargs.nest({
+      group: {
+        OR: [
+          memberhipCheckString(
+            {
+              type: "user",
+              userId: args.context.session?.itemId,
+              permissionLevel: fargs?.level ?? ACCESS_LEVELS.VIEW
+            },
+            groupMemberKeymap
+          )
+        ]
+      }
+    });
+  return {
+    group: {
+      OR: [
+        memberhipCheckString(
+          {
+            type: "user",
+            userId: args.context.session?.itemId,
+            permissionLevel: fargs?.level ?? ACCESS_LEVELS.VIEW
+          },
+          groupMemberKeymap
+        )
+      ]
+    }
+  };
+};
+
 // utils/functions/deepMerge.ts
 var deepMerge = (objects) => {
   const isObject = (obj) => obj && typeof obj === "object";
@@ -1270,21 +1378,21 @@ var accessConfig = (generatorArgs) => {
     },
     filter: {
       query: (args) => {
-        let checkerFunction = generatorArgs.filter.read || generatorArgs.operations.all;
+        let checkerFunction = generatorArgs.filter.read || generatorArgs.filter.all;
         if (!checkerFunction) {
           checkerFunction = () => true;
         }
         return globalMiddleware(args) || checkerFunction(args);
       },
       update: (args) => {
-        let checkerFunction = generatorArgs.filter.update || generatorArgs.filter.write || generatorArgs.operations.all;
+        let checkerFunction = generatorArgs.filter.update || generatorArgs.filter.write || generatorArgs.filter.all;
         if (!checkerFunction) {
           checkerFunction = () => true;
         }
         return globalMiddleware(args) || checkerFunction(args);
       },
       delete: (args) => {
-        let checkerFunction = generatorArgs.filter.delete || generatorArgs.filter.write || generatorArgs.operations.all;
+        let checkerFunction = generatorArgs.filter.delete || generatorArgs.filter.write || generatorArgs.filter.all;
         if (!checkerFunction) {
           checkerFunction = () => true;
         }
@@ -1294,21 +1402,21 @@ var accessConfig = (generatorArgs) => {
     ...generatorArgs.item ? {
       item: {
         create: (args) => {
-          let checkerFunction = generatorArgs.item.create || generatorArgs.item.write || generatorArgs.operations.all;
+          let checkerFunction = generatorArgs.item.create || generatorArgs.item.write || generatorArgs.item?.all;
           if (!checkerFunction) {
             checkerFunction = () => true;
           }
           return globalMiddleware(args) || checkerFunction(args);
         },
         update: (args) => {
-          let checkerFunction = generatorArgs.item.create || generatorArgs.item.write || generatorArgs.operations.all;
+          let checkerFunction = generatorArgs.item.create || generatorArgs.item.write || generatorArgs.item?.all;
           if (!checkerFunction) {
             checkerFunction = () => true;
           }
           return globalMiddleware(args) || checkerFunction(args) || generatorArgs.operations.all;
         },
         delete: (args) => {
-          let checkerFunction = generatorArgs.item.create || generatorArgs.item.write || generatorArgs.operations.all;
+          let checkerFunction = generatorArgs.item.create || generatorArgs.item.write || generatorArgs.item?.all;
           if (!checkerFunction) {
             checkerFunction = () => true;
           }
@@ -1318,35 +1426,6 @@ var accessConfig = (generatorArgs) => {
     } : {}
   };
   return deepMerge([baseConfig, generatorArgs.extraConfig || {}]);
-};
-
-// common/access/definitions/templates.ts
-var hasRole2 = (args) => (operation) => {
-  return args.roles.includes(operation.session?.data?.role);
-};
-var isOwner = (args) => (operation) => {
-  const userID = operation.session?.data?.id;
-  if (!userID) {
-    return false;
-  }
-  return {
-    [args?.itemIDKey || "id"]: {
-      equals: userID
-    }
-  };
-};
-var sequential = (checkers) => (operation) => {
-  for (let checker of checkers) {
-    const check = checker(operation);
-    if (check) {
-      return check;
-    }
-  }
-  return false;
-};
-var allow = () => true;
-var checkRole = (role, allowedRoles) => {
-  return allowedRoles.includes(role);
 };
 
 // modules/auth/schema.ts
@@ -1442,16 +1521,12 @@ var userDataList = {
           }
         }
       }),
-      groups: (0, import_fields.relationship)({
-        ref: "Group.members",
-        many: true
-      }),
-      posts: (0, import_fields.relationship)({
-        ref: "Post.author",
-        many: true
-      }),
       createdAt: (0, import_fields.timestamp)({
         defaultValue: { kind: "now" }
+      }),
+      groups: (0, import_fields.relationship)({
+        ref: "GroupMember.user",
+        many: true
       })
     },
     access: accessConfig({
@@ -1501,13 +1576,6 @@ var userDataList = {
           if (item.localAuthId) {
             return;
           }
-          await resetPasswordForNewUser(
-            {
-              email: item.email
-            },
-            context
-          );
-          console.log(`[System] Reset password for new user: ${item.email}`);
         }
       }
     }
@@ -1532,8 +1600,68 @@ var userDataList = {
     fields: {
       name: (0, import_fields.text)({ validation: { isRequired: true } }),
       members: (0, import_fields.relationship)({
-        ref: "User.groups",
+        ref: "GroupMember.group",
         many: true
+      })
+    },
+    hooks: {
+      afterOperation: async ({ operation, context, item }) => {
+        if (operation === "create") {
+          await context.prisma.groupMember.create({
+            data: {
+              group: {
+                connect: {
+                  id: item.id
+                }
+              },
+              user: {
+                connect: {
+                  id: context.session?.itemId
+                }
+              },
+              access: ACCESS_LEVELS.ADMIN
+            }
+          });
+        }
+      }
+    },
+    access: accessConfig({
+      isAuthed: true,
+      operations: {
+        all: allow
+      },
+      filter: {
+        all: sequential([
+          ({ context }) => {
+            return {
+              OR: [
+                memberhipCheckString(
+                  {
+                    type: "user",
+                    userId: context.session?.itemId,
+                    permissionLevel: ACCESS_LEVELS.VIEW
+                  },
+                  groupMemberKeymap
+                )
+              ]
+            };
+          }
+        ])
+      }
+    })
+  }),
+  GroupMember: (0, import_core2.list)({
+    fields: {
+      group: (0, import_fields.relationship)({
+        ref: "Group.members",
+        many: false
+      }),
+      user: (0, import_fields.relationship)({
+        ref: "User.groups",
+        many: false
+      }),
+      access: (0, import_fields.integer)({
+        defaultValue: ACCESS_LEVELS.VIEW
       })
     },
     access: accessConfig({
@@ -1542,7 +1670,7 @@ var userDataList = {
         all: allow
       },
       filter: {
-        all: allow
+        all: sequential([quickMembershipCheck()])
       }
     })
   })
@@ -1567,8 +1695,8 @@ var postDataList = {
       tags: (0, import_fields2.relationship)({ ref: "PostTag.posts", many: true }),
       coverImage: (0, import_fields2.image)({
         storage: s3ImageConfigKey
-      }),
-      author: (0, import_fields2.relationship)({ ref: "User.posts", many: false })
+      })
+      // author: relationship({ ref: "User.posts", many: false }),
     },
     access: import_access3.allowAll
   }),

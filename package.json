@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev:unsafe": "keystone dev",
-    "dev:safe": "npm run generate-types && npm run migrate:dev && npm run dev:nodbpush",
+    "dev:safe": "npm run commit && npm run dev:nodbpush",
     "dev:reload": "nodemon --exec keystone dev --no-db-push",
     "dev:start": "npm run dev:nodbpush",
     "dev:nodbpush": "keystone dev --no-db-push",
@@ -14,7 +14,8 @@
     "build:prod:docker": "NODE_ENV=production keystone build",
     "migrate:dev": "keystone prisma migrate dev",
     "migrate:prod": "keystone prisma migrate deploy",
-    "generate-types": "npm run codegen-env && keystone postinstall --fix && keystone postinstall && npm run codegen",
+    "generate-types": "npm run codegen-env && keystone postinstall --fix && keystone postinstall",
+    "commit": "npm run generate-types && npm run migrate:dev",
     "prepare": "husky",
     "format": "prettier --write \"./**/*.ts\"",
     "sample-env": "ts-node --transpile-only ./utils/automations/env-sync.ts",

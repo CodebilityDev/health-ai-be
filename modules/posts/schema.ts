@@ -13,7 +13,7 @@ export const postDataList: Lists = {
       coverImage: image({
         storage: s3ImageConfigKey,
       }),
-      author: relationship({ ref: "User.posts", many: false }),
+      // author: relationship({ ref: "User.posts", many: false }),
     },
     access: allowAll,
   }),

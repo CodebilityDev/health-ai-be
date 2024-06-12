@@ -93,7 +93,7 @@ export const accessConfig = <T, N = any, O = any>(generatorArgs: {
     filter: {
       query: (args: OperationArgs) => {
         let checkerFunction =
-          generatorArgs.filter.read || generatorArgs.operations.all;
+          generatorArgs.filter.read || generatorArgs.filter.all;
         if (!checkerFunction) {
           checkerFunction = () => true;
         }
@@ -103,7 +103,7 @@ export const accessConfig = <T, N = any, O = any>(generatorArgs: {
         let checkerFunction =
           generatorArgs.filter.update ||
           generatorArgs.filter.write ||
-          generatorArgs.operations.all;
+          generatorArgs.filter.all;
         if (!checkerFunction) {
           checkerFunction = () => true;
         }
@@ -113,7 +113,7 @@ export const accessConfig = <T, N = any, O = any>(generatorArgs: {
         let checkerFunction =
           generatorArgs.filter.delete ||
           generatorArgs.filter.write ||
-          generatorArgs.operations.all;
+          generatorArgs.filter.all;
         if (!checkerFunction) {
           checkerFunction = () => true;
         }
@@ -127,7 +127,7 @@ export const accessConfig = <T, N = any, O = any>(generatorArgs: {
               let checkerFunction =
                 generatorArgs.item!.create ||
                 generatorArgs.item!.write ||
-                generatorArgs.operations.all;
+                generatorArgs.item?.all;
               if (!checkerFunction) {
                 checkerFunction = () => true;
               }
@@ -137,7 +137,7 @@ export const accessConfig = <T, N = any, O = any>(generatorArgs: {
               let checkerFunction =
                 generatorArgs.item!.create ||
                 generatorArgs.item!.write ||
-                generatorArgs.operations.all;
+                generatorArgs.item?.all;
               if (!checkerFunction) {
                 checkerFunction = () => true;
               }
@@ -151,7 +151,7 @@ export const accessConfig = <T, N = any, O = any>(generatorArgs: {
               let checkerFunction =
                 generatorArgs.item!.create ||
                 generatorArgs.item!.write ||
-                generatorArgs.operations.all;
+                generatorArgs.item?.all;
               if (!checkerFunction) {
                 checkerFunction = () => true;
               }

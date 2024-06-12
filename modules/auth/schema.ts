@@ -3,6 +3,7 @@ import { graphql, list } from "@keystone-6/core";
 import { denyAll } from "@keystone-6/core/access";
 import {
   image,
+  integer,
   password,
   relationship,
   select,
@@ -11,18 +12,22 @@ import {
   virtual,
 } from "@keystone-6/core/fields";
 import { z } from "zod";
+import {
+  groupMemberKeymap,
+  quickMembershipCheck,
+} from "../../common/access/accessTable";
 import { accessConfig } from "../../common/access/definitions/access";
 import {
   allow,
   checkRole,
   hasRole,
   isOwner,
+  memberhipCheckString,
   sequential,
 } from "../../common/access/definitions/templates";
-import { PERMISSION_ENUM } from "../../common/roles";
+import { ACCESS_LEVELS, PERMISSION_ENUM } from "../../common/roles";
 import { GlobalContext } from "../../common/types";
 import { s3ImageConfigKey } from "../../imageConfig";
-import { resetPasswordForNewUser } from "./services/reset_password";
 
 export const userDataList: Lists = {
   User: list({
@@ -134,16 +139,12 @@ export const userDataList: Lists = {
           },
         },
       }),
-      groups: relationship({
-        ref: "Group.members",
-        many: true,
-      }),
-      posts: relationship({
-        ref: "Post.author",
-        many: true,
-      }),
       createdAt: timestamp({
         defaultValue: { kind: "now" },
+      }),
+      groups: relationship({
+        ref: "GroupMember.user",
+        many: true,
       }),
     },
     access: accessConfig({
@@ -202,14 +203,6 @@ export const userDataList: Lists = {
           if (item.localAuthId) {
             return;
           }
-
-          await resetPasswordForNewUser(
-            {
-              email: item.email,
-            },
-            context,
-          );
-          console.log(`[System] Reset password for new user: ${item.email}`);
         }
       },
     },
@@ -234,8 +227,68 @@ export const userDataList: Lists = {
     fields: {
       name: text({ validation: { isRequired: true } }),
       members: relationship({
-        ref: "User.groups",
+        ref: "GroupMember.group",
         many: true,
+      }),
+    },
+    hooks: {
+      afterOperation: async ({ operation, context, item }) => {
+        if (operation === "create") {
+          await context.prisma.groupMember.create({
+            data: {
+              group: {
+                connect: {
+                  id: item.id,
+                },
+              },
+              user: {
+                connect: {
+                  id: context.session?.itemId,
+                },
+              },
+              access: ACCESS_LEVELS.ADMIN,
+            },
+          });
+        }
+      },
+    },
+    access: accessConfig({
+      isAuthed: true,
+      operations: {
+        all: allow,
+      },
+      filter: {
+        all: sequential([
+          ({ context }) => {
+            return {
+              OR: [
+                memberhipCheckString(
+                  {
+                    type: "user",
+                    userId: context.session?.itemId,
+                    permissionLevel: ACCESS_LEVELS.VIEW,
+                  },
+                  groupMemberKeymap,
+                ),
+              ],
+            };
+          },
+        ]),
+      },
+    }),
+  }),
+  GroupMember: list({
+    fields: {
+      group: relationship({
+        ref: "Group.members",
+        many: false,
+      }),
+      user: relationship({
+        ref: "User.groups",
+        many: false,
+      }),
+      access: integer({
+        defaultValue: ACCESS_LEVELS.VIEW,
       }),
     },
     access: accessConfig({
@@ -244,7 +297,7 @@ export const userDataList: Lists = {
         all: allow,
       },
       filter: {
-        all: allow,
+        all: sequential([quickMembershipCheck()]),
       },
     }),
   }),

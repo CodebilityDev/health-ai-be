@@ -10,11 +10,9 @@ type User {
   adminPassword: PasswordState
   avatar: ImageFieldOutput
   role: UserRoleType
-  groups(where: GroupWhereInput! = {}, orderBy: [GroupOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupWhereUniqueInput): [Group!]
-  groupsCount(where: GroupWhereInput! = {}): Int
-  posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostWhereUniqueInput): [Post!]
-  postsCount(where: PostWhereInput! = {}): Int
   createdAt: DateTime
+  groups(where: GroupMemberWhereInput! = {}, orderBy: [GroupMemberOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupMemberWhereUniqueInput): [GroupMember!]
+  groupsCount(where: GroupMemberWhereInput! = {}): Int
 }
 
 type PasswordState {
@@ -61,9 +59,8 @@ input UserWhereInput {
   adminPassword: PasswordFilter
   localAuth: UserLocalAuthWhereInput
   role: UserRoleTypeNullableFilter
-  groups: GroupManyRelationFilter
-  posts: PostManyRelationFilter
   createdAt: DateTimeNullableFilter
+  groups: GroupMemberManyRelationFilter
 }
 
 input IDFilter {
@@ -129,18 +126,6 @@ input UserRoleTypeNullableFilter {
   not: UserRoleTypeNullableFilter
 }
 
-input GroupManyRelationFilter {
-  every: GroupWhereInput
-  some: GroupWhereInput
-  none: GroupWhereInput
-}
-
-input PostManyRelationFilter {
-  every: PostWhereInput
-  some: PostWhereInput
-  none: PostWhereInput
-}
-
 input DateTimeNullableFilter {
   equals: DateTime
   in: [DateTime!]
@@ -150,6 +135,12 @@ input DateTimeNullableFilter {
   gt: DateTime
   gte: DateTime
   not: DateTimeNullableFilter
+}
+
+input GroupMemberManyRelationFilter {
+  every: GroupMemberWhereInput
+  some: GroupMemberWhereInput
+  none: GroupMemberWhereInput
 }
 
 input UserOrderByInput {
@@ -173,9 +164,8 @@ input UserUpdateInput {
   adminPassword: String
   avatar: ImageFieldInput
   role: UserRoleType
-  groups: GroupRelateToManyForUpdateInput
-  posts: PostRelateToManyForUpdateInput
   createdAt: DateTime
+  groups: GroupMemberRelateToManyForUpdateInput
 }
 
 input ImageFieldInput {
@@ -185,18 +175,11 @@ input ImageFieldInput {
 """The `Upload` scalar type represents a file upload."""
 scalar Upload
 
-input GroupRelateToManyForUpdateInput {
-  disconnect: [GroupWhereUniqueInput!]
-  set: [GroupWhereUniqueInput!]
-  create: [GroupCreateInput!]
-  connect: [GroupWhereUniqueInput!]
-}
-
-input PostRelateToManyForUpdateInput {
-  disconnect: [PostWhereUniqueInput!]
-  set: [PostWhereUniqueInput!]
-  create: [PostCreateInput!]
-  connect: [PostWhereUniqueInput!]
+input GroupMemberRelateToManyForUpdateInput {
+  disconnect: [GroupMemberWhereUniqueInput!]
+  set: [GroupMemberWhereUniqueInput!]
+  create: [GroupMemberCreateInput!]
+  connect: [GroupMemberWhereUniqueInput!]
 }
 
 input UserUpdateArgs {
@@ -211,26 +194,20 @@ input UserCreateInput {
   adminPassword: String
   avatar: ImageFieldInput
   role: UserRoleType
-  groups: GroupRelateToManyForCreateInput
-  posts: PostRelateToManyForCreateInput
   createdAt: DateTime
+  groups: GroupMemberRelateToManyForCreateInput
 }
 
-input GroupRelateToManyForCreateInput {
-  create: [GroupCreateInput!]
-  connect: [GroupWhereUniqueInput!]
-}
-
-input PostRelateToManyForCreateInput {
-  create: [PostCreateInput!]
-  connect: [PostWhereUniqueInput!]
+input GroupMemberRelateToManyForCreateInput {
+  create: [GroupMemberCreateInput!]
+  connect: [GroupMemberWhereUniqueInput!]
 }
 
 type Group {
   id: ID!
   name: String
-  members(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
-  membersCount(where: UserWhereInput! = {}): Int
+  members(where: GroupMemberWhereInput! = {}, orderBy: [GroupMemberOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupMemberWhereUniqueInput): [GroupMember!]
+  membersCount(where: GroupMemberWhereInput! = {}): Int
 }
 
 input GroupWhereUniqueInput {
@@ -243,13 +220,7 @@ input GroupWhereInput {
   NOT: [GroupWhereInput!]
   id: IDFilter
   name: StringFilter
-  members: UserManyRelationFilter
-}
-
-input UserManyRelationFilter {
-  every: UserWhereInput
-  some: UserWhereInput
-  none: UserWhereInput
+  members: GroupMemberManyRelationFilter
 }
 
 input GroupOrderByInput {
@@ -259,14 +230,7 @@ input GroupOrderByInput {
 
 input GroupUpdateInput {
   name: String
-  members: UserRelateToManyForUpdateInput
-}
-
-input UserRelateToManyForUpdateInput {
-  disconnect: [UserWhereUniqueInput!]
-  set: [UserWhereUniqueInput!]
-  create: [UserCreateInput!]
-  connect: [UserWhereUniqueInput!]
+  members: GroupMemberRelateToManyForUpdateInput
 }
 
 input GroupUpdateArgs {
@@ -276,12 +240,83 @@ input GroupUpdateArgs {
 
 input GroupCreateInput {
   name: String
-  members: UserRelateToManyForCreateInput
+  members: GroupMemberRelateToManyForCreateInput
 }
 
-input UserRelateToManyForCreateInput {
-  create: [UserCreateInput!]
-  connect: [UserWhereUniqueInput!]
+type GroupMember {
+  id: ID!
+  group: Group
+  user: User
+  access: Int
+}
+
+input GroupMemberWhereUniqueInput {
+  id: ID
+}
+
+input GroupMemberWhereInput {
+  AND: [GroupMemberWhereInput!]
+  OR: [GroupMemberWhereInput!]
+  NOT: [GroupMemberWhereInput!]
+  id: IDFilter
+  group: GroupWhereInput
+  user: UserWhereInput
+  access: IntNullableFilter
+}
+
+input IntNullableFilter {
+  equals: Int
+  in: [Int!]
+  notIn: [Int!]
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  not: IntNullableFilter
+}
+
+input GroupMemberOrderByInput {
+  id: OrderDirection
+  access: OrderDirection
+}
+
+input GroupMemberUpdateInput {
+  group: GroupRelateToOneForUpdateInput
+  user: UserRelateToOneForUpdateInput
+  access: Int
+}
+
+input GroupRelateToOneForUpdateInput {
+  create: GroupCreateInput
+  connect: GroupWhereUniqueInput
+  disconnect: Boolean
+}
+
+input UserRelateToOneForUpdateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+  disconnect: Boolean
+}
+
+input GroupMemberUpdateArgs {
+  where: GroupMemberWhereUniqueInput!
+  data: GroupMemberUpdateInput!
+}
+
+input GroupMemberCreateInput {
+  group: GroupRelateToOneForCreateInput
+  user: UserRelateToOneForCreateInput
+  access: Int
+}
+
+input GroupRelateToOneForCreateInput {
+  create: GroupCreateInput
+  connect: GroupWhereUniqueInput
+}
+
+input UserRelateToOneForCreateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
 }
 
 type Post {
@@ -291,7 +326,6 @@ type Post {
   tags(where: PostTagWhereInput! = {}, orderBy: [PostTagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostTagWhereUniqueInput): [PostTag!]
   tagsCount(where: PostTagWhereInput! = {}): Int
   coverImage: ImageFieldOutput
-  author: User
 }
 
 input PostWhereUniqueInput {
@@ -306,7 +340,6 @@ input PostWhereInput {
   title: StringFilter
   content: StringFilter
   tags: PostTagManyRelationFilter
-  author: UserWhereInput
 }
 
 input PostTagManyRelationFilter {
@@ -326,7 +359,6 @@ input PostUpdateInput {
   content: String
   tags: PostTagRelateToManyForUpdateInput
   coverImage: ImageFieldInput
-  author: UserRelateToOneForUpdateInput
 }
 
 input PostTagRelateToManyForUpdateInput {
@@ -334,12 +366,6 @@ input PostTagRelateToManyForUpdateInput {
   set: [PostTagWhereUniqueInput!]
   create: [PostTagCreateInput!]
   connect: [PostTagWhereUniqueInput!]
-}
-
-input UserRelateToOneForUpdateInput {
-  create: UserCreateInput
-  connect: UserWhereUniqueInput
-  disconnect: Boolean
 }
 
 input PostUpdateArgs {
@@ -352,17 +378,11 @@ input PostCreateInput {
   content: String
   tags: PostTagRelateToManyForCreateInput
   coverImage: ImageFieldInput
-  author: UserRelateToOneForCreateInput
 }
 
 input PostTagRelateToManyForCreateInput {
   create: [PostTagCreateInput!]
   connect: [PostTagWhereUniqueInput!]
-}
-
-input UserRelateToOneForCreateInput {
-  create: UserCreateInput
-  connect: UserWhereUniqueInput
 }
 
 type PostTag {
@@ -385,6 +405,12 @@ input PostTagWhereInput {
   posts: PostManyRelationFilter
 }
 
+input PostManyRelationFilter {
+  every: PostWhereInput
+  some: PostWhereInput
+  none: PostWhereInput
+}
+
 input PostTagOrderByInput {
   id: OrderDirection
   name: OrderDirection
@@ -395,6 +421,13 @@ input PostTagUpdateInput {
   posts: PostRelateToManyForUpdateInput
 }
 
+input PostRelateToManyForUpdateInput {
+  disconnect: [PostWhereUniqueInput!]
+  set: [PostWhereUniqueInput!]
+  create: [PostCreateInput!]
+  connect: [PostWhereUniqueInput!]
+}
+
 input PostTagUpdateArgs {
   where: PostTagWhereUniqueInput!
   data: PostTagUpdateInput!
@@ -403,6 +436,11 @@ input PostTagUpdateArgs {
 input PostTagCreateInput {
   name: String
   posts: PostRelateToManyForCreateInput
+}
+
+input PostRelateToManyForCreateInput {
+  create: [PostCreateInput!]
+  connect: [PostWhereUniqueInput!]
 }
 
 """
@@ -423,6 +461,12 @@ type Mutation {
   updateGroups(data: [GroupUpdateArgs!]!): [Group]
   deleteGroup(where: GroupWhereUniqueInput!): Group
   deleteGroups(where: [GroupWhereUniqueInput!]!): [Group]
+  createGroupMember(data: GroupMemberCreateInput!): GroupMember
+  createGroupMembers(data: [GroupMemberCreateInput!]!): [GroupMember]
+  updateGroupMember(where: GroupMemberWhereUniqueInput!, data: GroupMemberUpdateInput!): GroupMember
+  updateGroupMembers(data: [GroupMemberUpdateArgs!]!): [GroupMember]
+  deleteGroupMember(where: GroupMemberWhereUniqueInput!): GroupMember
+  deleteGroupMembers(where: [GroupMemberWhereUniqueInput!]!): [GroupMember]
   createPost(data: PostCreateInput!): Post
   createPosts(data: [PostCreateInput!]!): [Post]
   updatePost(where: PostWhereUniqueInput!, data: PostUpdateInput!): Post
@@ -482,6 +526,9 @@ type Query {
   groups(where: GroupWhereInput! = {}, orderBy: [GroupOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupWhereUniqueInput): [Group!]
   group(where: GroupWhereUniqueInput!): Group
   groupsCount(where: GroupWhereInput! = {}): Int
+  groupMembers(where: GroupMemberWhereInput! = {}, orderBy: [GroupMemberOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupMemberWhereUniqueInput): [GroupMember!]
+  groupMember(where: GroupMemberWhereUniqueInput!): GroupMember
+  groupMembersCount(where: GroupMemberWhereInput! = {}): Int
   posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostWhereUniqueInput): [Post!]
   post(where: PostWhereUniqueInput!): Post
   postsCount(where: PostWhereInput! = {}): Int
