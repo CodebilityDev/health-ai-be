@@ -5,3 +5,5 @@ keystone.db
 .env
 reload.json
 .keystone
+keystone.ts
+keystone.ts.map
