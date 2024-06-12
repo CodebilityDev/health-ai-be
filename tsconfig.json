@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "es2016",
     "module": "commonjs",
     "strict": true,
     "noEmit": true,
@@ -11,5 +11,6 @@
     "paths": {
       "@/*": ["src/*"]
     }
-  }
+  },
+  "include": ["src/**/*", "keystone.ts"]
 }

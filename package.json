@@ -41,6 +41,7 @@
     "@types/swagger-ui-express": "^4.1.6",
     "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
+    "esbuild": "^0.20.0",
     "express-fileupload": "^1.5.0",
     "get-graphql-from-jsonschema": "^8.1.0",
     "graphql-subscriptions": "^2.0.0",
