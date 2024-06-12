@@ -1,6 +1,7 @@
 import { Client } from "minio";
 import { CONFIG } from "../../utils/config/env";
 
+console.log("endpoint", process.env);
 export const minioClient = new Client({
   endPoint: CONFIG.S3_ENDPOINT.replace("https://", "").replace("http://", ""),
   useSSL: true,
