@@ -43,6 +43,11 @@ function implementRouteDeclaration(
       ),
       tags: [data.name],
       security: routeData.accessConfig ? [{ bearerAuth: [] }] : undefined,
+      summary:
+        (routeData.description ?? "").substring(0, 100) +
+        ((routeData.description?.length ?? 0) > 100 ? "..." : ""),
+      description: routeData.description,
+
       request: {
         query: routeData.inputParser.pick({
           [RequestInputType.QUERY]: true,
@@ -192,6 +197,6 @@ export function bootstrapExpress(
     },
   };
 
-  app.use("/api/rest", swaggerUi.serve, swaggerUi.setup(document));
+  app.use("/api/swagger", swaggerUi.serve, swaggerUi.setup(document));
   app.use(MAIN_API_ROUTE, mainRouter);
 }

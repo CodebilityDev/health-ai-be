@@ -488,6 +488,14 @@ type Mutation {
   authclient_newAccountPasswordReset(email: String!): Boolean
   authclient_resetPassword(token: String!, password: String!): Boolean
   authclient_changePassword(oldPassword: String!, newPassword: String!): Boolean
+
+  """
+  !!!READ!!! Dont use this.
+  
+  Only usable if you are logged in.
+  
+  This is a test mutation.
+  """
   TestMethodMutation: TestMethodMutationOutput
 }
 

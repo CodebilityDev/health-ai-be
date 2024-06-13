@@ -55,6 +55,8 @@ testGraphqlDeclarations.add(
   new GraphqlActionMetadata({
     root: GraphqlMethods.Mutation,
     name: "TestMethodMutation",
+    description:
+      "!!!READ!!! Dont use this.\n\nOnly usable if you are logged in.\n\nThis is a test mutation.",
     accessConfig: graphqlAccessConfig({}),
     output: [
       {

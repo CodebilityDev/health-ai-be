@@ -166,6 +166,7 @@ export class GraphqlMethodDeclarationList {
       // Create Action Type
       typeDefs.push(`
       type ${action.root} {
+        ${action.description ? `"""${action.description}"""` : ""}
         ${action.name}${
           properties ? `(input: ${inputName})` : ""
         }: ${outputType}

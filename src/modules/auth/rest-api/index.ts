@@ -135,6 +135,7 @@ authRouteDeclaration.routes.set(
     method: RouteMethod.POST,
     useJsonParser: false,
     useFileParser: true,
+    description: "Upload a file",
     inputParser: z.object({
       [RequestInputType.FILES]: z.object({
         file: FILE_TYPE,
