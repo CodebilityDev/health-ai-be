@@ -13,21 +13,22 @@ import {
 } from "@keystone-6/core/fields";
 import { z } from "zod";
 import {
-  groupMemberKeymap,
-  quickMembershipCheck,
-} from "../../common/access/accessTable";
-import { accessConfig } from "../../common/access/definitions/access";
+  ACCESS_LEVELS,
+  GlobalContext,
+  PERMISSION_ENUM,
+} from "~/common/context";
+import { s3ImageConfigKey } from "~/config/imageConfig";
+import { accessConfig } from "~/lib/schema/access";
 import {
   allow,
   checkRole,
+  groupMemberKeymap,
   hasRole,
   isOwner,
   memberhipCheckString,
+  quickMembershipCheck,
   sequential,
-} from "../../common/access/definitions/templates";
-import { ACCESS_LEVELS, PERMISSION_ENUM } from "../../common/roles";
-import { GlobalContext } from "../../common/types";
-import { s3ImageConfigKey } from "../../imageConfig";
+} from "~/lib/schema/access/templates";
 
 export const userDataList: Lists = {
   User: list({

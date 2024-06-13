@@ -1,8 +1,8 @@
-import { ModuleDefinition } from "~modules/definition";
+import { Module } from "~/lib/modules/declarations";
 import { postDataList } from "./schema";
 
-export const postDefiniton: ModuleDefinition = {
+export const postDefiniton = new Module({
   schema: [postDataList],
   graphqlExtensions: [],
   restExtensions: [],
-};
+});

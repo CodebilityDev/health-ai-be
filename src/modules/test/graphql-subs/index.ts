@@ -1,20 +1,19 @@
 import { withFilter } from "graphql-subscriptions";
 import { z } from "zod";
-import { GlobalDataType } from "~/common/types";
+import { GlobalDataType } from "~/common/context";
+import { GraphqlMethods, GraphqlScalarType } from "~/lib/graphql";
 import {
   GraphqlActionMetadata,
-  GraphqlMethods,
-  GraphqlScalarType,
-  array,
-  graphqlFields,
-} from "~/server/graphqlObject";
-import { pubSub } from "~/server/graphqlPubsub";
+  graphqlDeclarations,
+} from "~/lib/graphql/declarations";
+import { array } from "~/lib/graphql/lib";
+import { pubSub } from "~/lib/socket/graphql/pubsub";
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export const testGraphqlDeclarations = graphqlFields({
+export const testGraphqlDeclarations = graphqlDeclarations({
   actions: [
     new GraphqlActionMetadata({
       root: GraphqlMethods.Query,

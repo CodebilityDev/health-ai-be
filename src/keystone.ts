@@ -5,21 +5,22 @@ import { z } from "zod";
 
 extendZodWithOpenApi(z);
 
-import { session, withAuth } from "~/authConfig";
-import { GlobalTypeInfo } from "~/common/types";
-import dbConfig from "~/dbConfig";
-import s3FilesStorageConfig, { s3FilesConfigKey } from "~/fileConfig";
-import s3ImageStorageConfig, { s3ImageConfigKey } from "~/imageConfig";
-import { injectModules } from "~/modules";
-import { CONFIG } from "~/utils/config/env";
+import { GlobalTypeInfo } from "~/common/context";
+import { CONFIG } from "~/common/env";
+import { session, withAuth } from "~/config/authConfig";
+import dbConfig from "~/config/dbConfig";
+import s3FilesStorageConfig, { s3FilesConfigKey } from "~/config/fileConfig";
+import s3ImageStorageConfig, { s3ImageConfigKey } from "~/config/imageConfig";
 
 // update package.json time
 
 import * as fs from "fs";
 import * as path from "path";
-import { MEM_CACHE_INSTANCE } from "./server/memcache";
+import { MEM_CACHE_INSTANCE } from "~/services/cache/memcache";
+import { injectModules } from "./lib/modules";
+import { moduleDefinitions } from "./modules";
 
-const configDef = injectModules({
+const configDef = injectModules(moduleDefinitions, {
   db: dbConfig,
   lists: {},
   session,
@@ -61,7 +62,7 @@ const keystoneConfig = config<GlobalTypeInfo>(configDef);
 if (!fs.existsSync(path.join(process.cwd(), "reload.json"))) {
   fs.writeFileSync(
     path.join(process.cwd(), "reload.json"),
-    JSON.stringify({ time: new Date().toISOString() }, null, 2),
+    JSON.stringify({ time: new Date().toISOString() }, null, 2)
   );
 }
 

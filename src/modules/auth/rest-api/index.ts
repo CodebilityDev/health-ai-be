@@ -1,25 +1,24 @@
 import { ImageExtension } from "@keystone-6/core/types";
 import { z } from "zod";
-import { PERMISSION_ENUM } from "~/common/roles";
-import { s3ImageConfigKey } from "~/imageConfig";
-import { LoginDocument } from "~graphql/operations";
+import { PERMISSION_ENUM } from "~/common/context";
+import { s3ImageConfigKey } from "~/config/imageConfig";
+import { serverAccessConfig } from "~/lib/rest/access";
+import { hasRole } from "~/lib/rest/access/templates";
+import {
+  RouteDeclarationList,
+  RouteDeclarationMetadata,
+} from "~/lib/rest/declarations";
 import {
   FILE_TYPE,
   NO_INPUT,
   RequestInputType,
-  RouteDeclarationList,
-  RouteDeclarationMetadata,
   RouteMethod,
-} from "../../../server/declarations";
-import {
-  hasRole,
-  serverAccessConfig,
-} from "../../../server/services/access/serverAccessConfig";
+} from "~/lib/rest/types";
+import { LoginDocument } from "~graphql/operations";
 
-const authRouteDeclaration: RouteDeclarationList = {
-  name: "/auth",
-  routes: new Map(),
-};
+const authRouteDeclaration = new RouteDeclarationList({
+  path: "/auth",
+});
 
 authRouteDeclaration.routes.set(
   "/signin",

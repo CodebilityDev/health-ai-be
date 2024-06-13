@@ -1,4 +1,4 @@
-import { SocketDeclarationList } from "~/server/declarations";
+import { SocketDeclarationList } from "~/lib/socket/types";
 
 const extraSocketDeclaration: SocketDeclarationList = {
   name: "/post-ws",
