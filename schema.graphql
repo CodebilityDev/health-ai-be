@@ -482,13 +482,13 @@ type Mutation {
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, adminPassword: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
-  TestMethodMutation: TestMethodMutationOutput
   authclient_login(email: String!, password: String!): ClientItemAuthenticationWithPasswordResult
   authclient_register(email: String!, firstName: String!, lastName: String, password: String!): Boolean
   authclient_requestPasswordReset(email: String!): Boolean
   authclient_newAccountPasswordReset(email: String!): Boolean
   authclient_resetPassword(token: String!, password: String!): Boolean
   authclient_changePassword(oldPassword: String!, newPassword: String!): Boolean
+  TestMethodMutation: TestMethodMutationOutput
 }
 
 union ClientItemAuthenticationWithPasswordResult = ClientItemAuthenticationWithPasswordSuccess | ClientItemAuthenticationWithPasswordFailure

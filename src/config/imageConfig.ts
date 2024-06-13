@@ -1,5 +1,5 @@
 import { StorageConfig } from "@keystone-6/core/types";
-import { CONFIG } from "~/utils/config/env";
+import { CONFIG } from "~/common/env";
 
 const s3ImageStorageConfig: StorageConfig = {
   kind: "s3",

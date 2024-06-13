@@ -1,10 +1,8 @@
 import { createAuth } from "@keystone-6/auth";
 
 import { statelessSessions } from "@keystone-6/core/session";
-
-import { PERMISSION_ENUM } from "~/common/roles";
-import { AuthedSession } from "~/common/types";
-import { CONFIG } from "~/utils/config/env";
+import { AuthedSession, PERMISSION_ENUM } from "~/common/context";
+import { CONFIG } from "~/common/env";
 
 let sessionSecret = CONFIG.SESSION_SECRET;
 
