@@ -21,7 +21,7 @@ COPY . .
 
 # Build the app
 RUN yarn generate-types
-RUN yarn migrate:prod
+RUN yarn build:prod:docker
 
 # Expose the port the app runs on
 EXPOSE 80
