@@ -2,14 +2,14 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 export const CONFIG = {
-  DATABASE_URL: process.env.DATABASE_URL || "",
+  DATABASE_URL: process.env.DATABASE_URL || "postgresql://url",
   GRAPHQL_INSTROSPECTION: process.env.GRAPHQL_INSTROSPECTION || "true",
-  S3_BUCKET_NAME: process.env.S3_BUCKET_NAME || "",
-  S3_REGION: process.env.S3_REGION || "",
-  S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID || "",
-  S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY || "",
-  S3_ENDPOINT: process.env.S3_ENDPOINT || "",
-  S3_FORCE_PATH_STYLE: process.env.S3_FORCE_PATH_STYLE || "",
+  S3_BUCKET_NAME: process.env.S3_BUCKET_NAME || "value",
+  S3_REGION: process.env.S3_REGION || "value",
+  S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID || "value",
+  S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY || "value",
+  S3_ENDPOINT: process.env.S3_ENDPOINT || "https://value",
+  S3_FORCE_PATH_STYLE: process.env.S3_FORCE_PATH_STYLE || "value",
   SERVER_CORS_HEADERS:
     process.env.SERVER_CORS_HEADERS ||
     '"Origin, X-Requested-With, Content-Type, Accept, Authorization"',
