@@ -18,17 +18,8 @@ import {
   PERMISSION_ENUM,
 } from "~/common/context";
 import { s3ImageConfigKey } from "~/config/imageConfig";
-import { accessConfig } from "~/lib/schema/access";
-import {
-  allow,
-  checkRole,
-  groupMemberKeymap,
-  hasRole,
-  isOwner,
-  memberhipCheckString,
-  quickMembershipCheck,
-  sequential,
-} from "~/lib/schema/access/templates";
+import { schemaAccessConfig } from "~/lib/schema/access";
+import { SchemaAccessTemplate } from "~/lib/schema/access/templates";
 
 export const userDataList: Lists = {
   User: list({
@@ -69,7 +60,7 @@ export const userDataList: Lists = {
               return;
             }
 
-            if (checkRole(role, [PERMISSION_ENUM.DEV])) {
+            if (SchemaAccessTemplate.checkRole(role, [PERMISSION_ENUM.DEV])) {
               return;
             }
 
@@ -112,20 +103,24 @@ export const userDataList: Lists = {
               return;
             }
 
-            if (checkRole(role, [PERMISSION_ENUM.DEV])) {
+            if (SchemaAccessTemplate.checkRole(role, [PERMISSION_ENUM.DEV])) {
               return;
             }
 
             if (
-              checkRole(role, [PERMISSION_ENUM.DEV]) &&
-              checkRole(selectedRole, [PERMISSION_ENUM.DEV])
+              SchemaAccessTemplate.checkRole(role, [PERMISSION_ENUM.DEV]) &&
+              SchemaAccessTemplate.checkRole(selectedRole, [
+                PERMISSION_ENUM.DEV,
+              ])
             ) {
               return;
             }
 
             if (
-              checkRole(role, [PERMISSION_ENUM.ADMIN]) &&
-              !checkRole(selectedRole, [PERMISSION_ENUM.DEV])
+              SchemaAccessTemplate.checkRole(role, [PERMISSION_ENUM.ADMIN]) &&
+              !SchemaAccessTemplate.checkRole(selectedRole, [
+                PERMISSION_ENUM.DEV,
+              ])
             ) {
               return;
             }
@@ -148,19 +143,19 @@ export const userDataList: Lists = {
         many: true,
       }),
     },
-    access: accessConfig({
+    access: schemaAccessConfig({
       isAuthed: true,
       // superAccess: [PERMISSION_ENUM.ADMIN],
       operations: {
-        read: allow,
-        write: hasRole({ roles: [PERMISSION_ENUM.ADMIN] }),
-        update: allow,
+        read: SchemaAccessTemplate.allow,
+        write: SchemaAccessTemplate.hasRole({ roles: [PERMISSION_ENUM.ADMIN] }),
+        update: SchemaAccessTemplate.allow,
       },
       filter: {
-        read: allow,
-        write: sequential([
-          hasRole({ roles: [PERMISSION_ENUM.ADMIN] }),
-          isOwner(),
+        read: SchemaAccessTemplate.allow,
+        write: SchemaAccessTemplate.sequential([
+          SchemaAccessTemplate.hasRole({ roles: [PERMISSION_ENUM.ADMIN] }),
+          SchemaAccessTemplate.isOwner(),
         ]),
       },
     }),
@@ -179,7 +174,7 @@ export const userDataList: Lists = {
           return addValidationError("You are not allowed to delete this");
         }
 
-        if (checkRole(userRole, [PERMISSION_ENUM.DEV])) {
+        if (SchemaAccessTemplate.checkRole(userRole, [PERMISSION_ENUM.DEV])) {
           return;
         }
 
@@ -197,7 +192,9 @@ export const userDataList: Lists = {
             return;
           }
 
-          if (checkRole(item.role, [PERMISSION_ENUM.DEV])) {
+          if (
+            SchemaAccessTemplate.checkRole(item.role, [PERMISSION_ENUM.DEV])
+          ) {
             return;
           }
 
@@ -253,23 +250,23 @@ export const userDataList: Lists = {
         }
       },
     },
-    access: accessConfig({
+    access: schemaAccessConfig({
       isAuthed: true,
       operations: {
-        all: allow,
+        all: SchemaAccessTemplate.allow,
       },
       filter: {
-        all: sequential([
+        all: SchemaAccessTemplate.sequential([
           ({ context }) => {
             return {
               OR: [
-                memberhipCheckString(
+                SchemaAccessTemplate.memberhipCheckString(
                   {
                     type: "user",
                     userId: context.session?.itemId,
                     permissionLevel: ACCESS_LEVELS.VIEW,
                   },
-                  groupMemberKeymap,
+                  SchemaAccessTemplate.groupMemberKeymap,
                 ),
               ],
             };
@@ -292,13 +289,15 @@ export const userDataList: Lists = {
         defaultValue: ACCESS_LEVELS.VIEW,
       }),
     },
-    access: accessConfig({
+    access: schemaAccessConfig({
       isAuthed: true,
       operations: {
-        all: allow,
+        all: SchemaAccessTemplate.allow,
       },
       filter: {
-        all: sequential([quickMembershipCheck()]),
+        all: SchemaAccessTemplate.sequential([
+          SchemaAccessTemplate.quickMembershipCheck(),
+        ]),
       },
     }),
   }),

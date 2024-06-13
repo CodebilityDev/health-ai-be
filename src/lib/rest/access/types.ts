@@ -4,5 +4,5 @@ export type ServerAccessFunction = (operation: ServerOperationArgs) => boolean;
 
 export type ServerAccessConfigBuilder = (generatorArgs: {
   superAccess?: string[];
-  conditions?: ((operation: ServerOperationArgs) => boolean)[];
+  conditions?: ServerAccessFunction[];
 }) => ServerAccessFunction;

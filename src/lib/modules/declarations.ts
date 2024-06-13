@@ -1,17 +1,23 @@
 import type { Lists } from ".keystone/types";
-import { GraphqlMethodDeclarationList } from "../graphql/declarations";
+import {
+  GraphqlMethodDeclarationList,
+  GraphqlSchemaInjection,
+} from "../graphql/declarations";
 import { RouteDeclarationList } from "../rest/declarations";
 import { SocketDeclarationList } from "../socket/types";
 
 export class Module {
   schema: Lists[];
-  graphqlExtensions: GraphqlMethodDeclarationList[];
+  graphqlExtensions: (GraphqlMethodDeclarationList | GraphqlSchemaInjection)[];
   restExtensions: RouteDeclarationList[];
   socketExtensions?: SocketDeclarationList[];
 
   constructor(args: {
     schema: Lists[];
-    graphqlExtensions: GraphqlMethodDeclarationList[];
+    graphqlExtensions: (
+      | GraphqlMethodDeclarationList
+      | GraphqlSchemaInjection
+    )[];
     restExtensions: RouteDeclarationList[];
     socketExtensions?: SocketDeclarationList[];
   }) {

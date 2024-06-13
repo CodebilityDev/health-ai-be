@@ -2,7 +2,7 @@ import { deepMerge } from "~/functions/deepMerge";
 import { UserRoleType } from "~graphql/operations";
 import { ItemArgs, OperationArgs } from "./types";
 
-export const accessConfig = <T, N = any, O = any>(generatorArgs: {
+export const schemaAccessConfig = <T, N = any, O = any>(generatorArgs: {
   isAuthed?: boolean;
   superAccess?: string[];
   operations: {

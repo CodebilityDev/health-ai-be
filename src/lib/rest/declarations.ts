@@ -1,5 +1,5 @@
 import { ServerAccessFunction } from "./access/types";
-import { RouteDeclaration, RouteMethod } from "./types";
+import { NO_INPUT, RouteDeclaration, RouteMethod } from "./types";
 
 export class RouteDeclarationMetadata<T = any, U = any> {
   method: RouteMethod;
@@ -12,18 +12,18 @@ export class RouteDeclarationMetadata<T = any, U = any> {
   function: RouteDeclaration<z.infer<T>>;
 
   constructor(args: {
-    method: RouteMethod;
-    accessConfig?: ServerAccessFunction;
-    inputParser: T;
-    outputParser?: U;
     // @ts-expect-error T does not satisfy the constraint 'z.ZodType<any>'.
     func: RouteDeclaration<z.infer<T>>;
+    method?: RouteMethod;
+    accessConfig?: ServerAccessFunction;
+    inputParser?: T;
+    outputParser?: U;
     useJsonParser?: boolean;
     useFileParser?: boolean;
   }) {
-    this.method = args.method;
+    this.method = args.method ?? RouteMethod.GET;
     this.function = args.func;
-    this.inputParser = args.inputParser;
+    this.inputParser = args.inputParser ?? (NO_INPUT as T);
     this.accessConfig = args.accessConfig;
     this.outputParser = args.outputParser;
     this.useJsonParser = args.useJsonParser ?? true;

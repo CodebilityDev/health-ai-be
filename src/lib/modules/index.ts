@@ -1,7 +1,11 @@
 import { KeystoneConfig } from "@keystone-6/core/types";
 import type { GraphQLSchema } from "graphql/type/schema";
 import { GlobalTypeInfo } from "~/common/context";
-import { bootstrapExpress } from "../rest";
+import {
+  GraphqlMethodDeclarationList,
+  GraphqlSchemaInjection,
+} from "../graphql/declarations";
+import { bootstrapExpress } from "../rest/injector";
 import { bootstrapHttp } from "../socket";
 import { Module } from "./declarations";
 
@@ -18,7 +22,18 @@ export function injectModules(
 
   // inject graphql extensions
   const allExtensions = modules.reduce(
-    (acc, module) => [...acc, ...module.graphqlExtensions],
+    (acc, module) => {
+      const graphqlInjections: GraphqlSchemaInjection[] = [];
+      for (const extension of module.graphqlExtensions) {
+        if (typeof extension === "function") {
+          graphqlInjections.push(extension);
+        } else {
+          const extensionList = extension as GraphqlMethodDeclarationList;
+          graphqlInjections.push(extensionList.compile());
+        }
+      }
+      return [...acc, ...graphqlInjections];
+    },
     [] as ((schema: GraphQLSchema) => GraphQLSchema)[],
   );
 

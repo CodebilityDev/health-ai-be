@@ -3,7 +3,7 @@ import { z } from "zod";
 import { PERMISSION_ENUM } from "~/common/context";
 import { s3ImageConfigKey } from "~/config/imageConfig";
 import { serverAccessConfig } from "~/lib/rest/access";
-import { hasRole } from "~/lib/rest/access/templates";
+import { RestAccessTemplate } from "~/lib/rest/access/templates";
 import {
   RouteDeclarationList,
   RouteDeclarationMetadata,
@@ -68,7 +68,9 @@ authRouteDeclaration.routes.set(
   new RouteDeclarationMetadata({
     method: RouteMethod.GET,
     accessConfig: serverAccessConfig({
-      conditions: [hasRole({ roles: [PERMISSION_ENUM.ADMIN] })],
+      conditions: [
+        RestAccessTemplate.hasRole({ roles: [PERMISSION_ENUM.ADMIN] }),
+      ],
     }),
     inputParser: z.object({
       [RequestInputType.PARAMS]: z.object({

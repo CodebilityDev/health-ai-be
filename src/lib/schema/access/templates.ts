@@ -3,13 +3,13 @@ import { z } from "zod";
 import { ACCESS_LEVELS, GlobalContext } from "~/common/context";
 import { ItemArgs, OperationArgs } from "./types";
 
-export const hasRole =
+const hasRole =
   <N = any, O = any>(args: { roles: string[] }) =>
   (operation: OperationArgs | ItemArgs<N, O>) => {
     return args.roles.includes(operation.session?.data?.role);
   };
 
-export const isOwner =
+const isOwner =
   <N = any, O = any>(args?: { itemIDKey?: string }) =>
   (operation: ItemArgs<N, O>) => {
     const userID = operation.session?.data?.id;
@@ -25,7 +25,7 @@ export const isOwner =
     };
   };
 
-export const validateInput =
+const validateInput =
   <N = any, O = any>(args: { validator: z.ZodObject<any> }) =>
   (operation: ItemArgs<N, O>) => {
     const validateResult = args.validator.safeParse(operation.inputData);
@@ -37,7 +37,7 @@ export const validateInput =
     return false;
   };
 
-export const sequential =
+const sequential =
   <N = any, O = any>(
     checkers: ((operation: ItemArgs<N, O>) => boolean | Record<string, any>)[],
   ) =>
@@ -51,15 +51,15 @@ export const sequential =
     return false;
   };
 
-export const allow = () => true;
+const allow = () => true;
 
-export const deny = () => false;
+const deny = () => false;
 
-export const checkRole = (role: string, allowedRoles: string[]) => {
+const checkRole = (role: string, allowedRoles: string[]) => {
   return allowedRoles.includes(role);
 };
 
-export const memberhipCheckString = (
+const memberhipCheckString = (
   check: {
     userId?: string;
     permissionLevel?: number;
@@ -106,7 +106,7 @@ export const memberhipCheckString = (
   }
 };
 
-export const groupMemberKeymap = {
+const groupMemberKeymap = {
   accessKey: "access",
   tableKey: "members",
   userKey: "user",
@@ -114,7 +114,7 @@ export const groupMemberKeymap = {
   type: "user",
 };
 
-export const quickMembershipCheck =
+const quickMembershipCheck =
   (fargs?: { level?: number; nest?: (base: any) => any }) =>
   (args: { context: GlobalContext }) => {
     if (fargs?.nest)
@@ -148,7 +148,7 @@ export const quickMembershipCheck =
     };
   };
 
-export const deniedAll = {
+const deniedAll = {
   operation: {
     ...allOperations(denyAll),
   },
@@ -158,4 +158,18 @@ export const deniedAll = {
   item: {
     ...allOperations(denyAll),
   },
+};
+
+export const SchemaAccessTemplate = {
+  hasRole,
+  isOwner,
+  validateInput,
+  sequential,
+  allow,
+  deny,
+  checkRole,
+  memberhipCheckString,
+  groupMemberKeymap,
+  quickMembershipCheck,
+  deniedAll,
 };
