@@ -24,7 +24,8 @@
     "check-env": "ts-node --transpile-only ./src/automations/env-check.ts",
     "sample-env": "ts-node --transpile-only ./src/automations/env-sync.ts",
     "codegen-env": "ts-node --transpile-only ./src/automations/env-codegen.ts",
-    "codegen": "graphql-codegen --config codegen.ts"
+    "codegen": "graphql-codegen --config codegen.ts",
+    "postinstall": "npm run generate-types"
   },
   "dependencies": {
     "@apollo/server-plugin-response-cache": "^4.1.3",
