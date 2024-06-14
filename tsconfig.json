@@ -9,7 +9,6 @@
     "jsx": "react-jsx",
     "baseUrl": "./",
     "paths": {
-      "~graphql/*": ["graphql/*"],
       "~modules/*": ["src/modules/*"],
       "~/*": ["src/*"]
     }

@@ -1,4 +1,4 @@
-import { UserRoleType } from "~graphql/operations";
+import { UserRoleType } from "~/common/graphql-types";
 import { ServerOperationArgs } from "../types";
 import { ServerAccessConfigBuilder } from "./types";
 

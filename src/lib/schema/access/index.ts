@@ -1,5 +1,5 @@
+import { UserRoleType } from "~/common/graphql-types";
 import { deepMerge } from "~/functions/deepMerge";
-import { UserRoleType } from "~graphql/operations";
 import { ItemArgs, OperationArgs } from "./types";
 
 export const schemaAccessConfig = <T, N = any, O = any>(generatorArgs: {

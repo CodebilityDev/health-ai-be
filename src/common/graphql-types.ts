@@ -84,32 +84,88 @@ export type DateTimeNullableFilter = {
 export type Group = {
   __typename?: "Group";
   id: Scalars["ID"]["output"];
-  members?: Maybe<Array<User>>;
+  members?: Maybe<Array<GroupMember>>;
   membersCount?: Maybe<Scalars["Int"]["output"]>;
   name?: Maybe<Scalars["String"]["output"]>;
 };
 
 export type GroupMembersArgs = {
-  cursor?: InputMaybe<UserWhereUniqueInput>;
-  orderBy?: Array<UserOrderByInput>;
+  cursor?: InputMaybe<GroupMemberWhereUniqueInput>;
+  orderBy?: Array<GroupMemberOrderByInput>;
   skip?: Scalars["Int"]["input"];
   take?: InputMaybe<Scalars["Int"]["input"]>;
-  where?: UserWhereInput;
+  where?: GroupMemberWhereInput;
 };
 
 export type GroupMembersCountArgs = {
-  where?: UserWhereInput;
+  where?: GroupMemberWhereInput;
 };
 
 export type GroupCreateInput = {
-  members?: InputMaybe<UserRelateToManyForCreateInput>;
+  members?: InputMaybe<GroupMemberRelateToManyForCreateInput>;
   name?: InputMaybe<Scalars["String"]["input"]>;
 };
 
-export type GroupManyRelationFilter = {
-  every?: InputMaybe<GroupWhereInput>;
-  none?: InputMaybe<GroupWhereInput>;
-  some?: InputMaybe<GroupWhereInput>;
+export type GroupMember = {
+  __typename?: "GroupMember";
+  access?: Maybe<Scalars["Int"]["output"]>;
+  group?: Maybe<Group>;
+  id: Scalars["ID"]["output"];
+  user?: Maybe<User>;
+};
+
+export type GroupMemberCreateInput = {
+  access?: InputMaybe<Scalars["Int"]["input"]>;
+  group?: InputMaybe<GroupRelateToOneForCreateInput>;
+  user?: InputMaybe<UserRelateToOneForCreateInput>;
+};
+
+export type GroupMemberManyRelationFilter = {
+  every?: InputMaybe<GroupMemberWhereInput>;
+  none?: InputMaybe<GroupMemberWhereInput>;
+  some?: InputMaybe<GroupMemberWhereInput>;
+};
+
+export type GroupMemberOrderByInput = {
+  access?: InputMaybe<OrderDirection>;
+  id?: InputMaybe<OrderDirection>;
+};
+
+export type GroupMemberRelateToManyForCreateInput = {
+  connect?: InputMaybe<Array<GroupMemberWhereUniqueInput>>;
+  create?: InputMaybe<Array<GroupMemberCreateInput>>;
+};
+
+export type GroupMemberRelateToManyForUpdateInput = {
+  connect?: InputMaybe<Array<GroupMemberWhereUniqueInput>>;
+  create?: InputMaybe<Array<GroupMemberCreateInput>>;
+  disconnect?: InputMaybe<Array<GroupMemberWhereUniqueInput>>;
+  set?: InputMaybe<Array<GroupMemberWhereUniqueInput>>;
+};
+
+export type GroupMemberUpdateArgs = {
+  data: GroupMemberUpdateInput;
+  where: GroupMemberWhereUniqueInput;
+};
+
+export type GroupMemberUpdateInput = {
+  access?: InputMaybe<Scalars["Int"]["input"]>;
+  group?: InputMaybe<GroupRelateToOneForUpdateInput>;
+  user?: InputMaybe<UserRelateToOneForUpdateInput>;
+};
+
+export type GroupMemberWhereInput = {
+  AND?: InputMaybe<Array<GroupMemberWhereInput>>;
+  NOT?: InputMaybe<Array<GroupMemberWhereInput>>;
+  OR?: InputMaybe<Array<GroupMemberWhereInput>>;
+  access?: InputMaybe<IntNullableFilter>;
+  group?: InputMaybe<GroupWhereInput>;
+  id?: InputMaybe<IdFilter>;
+  user?: InputMaybe<UserWhereInput>;
+};
+
+export type GroupMemberWhereUniqueInput = {
+  id?: InputMaybe<Scalars["ID"]["input"]>;
 };
 
 export type GroupOrderByInput = {
@@ -117,16 +173,15 @@ export type GroupOrderByInput = {
   name?: InputMaybe<OrderDirection>;
 };
 
-export type GroupRelateToManyForCreateInput = {
-  connect?: InputMaybe<Array<GroupWhereUniqueInput>>;
-  create?: InputMaybe<Array<GroupCreateInput>>;
+export type GroupRelateToOneForCreateInput = {
+  connect?: InputMaybe<GroupWhereUniqueInput>;
+  create?: InputMaybe<GroupCreateInput>;
 };
 
-export type GroupRelateToManyForUpdateInput = {
-  connect?: InputMaybe<Array<GroupWhereUniqueInput>>;
-  create?: InputMaybe<Array<GroupCreateInput>>;
-  disconnect?: InputMaybe<Array<GroupWhereUniqueInput>>;
-  set?: InputMaybe<Array<GroupWhereUniqueInput>>;
+export type GroupRelateToOneForUpdateInput = {
+  connect?: InputMaybe<GroupWhereUniqueInput>;
+  create?: InputMaybe<GroupCreateInput>;
+  disconnect?: InputMaybe<Scalars["Boolean"]["input"]>;
 };
 
 export type GroupUpdateArgs = {
@@ -135,7 +190,7 @@ export type GroupUpdateArgs = {
 };
 
 export type GroupUpdateInput = {
-  members?: InputMaybe<UserRelateToManyForUpdateInput>;
+  members?: InputMaybe<GroupMemberRelateToManyForUpdateInput>;
   name?: InputMaybe<Scalars["String"]["input"]>;
 };
 
@@ -144,7 +199,7 @@ export type GroupWhereInput = {
   NOT?: InputMaybe<Array<GroupWhereInput>>;
   OR?: InputMaybe<Array<GroupWhereInput>>;
   id?: InputMaybe<IdFilter>;
-  members?: InputMaybe<UserManyRelationFilter>;
+  members?: InputMaybe<GroupMemberManyRelationFilter>;
   name?: InputMaybe<StringFilter>;
 };
 
@@ -182,6 +237,17 @@ export type ImageFieldOutput = {
   id: Scalars["ID"]["output"];
   url: Scalars["String"]["output"];
   width: Scalars["Int"]["output"];
+};
+
+export type IntNullableFilter = {
+  equals?: InputMaybe<Scalars["Int"]["input"]>;
+  gt?: InputMaybe<Scalars["Int"]["input"]>;
+  gte?: InputMaybe<Scalars["Int"]["input"]>;
+  in?: InputMaybe<Array<Scalars["Int"]["input"]>>;
+  lt?: InputMaybe<Scalars["Int"]["input"]>;
+  lte?: InputMaybe<Scalars["Int"]["input"]>;
+  not?: InputMaybe<IntNullableFilter>;
+  notIn?: InputMaybe<Array<Scalars["Int"]["input"]>>;
 };
 
 export type KeystoneAdminMeta = {
@@ -305,6 +371,13 @@ export type KeystoneMeta = {
 
 export type Mutation = {
   __typename?: "Mutation";
+  /**
+   * !!!READ!!! Dont use this.
+   *
+   * Only usable if you are logged in.
+   *
+   * This is a test mutation.
+   */
   TestMethodMutation?: Maybe<TestMethodMutationOutput>;
   authclient_changePassword?: Maybe<Scalars["Boolean"]["output"]>;
   authclient_login?: Maybe<ClientItemAuthenticationWithPasswordResult>;
@@ -314,6 +387,8 @@ export type Mutation = {
   authclient_resetPassword?: Maybe<Scalars["Boolean"]["output"]>;
   authenticateUserWithPassword?: Maybe<UserAuthenticationWithPasswordResult>;
   createGroup?: Maybe<Group>;
+  createGroupMember?: Maybe<GroupMember>;
+  createGroupMembers?: Maybe<Array<Maybe<GroupMember>>>;
   createGroups?: Maybe<Array<Maybe<Group>>>;
   createInitialUser: UserAuthenticationWithPasswordSuccess;
   createPost?: Maybe<Post>;
@@ -323,6 +398,8 @@ export type Mutation = {
   createUser?: Maybe<User>;
   createUsers?: Maybe<Array<Maybe<User>>>;
   deleteGroup?: Maybe<Group>;
+  deleteGroupMember?: Maybe<GroupMember>;
+  deleteGroupMembers?: Maybe<Array<Maybe<GroupMember>>>;
   deleteGroups?: Maybe<Array<Maybe<Group>>>;
   deletePost?: Maybe<Post>;
   deletePostTag?: Maybe<PostTag>;
@@ -332,6 +409,8 @@ export type Mutation = {
   deleteUsers?: Maybe<Array<Maybe<User>>>;
   endSession: Scalars["Boolean"]["output"];
   updateGroup?: Maybe<Group>;
+  updateGroupMember?: Maybe<GroupMember>;
+  updateGroupMembers?: Maybe<Array<Maybe<GroupMember>>>;
   updateGroups?: Maybe<Array<Maybe<Group>>>;
   updatePost?: Maybe<Post>;
   updatePostTag?: Maybe<PostTag>;
@@ -380,6 +459,14 @@ export type MutationCreateGroupArgs = {
   data: GroupCreateInput;
 };
 
+export type MutationCreateGroupMemberArgs = {
+  data: GroupMemberCreateInput;
+};
+
+export type MutationCreateGroupMembersArgs = {
+  data: Array<GroupMemberCreateInput>;
+};
+
 export type MutationCreateGroupsArgs = {
   data: Array<GroupCreateInput>;
 };
@@ -416,6 +503,14 @@ export type MutationDeleteGroupArgs = {
   where: GroupWhereUniqueInput;
 };
 
+export type MutationDeleteGroupMemberArgs = {
+  where: GroupMemberWhereUniqueInput;
+};
+
+export type MutationDeleteGroupMembersArgs = {
+  where: Array<GroupMemberWhereUniqueInput>;
+};
+
 export type MutationDeleteGroupsArgs = {
   where: Array<GroupWhereUniqueInput>;
 };
@@ -447,6 +542,15 @@ export type MutationDeleteUsersArgs = {
 export type MutationUpdateGroupArgs = {
   data: GroupUpdateInput;
   where: GroupWhereUniqueInput;
+};
+
+export type MutationUpdateGroupMemberArgs = {
+  data: GroupMemberUpdateInput;
+  where: GroupMemberWhereUniqueInput;
+};
+
+export type MutationUpdateGroupMembersArgs = {
+  data: Array<GroupMemberUpdateArgs>;
 };
 
 export type MutationUpdateGroupsArgs = {
@@ -510,7 +614,6 @@ export type PasswordState = {
 
 export type Post = {
   __typename?: "Post";
-  author?: Maybe<User>;
   content?: Maybe<Scalars["String"]["output"]>;
   coverImage?: Maybe<ImageFieldOutput>;
   id: Scalars["ID"]["output"];
@@ -532,7 +635,6 @@ export type PostTagsCountArgs = {
 };
 
 export type PostCreateInput = {
-  author?: InputMaybe<UserRelateToOneForCreateInput>;
   content?: InputMaybe<Scalars["String"]["input"]>;
   coverImage?: InputMaybe<ImageFieldInput>;
   tags?: InputMaybe<PostTagRelateToManyForCreateInput>;
@@ -640,7 +742,6 @@ export type PostUpdateArgs = {
 };
 
 export type PostUpdateInput = {
-  author?: InputMaybe<UserRelateToOneForUpdateInput>;
   content?: InputMaybe<Scalars["String"]["input"]>;
   coverImage?: InputMaybe<ImageFieldInput>;
   tags?: InputMaybe<PostTagRelateToManyForUpdateInput>;
@@ -651,7 +752,6 @@ export type PostWhereInput = {
   AND?: InputMaybe<Array<PostWhereInput>>;
   NOT?: InputMaybe<Array<PostWhereInput>>;
   OR?: InputMaybe<Array<PostWhereInput>>;
-  author?: InputMaybe<UserWhereInput>;
   content?: InputMaybe<StringFilter>;
   id?: InputMaybe<IdFilter>;
   tags?: InputMaybe<PostTagManyRelationFilter>;
@@ -667,6 +767,9 @@ export type Query = {
   TestMethod?: Maybe<TestMethodOutput>;
   authenticatedItem?: Maybe<AuthenticatedItem>;
   group?: Maybe<Group>;
+  groupMember?: Maybe<GroupMember>;
+  groupMembers?: Maybe<Array<GroupMember>>;
+  groupMembersCount?: Maybe<Scalars["Int"]["output"]>;
   groups?: Maybe<Array<Group>>;
   groupsCount?: Maybe<Scalars["Int"]["output"]>;
   keystone: KeystoneMeta;
@@ -687,6 +790,22 @@ export type QueryTestMethodArgs = {
 
 export type QueryGroupArgs = {
   where: GroupWhereUniqueInput;
+};
+
+export type QueryGroupMemberArgs = {
+  where: GroupMemberWhereUniqueInput;
+};
+
+export type QueryGroupMembersArgs = {
+  cursor?: InputMaybe<GroupMemberWhereUniqueInput>;
+  orderBy?: Array<GroupMemberOrderByInput>;
+  skip?: Scalars["Int"]["input"];
+  take?: InputMaybe<Scalars["Int"]["input"]>;
+  where?: GroupMemberWhereInput;
+};
+
+export type QueryGroupMembersCountArgs = {
+  where?: GroupMemberWhereInput;
 };
 
 export type QueryGroupsArgs = {
@@ -845,38 +964,24 @@ export type User = {
   createdAt?: Maybe<Scalars["DateTime"]["output"]>;
   displayName?: Maybe<Scalars["String"]["output"]>;
   email?: Maybe<Scalars["String"]["output"]>;
-  groups?: Maybe<Array<Group>>;
+  groups?: Maybe<Array<GroupMember>>;
   groupsCount?: Maybe<Scalars["Int"]["output"]>;
   id: Scalars["ID"]["output"];
   lastName?: Maybe<Scalars["String"]["output"]>;
   name?: Maybe<Scalars["String"]["output"]>;
-  posts?: Maybe<Array<Post>>;
-  postsCount?: Maybe<Scalars["Int"]["output"]>;
   role?: Maybe<UserRoleType>;
 };
 
 export type UserGroupsArgs = {
-  cursor?: InputMaybe<GroupWhereUniqueInput>;
-  orderBy?: Array<GroupOrderByInput>;
+  cursor?: InputMaybe<GroupMemberWhereUniqueInput>;
+  orderBy?: Array<GroupMemberOrderByInput>;
   skip?: Scalars["Int"]["input"];
   take?: InputMaybe<Scalars["Int"]["input"]>;
-  where?: GroupWhereInput;
+  where?: GroupMemberWhereInput;
 };
 
 export type UserGroupsCountArgs = {
-  where?: GroupWhereInput;
-};
-
-export type UserPostsArgs = {
-  cursor?: InputMaybe<PostWhereUniqueInput>;
-  orderBy?: Array<PostOrderByInput>;
-  skip?: Scalars["Int"]["input"];
-  take?: InputMaybe<Scalars["Int"]["input"]>;
-  where?: PostWhereInput;
-};
-
-export type UserPostsCountArgs = {
-  where?: PostWhereInput;
+  where?: GroupMemberWhereInput;
 };
 
 export type UserAuthenticationWithPasswordFailure = {
@@ -899,10 +1004,9 @@ export type UserCreateInput = {
   avatar?: InputMaybe<ImageFieldInput>;
   createdAt?: InputMaybe<Scalars["DateTime"]["input"]>;
   email?: InputMaybe<Scalars["String"]["input"]>;
-  groups?: InputMaybe<GroupRelateToManyForCreateInput>;
+  groups?: InputMaybe<GroupMemberRelateToManyForCreateInput>;
   lastName?: InputMaybe<Scalars["String"]["input"]>;
   name?: InputMaybe<Scalars["String"]["input"]>;
-  posts?: InputMaybe<PostRelateToManyForCreateInput>;
   role?: InputMaybe<UserRoleType>;
 };
 
@@ -913,12 +1017,6 @@ export type UserLocalAuthWhereInput = {
   id?: InputMaybe<IdFilter>;
 };
 
-export type UserManyRelationFilter = {
-  every?: InputMaybe<UserWhereInput>;
-  none?: InputMaybe<UserWhereInput>;
-  some?: InputMaybe<UserWhereInput>;
-};
-
 export type UserOrderByInput = {
   createdAt?: InputMaybe<OrderDirection>;
   email?: InputMaybe<OrderDirection>;
@@ -926,18 +1024,6 @@ export type UserOrderByInput = {
   lastName?: InputMaybe<OrderDirection>;
   name?: InputMaybe<OrderDirection>;
   role?: InputMaybe<OrderDirection>;
-};
-
-export type UserRelateToManyForCreateInput = {
-  connect?: InputMaybe<Array<UserWhereUniqueInput>>;
-  create?: InputMaybe<Array<UserCreateInput>>;
-};
-
-export type UserRelateToManyForUpdateInput = {
-  connect?: InputMaybe<Array<UserWhereUniqueInput>>;
-  create?: InputMaybe<Array<UserCreateInput>>;
-  disconnect?: InputMaybe<Array<UserWhereUniqueInput>>;
-  set?: InputMaybe<Array<UserWhereUniqueInput>>;
 };
 
 export type UserRelateToOneForCreateInput = {
@@ -974,10 +1060,9 @@ export type UserUpdateInput = {
   avatar?: InputMaybe<ImageFieldInput>;
   createdAt?: InputMaybe<Scalars["DateTime"]["input"]>;
   email?: InputMaybe<Scalars["String"]["input"]>;
-  groups?: InputMaybe<GroupRelateToManyForUpdateInput>;
+  groups?: InputMaybe<GroupMemberRelateToManyForUpdateInput>;
   lastName?: InputMaybe<Scalars["String"]["input"]>;
   name?: InputMaybe<Scalars["String"]["input"]>;
-  posts?: InputMaybe<PostRelateToManyForUpdateInput>;
   role?: InputMaybe<UserRoleType>;
 };
 
@@ -988,12 +1073,11 @@ export type UserWhereInput = {
   adminPassword?: InputMaybe<PasswordFilter>;
   createdAt?: InputMaybe<DateTimeNullableFilter>;
   email?: InputMaybe<StringFilter>;
-  groups?: InputMaybe<GroupManyRelationFilter>;
+  groups?: InputMaybe<GroupMemberManyRelationFilter>;
   id?: InputMaybe<IdFilter>;
   lastName?: InputMaybe<StringFilter>;
   localAuth?: InputMaybe<UserLocalAuthWhereInput>;
   name?: InputMaybe<StringFilter>;
-  posts?: InputMaybe<PostManyRelationFilter>;
   role?: InputMaybe<UserRoleTypeNullableFilter>;
 };
 

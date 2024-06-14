@@ -1,6 +1,7 @@
 import { ImageExtension } from "@keystone-6/core/types";
 import { z } from "zod";
 import { PERMISSION_ENUM } from "~/common/context";
+import { LoginDocument } from "~/common/graphql-types";
 import { s3ImageConfigKey } from "~/config/imageConfig";
 import { serverAccessConfig } from "~/lib/rest/access";
 import { RestAccessTemplate } from "~/lib/rest/access/templates";
@@ -14,7 +15,6 @@ import {
   RequestInputType,
   RouteMethod,
 } from "~/lib/rest/types";
-import { LoginDocument } from "~graphql/operations";
 
 const authRouteDeclaration = new RouteDeclarationList({
   path: "/auth",
