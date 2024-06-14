@@ -21,6 +21,7 @@
     "commit": "npm run generate-types && npm run migrate:dev",
     "prepare": "husky",
     "format": "prettier --write \"./**/*.ts\"",
+    "check-env": "ts-node --transpile-only ./src/automations/env-check.ts",
     "sample-env": "ts-node --transpile-only ./src/automations/env-sync.ts",
     "codegen-env": "ts-node --transpile-only ./src/automations/env-codegen.ts",
     "codegen": "graphql-codegen --config codegen.ts"

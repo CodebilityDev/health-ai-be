@@ -20,6 +20,10 @@ async function main() {
     throw new Error("No env file found");
   }
 
+  // append .env.sample at start of .env file
+  const envSample = readFileSync(join(__dirname, "..", "..", ".env.sample"));
+  envFile = Buffer.concat([envSample, envFile]);
+
   // parse the env file
   const env = envFile.toString().split("\n");
 
@@ -29,6 +33,7 @@ async function main() {
   envVars.forEach((line) => {
     const [key, value] = line.split("=");
     // remove \r from value
+    if (!key || !value) return;
     envObject[key] = value.replace("\r", "");
     // get VALUE from "normal # VALUE"
     let [, recommendedValue] = value.split("#");
