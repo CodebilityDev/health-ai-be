@@ -56,22 +56,15 @@ model GroupMember {
   @@index([userId])
 }
 
-model Post {
-  id                   String    @id @default(cuid())
-  title                String    @default("")
-  content              String    @default("")
-  tags                 PostTag[] @relation("Post_tags")
-  coverImage_filesize  Int?
-  coverImage_extension String?
-  coverImage_width     Int?
-  coverImage_height    Int?
-  coverImage_id        String?
-}
-
-model PostTag {
-  id    String @id @default(cuid())
-  name  String @default("")
-  posts Post[] @relation("Post_tags")
+model ServerLog {
+  id        String    @id @default(cuid())
+  method    String    @default("")
+  url       String    @default("")
+  status    String    @default("")
+  elapsed   String    @default("")
+  graphql   String    @default("")
+  userID    String    @default("")
+  createdAt DateTime? @default(now())
 }
 
 enum UserRoleType {

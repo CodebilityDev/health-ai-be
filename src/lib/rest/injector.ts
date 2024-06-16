@@ -14,7 +14,7 @@ import fileUpload from "express-fileupload";
 import swaggerUi from "swagger-ui-express";
 import { GlobalContext } from "~/common/context";
 import { RouteDeclarationList } from "./declarations";
-import { devErrorHandler } from "./middleware/errorHandler";
+import { devErrorHandler, requestLogger } from "./middleware/errorHandler";
 import { RequestInputType } from "./types";
 
 const registry = new OpenAPIRegistry();
@@ -188,6 +188,7 @@ export function bootstrapExpress(
 ) {
   app.use(json());
   app.use(devErrorHandler);
+  app.use(requestLogger(commonContext));
   const mainRouter = Router();
 
   for (const routeData of extraRouteList) {

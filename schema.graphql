@@ -319,128 +319,69 @@ input UserRelateToOneForCreateInput {
   connect: UserWhereUniqueInput
 }
 
-type Post {
+type ServerLog {
   id: ID!
-  title: String
-  content: String
-  tags(where: PostTagWhereInput! = {}, orderBy: [PostTagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostTagWhereUniqueInput): [PostTag!]
-  tagsCount(where: PostTagWhereInput! = {}): Int
-  coverImage: ImageFieldOutput
+  method: String
+  url: String
+  status: String
+  elapsed: String
+  graphql: String
+  userID: String
+  createdAt: DateTime
 }
 
-input PostWhereUniqueInput {
+input ServerLogWhereUniqueInput {
   id: ID
 }
 
-input PostWhereInput {
-  AND: [PostWhereInput!]
-  OR: [PostWhereInput!]
-  NOT: [PostWhereInput!]
+input ServerLogWhereInput {
+  AND: [ServerLogWhereInput!]
+  OR: [ServerLogWhereInput!]
+  NOT: [ServerLogWhereInput!]
   id: IDFilter
-  title: StringFilter
-  content: StringFilter
-  tags: PostTagManyRelationFilter
+  method: StringFilter
+  url: StringFilter
+  status: StringFilter
+  elapsed: StringFilter
+  graphql: StringFilter
+  userID: StringFilter
+  createdAt: DateTimeNullableFilter
 }
 
-input PostTagManyRelationFilter {
-  every: PostTagWhereInput
-  some: PostTagWhereInput
-  none: PostTagWhereInput
-}
-
-input PostOrderByInput {
+input ServerLogOrderByInput {
   id: OrderDirection
-  title: OrderDirection
-  content: OrderDirection
+  method: OrderDirection
+  url: OrderDirection
+  status: OrderDirection
+  elapsed: OrderDirection
+  graphql: OrderDirection
+  userID: OrderDirection
+  createdAt: OrderDirection
 }
 
-input PostUpdateInput {
-  title: String
-  content: String
-  tags: PostTagRelateToManyForUpdateInput
-  coverImage: ImageFieldInput
+input ServerLogUpdateInput {
+  method: String
+  url: String
+  status: String
+  elapsed: String
+  graphql: String
+  userID: String
+  createdAt: DateTime
 }
 
-input PostTagRelateToManyForUpdateInput {
-  disconnect: [PostTagWhereUniqueInput!]
-  set: [PostTagWhereUniqueInput!]
-  create: [PostTagCreateInput!]
-  connect: [PostTagWhereUniqueInput!]
+input ServerLogUpdateArgs {
+  where: ServerLogWhereUniqueInput!
+  data: ServerLogUpdateInput!
 }
 
-input PostUpdateArgs {
-  where: PostWhereUniqueInput!
-  data: PostUpdateInput!
-}
-
-input PostCreateInput {
-  title: String
-  content: String
-  tags: PostTagRelateToManyForCreateInput
-  coverImage: ImageFieldInput
-}
-
-input PostTagRelateToManyForCreateInput {
-  create: [PostTagCreateInput!]
-  connect: [PostTagWhereUniqueInput!]
-}
-
-type PostTag {
-  id: ID!
-  name: String
-  posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostWhereUniqueInput): [Post!]
-  postsCount(where: PostWhereInput! = {}): Int
-}
-
-input PostTagWhereUniqueInput {
-  id: ID
-}
-
-input PostTagWhereInput {
-  AND: [PostTagWhereInput!]
-  OR: [PostTagWhereInput!]
-  NOT: [PostTagWhereInput!]
-  id: IDFilter
-  name: StringFilter
-  posts: PostManyRelationFilter
-}
-
-input PostManyRelationFilter {
-  every: PostWhereInput
-  some: PostWhereInput
-  none: PostWhereInput
-}
-
-input PostTagOrderByInput {
-  id: OrderDirection
-  name: OrderDirection
-}
-
-input PostTagUpdateInput {
-  name: String
-  posts: PostRelateToManyForUpdateInput
-}
-
-input PostRelateToManyForUpdateInput {
-  disconnect: [PostWhereUniqueInput!]
-  set: [PostWhereUniqueInput!]
-  create: [PostCreateInput!]
-  connect: [PostWhereUniqueInput!]
-}
-
-input PostTagUpdateArgs {
-  where: PostTagWhereUniqueInput!
-  data: PostTagUpdateInput!
-}
-
-input PostTagCreateInput {
-  name: String
-  posts: PostRelateToManyForCreateInput
-}
-
-input PostRelateToManyForCreateInput {
-  create: [PostCreateInput!]
-  connect: [PostWhereUniqueInput!]
+input ServerLogCreateInput {
+  method: String
+  url: String
+  status: String
+  elapsed: String
+  graphql: String
+  userID: String
+  createdAt: DateTime
 }
 
 """
@@ -467,18 +408,12 @@ type Mutation {
   updateGroupMembers(data: [GroupMemberUpdateArgs!]!): [GroupMember]
   deleteGroupMember(where: GroupMemberWhereUniqueInput!): GroupMember
   deleteGroupMembers(where: [GroupMemberWhereUniqueInput!]!): [GroupMember]
-  createPost(data: PostCreateInput!): Post
-  createPosts(data: [PostCreateInput!]!): [Post]
-  updatePost(where: PostWhereUniqueInput!, data: PostUpdateInput!): Post
-  updatePosts(data: [PostUpdateArgs!]!): [Post]
-  deletePost(where: PostWhereUniqueInput!): Post
-  deletePosts(where: [PostWhereUniqueInput!]!): [Post]
-  createPostTag(data: PostTagCreateInput!): PostTag
-  createPostTags(data: [PostTagCreateInput!]!): [PostTag]
-  updatePostTag(where: PostTagWhereUniqueInput!, data: PostTagUpdateInput!): PostTag
-  updatePostTags(data: [PostTagUpdateArgs!]!): [PostTag]
-  deletePostTag(where: PostTagWhereUniqueInput!): PostTag
-  deletePostTags(where: [PostTagWhereUniqueInput!]!): [PostTag]
+  createServerLog(data: ServerLogCreateInput!): ServerLog
+  createServerLogs(data: [ServerLogCreateInput!]!): [ServerLog]
+  updateServerLog(where: ServerLogWhereUniqueInput!, data: ServerLogUpdateInput!): ServerLog
+  updateServerLogs(data: [ServerLogUpdateArgs!]!): [ServerLog]
+  deleteServerLog(where: ServerLogWhereUniqueInput!): ServerLog
+  deleteServerLogs(where: [ServerLogWhereUniqueInput!]!): [ServerLog]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, adminPassword: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -488,15 +423,6 @@ type Mutation {
   authclient_newAccountPasswordReset(email: String!): Boolean
   authclient_resetPassword(token: String!, password: String!): Boolean
   authclient_changePassword(oldPassword: String!, newPassword: String!): Boolean
-
-  """
-  !!!READ!!! Dont use this.
-  
-  Only usable if you are logged in.
-  
-  This is a test mutation.
-  """
-  TestMethodMutation: TestMethodMutationOutput
 }
 
 union ClientItemAuthenticationWithPasswordResult = ClientItemAuthenticationWithPasswordSuccess | ClientItemAuthenticationWithPasswordFailure
@@ -537,15 +463,11 @@ type Query {
   groupMembers(where: GroupMemberWhereInput! = {}, orderBy: [GroupMemberOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupMemberWhereUniqueInput): [GroupMember!]
   groupMember(where: GroupMemberWhereUniqueInput!): GroupMember
   groupMembersCount(where: GroupMemberWhereInput! = {}): Int
-  posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostWhereUniqueInput): [Post!]
-  post(where: PostWhereUniqueInput!): Post
-  postsCount(where: PostWhereInput! = {}): Int
-  postTags(where: PostTagWhereInput! = {}, orderBy: [PostTagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostTagWhereUniqueInput): [PostTag!]
-  postTag(where: PostTagWhereUniqueInput!): PostTag
-  postTagsCount(where: PostTagWhereInput! = {}): Int
+  serverLogs(where: ServerLogWhereInput! = {}, orderBy: [ServerLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ServerLogWhereUniqueInput): [ServerLog!]
+  serverLog(where: ServerLogWhereUniqueInput!): ServerLog
+  serverLogsCount(where: ServerLogWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
-  TestMethod(input: TestMethodInput!): TestMethodOutput
 }
 
 union AuthenticatedItem = User
@@ -650,67 +572,4 @@ type KeystoneAdminUISort {
 enum KeystoneAdminUISortDirection {
   ASC
   DESC
-}
-
-type TestMethodOutput {
-  output: String
-  args: TestMethodOutput_Args
-  posts: [Post]
-}
-
-type TestMethodOutput_Args {
-  input: String!
-  x: Float!
-}
-
-input TestMethodInput {
-  input: String
-  x: Float
-}
-
-type TestMethodMutationOutputDetails {
-  id: String!
-  name: String!
-}
-
-type TestMethodMutationOutput {
-  post: String!
-  details: TestMethodMutationOutputDetails!
-  sub(input: SubInput!): SubOutput
-}
-
-type SubOutput {
-  parentID: String!
-  sum: Float!
-}
-
-input SubInput {
-  x: Float!
-  y: Float!
-}
-
-type Time {
-  iso: String!
-}
-
-input TimeInput {
-  repoFullName: String!
-}
-
-type Subscription {
-  time(input: TimeInput!): Time
-  asyncType(input: AsyncTypeInput!): AsyncTypeReturn
-}
-
-type AsyncTypeReturn {
-  word: String!
-  id: String!
-  title: String!
-  input: String!
-  x: Float!
-}
-
-input AsyncTypeInput {
-  input: String
-  x: Float
 }

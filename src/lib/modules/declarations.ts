@@ -26,4 +26,12 @@ export class Module {
     this.restExtensions = args.restExtensions;
     this.socketExtensions = args.socketExtensions;
   }
+
+  ignoreExtensions() {
+    this.graphqlExtensions = [];
+    this.restExtensions = [];
+    this.socketExtensions = [];
+
+    return this;
+  }
 }
