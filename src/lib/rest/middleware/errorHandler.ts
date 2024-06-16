@@ -75,11 +75,13 @@ export const requestLogger =
       if (isGraphql) {
         const { query } = req.body;
 
-        // get the methods from the graphql query
-        const methods = getRootMethodsFromGraphQL(query);
+        if (query) {
+          // get the methods from the graphql query
+          const methods = getRootMethodsFromGraphQL(query);
 
-        // @ts-ignore
-        logData.graphql = methods;
+          // @ts-ignore
+          logData.graphql = methods;
+        }
       }
 
       // if url is _next, don't log
