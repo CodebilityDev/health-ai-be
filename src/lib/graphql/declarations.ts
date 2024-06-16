@@ -3,6 +3,7 @@ import { GraphQLSchema } from "graphql";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { GlobalDataTypes } from "~/common/context";
+import { errorJSON } from "~/functions/errorJson";
 import { jsonTypeToGraphql } from "./lib";
 import {
   GraphqlActionDeclaration,
@@ -204,7 +205,7 @@ export class GraphqlMethodDeclarationList {
         };
       } else {
         // add action to resolvers
-        resolvers[action.root][action.name] = (root, args, context) => {
+        resolvers[action.root][action.name] = async (root, args, context) => {
           let _args = args || {};
           // parse args
           if (action.args) {
@@ -225,7 +226,28 @@ export class GraphqlMethodDeclarationList {
               throw new Error("Not Authorized");
             }
           }
-          return action.resolve(root ?? {}, _args ?? {}, context ?? {});
+          try {
+            const resp = await action.resolve(
+              root ?? {},
+              _args ?? {},
+              context ?? {},
+            );
+            return resp;
+          } catch (error) {
+            (async function () {
+              await context.prisma.serverError.create({
+                data: {
+                  method: "",
+                  url: "/api/graphql",
+                  status: "400",
+                  graphql: action.name,
+                  userID: context.session?.itemId || "",
+                  errorMessage: JSON.stringify(errorJSON(error)),
+                },
+              });
+            })();
+            throw error;
+          }
         };
       }
     }

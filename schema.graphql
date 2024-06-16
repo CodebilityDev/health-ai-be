@@ -327,6 +327,7 @@ type ServerLog {
   elapsed: String
   graphql: String
   userID: String
+  errorMessage: String
   createdAt: DateTime
 }
 
@@ -345,6 +346,7 @@ input ServerLogWhereInput {
   elapsed: StringFilter
   graphql: StringFilter
   userID: StringFilter
+  errorMessage: StringFilter
   createdAt: DateTimeNullableFilter
 }
 
@@ -356,6 +358,7 @@ input ServerLogOrderByInput {
   elapsed: OrderDirection
   graphql: OrderDirection
   userID: OrderDirection
+  errorMessage: OrderDirection
   createdAt: OrderDirection
 }
 
@@ -366,6 +369,7 @@ input ServerLogUpdateInput {
   elapsed: String
   graphql: String
   userID: String
+  errorMessage: String
   createdAt: DateTime
 }
 
@@ -381,6 +385,72 @@ input ServerLogCreateInput {
   elapsed: String
   graphql: String
   userID: String
+  errorMessage: String
+  createdAt: DateTime
+}
+
+type ServerError {
+  id: ID!
+  method: String
+  url: String
+  status: String
+  graphql: String
+  userID: String
+  errorMessage: String
+  createdAt: DateTime
+}
+
+input ServerErrorWhereUniqueInput {
+  id: ID
+}
+
+input ServerErrorWhereInput {
+  AND: [ServerErrorWhereInput!]
+  OR: [ServerErrorWhereInput!]
+  NOT: [ServerErrorWhereInput!]
+  id: IDFilter
+  method: StringFilter
+  url: StringFilter
+  status: StringFilter
+  graphql: StringFilter
+  userID: StringFilter
+  errorMessage: StringFilter
+  createdAt: DateTimeNullableFilter
+}
+
+input ServerErrorOrderByInput {
+  id: OrderDirection
+  method: OrderDirection
+  url: OrderDirection
+  status: OrderDirection
+  graphql: OrderDirection
+  userID: OrderDirection
+  errorMessage: OrderDirection
+  createdAt: OrderDirection
+}
+
+input ServerErrorUpdateInput {
+  method: String
+  url: String
+  status: String
+  graphql: String
+  userID: String
+  errorMessage: String
+  createdAt: DateTime
+}
+
+input ServerErrorUpdateArgs {
+  where: ServerErrorWhereUniqueInput!
+  data: ServerErrorUpdateInput!
+}
+
+input ServerErrorCreateInput {
+  method: String
+  url: String
+  status: String
+  graphql: String
+  userID: String
+  errorMessage: String
   createdAt: DateTime
 }
 
@@ -414,6 +484,12 @@ type Mutation {
   updateServerLogs(data: [ServerLogUpdateArgs!]!): [ServerLog]
   deleteServerLog(where: ServerLogWhereUniqueInput!): ServerLog
   deleteServerLogs(where: [ServerLogWhereUniqueInput!]!): [ServerLog]
+  createServerError(data: ServerErrorCreateInput!): ServerError
+  createServerErrors(data: [ServerErrorCreateInput!]!): [ServerError]
+  updateServerError(where: ServerErrorWhereUniqueInput!, data: ServerErrorUpdateInput!): ServerError
+  updateServerErrors(data: [ServerErrorUpdateArgs!]!): [ServerError]
+  deleteServerError(where: ServerErrorWhereUniqueInput!): ServerError
+  deleteServerErrors(where: [ServerErrorWhereUniqueInput!]!): [ServerError]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, adminPassword: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -466,8 +542,12 @@ type Query {
   serverLogs(where: ServerLogWhereInput! = {}, orderBy: [ServerLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ServerLogWhereUniqueInput): [ServerLog!]
   serverLog(where: ServerLogWhereUniqueInput!): ServerLog
   serverLogsCount(where: ServerLogWhereInput! = {}): Int
+  serverErrors(where: ServerErrorWhereInput! = {}, orderBy: [ServerErrorOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ServerErrorWhereUniqueInput): [ServerError!]
+  serverError(where: ServerErrorWhereUniqueInput!): ServerError
+  serverErrorsCount(where: ServerErrorWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
+  ErrorTest: String
 }
 
 union AuthenticatedItem = User

@@ -187,7 +187,6 @@ export function bootstrapExpress(
   extraRouteList: RouteDeclarationList[],
 ) {
   app.use(json());
-  app.use(devErrorHandler);
   app.use(requestLogger(commonContext));
   const mainRouter = Router();
 
@@ -219,4 +218,5 @@ export function bootstrapExpress(
 
   app.use("/api/swagger", swaggerUi.serve, swaggerUi.setup(document));
   app.use(MAIN_API_ROUTE, mainRouter);
+  app.use(devErrorHandler(commonContext));
 }

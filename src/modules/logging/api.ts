@@ -63,4 +63,14 @@ responseAnalyticsRouteDeclaration.routes.set(
   }),
 );
 
+responseAnalyticsRouteDeclaration.routes.set(
+  "/errortest",
+  new RouteDeclarationMetadata({
+    inputParser: NO_INPUT,
+    func: async ({ context }) => {
+      throw new Error("This is a test error");
+    },
+  }),
+);
+
 export { responseAnalyticsRouteDeclaration };
