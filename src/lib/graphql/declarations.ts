@@ -199,7 +199,7 @@ export class GraphqlMethodDeclarationList {
                 throw new Error("Not Authorized");
               }
             }
-            return action.resolve(root, _args, context);
+            return action.resolve(root ?? {}, _args ?? {}, context ?? {});
           },
         };
       } else {
@@ -225,7 +225,7 @@ export class GraphqlMethodDeclarationList {
               throw new Error("Not Authorized");
             }
           }
-          return action.resolve(root, _args, context);
+          return action.resolve(root ?? {}, _args ?? {}, context ?? {});
         };
       }
     }
