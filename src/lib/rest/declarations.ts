@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { ServerAccessFunction } from "./access/types";
 import { NO_INPUT, RouteDeclaration, RouteMethod } from "./types";
 
