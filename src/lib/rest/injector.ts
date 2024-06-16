@@ -36,7 +36,7 @@ function implementRouteDeclaration(
   for (const [route, routeData] of data.routes) {
     const method = routeData.method;
 
-    registry.registerPath({
+    let pathData = {
       method: method as any,
       path: convertExpressRouteToOpenApiRoute(
         MAIN_API_ROUTE + data.name + route,
@@ -74,17 +74,36 @@ function implementRouteDeclaration(
               }
             : undefined,
       },
-      responses: {
-        200: {
-          description: "Successful response",
-          content: {
-            "application/json": {
-              schema: routeData.outputParser ? routeData.outputParser : {},
-            },
+      responses: {},
+    };
+
+    if (routeData.outputParser) {
+      // @ts-ignore
+      pathData.responses[200] = {
+        description: "Successful response",
+        content: {
+          "application/json": {
+            schema: routeData.outputParser ? routeData.outputParser : {},
           },
         },
-      },
-    });
+      };
+    }
+
+    if (routeData.responsesTypes) {
+      for (const response of routeData.responsesTypes) {
+        // @ts-ignore
+        pathData.responses[response.code] = {
+          description: response.description,
+          content: {
+            "application/json": {
+              schema: response.content,
+            },
+          },
+        };
+      }
+    }
+
+    registry.registerPath(pathData);
 
     let assignments: ((
       req: Request,

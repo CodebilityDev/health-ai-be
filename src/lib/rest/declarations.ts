@@ -8,6 +8,11 @@ export class RouteDeclarationMetadata<T = any, U = any> {
   useJsonParser?: boolean;
   useFileParser?: boolean;
   outputParser?: U;
+  responsesTypes?: {
+    code: number;
+    description: string;
+    content: z.ZodType<any>;
+  }[];
   accessConfig?: ServerAccessFunction;
   // @ts-expect-error T does not satisfy the constraint 'z.ZodType<any>'.
   function: RouteDeclaration<z.infer<T>>;
@@ -20,6 +25,11 @@ export class RouteDeclarationMetadata<T = any, U = any> {
     accessConfig?: ServerAccessFunction;
     inputParser?: T;
     outputParser?: U;
+    responsesTypes?: {
+      code: number;
+      description: string;
+      content: z.ZodType<any>;
+    }[];
     useJsonParser?: boolean;
     useFileParser?: boolean;
     description?: string;
@@ -29,6 +39,7 @@ export class RouteDeclarationMetadata<T = any, U = any> {
     this.inputParser = args.inputParser ?? (NO_INPUT as T);
     this.accessConfig = args.accessConfig;
     this.outputParser = args.outputParser;
+    this.responsesTypes = args.responsesTypes;
     this.useJsonParser = args.useJsonParser ?? true;
     this.useFileParser = args.useFileParser ?? false;
     this.description = args.description;
