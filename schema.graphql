@@ -323,9 +323,9 @@ type ServerLog {
   id: ID!
   method: String
   url: String
+  graphql: String
   status: String
   elapsed: String
-  graphql: String
   userID: String
   errorMessage: String
   createdAt: DateTime
@@ -342,9 +342,9 @@ input ServerLogWhereInput {
   id: IDFilter
   method: StringFilter
   url: StringFilter
+  graphql: StringFilter
   status: StringFilter
   elapsed: StringFilter
-  graphql: StringFilter
   userID: StringFilter
   errorMessage: StringFilter
   createdAt: DateTimeNullableFilter
@@ -354,9 +354,9 @@ input ServerLogOrderByInput {
   id: OrderDirection
   method: OrderDirection
   url: OrderDirection
+  graphql: OrderDirection
   status: OrderDirection
   elapsed: OrderDirection
-  graphql: OrderDirection
   userID: OrderDirection
   errorMessage: OrderDirection
   createdAt: OrderDirection
@@ -365,9 +365,9 @@ input ServerLogOrderByInput {
 input ServerLogUpdateInput {
   method: String
   url: String
+  graphql: String
   status: String
   elapsed: String
-  graphql: String
   userID: String
   errorMessage: String
   createdAt: DateTime
@@ -381,9 +381,9 @@ input ServerLogUpdateArgs {
 input ServerLogCreateInput {
   method: String
   url: String
+  graphql: String
   status: String
   elapsed: String
-  graphql: String
   userID: String
   errorMessage: String
   createdAt: DateTime
@@ -391,13 +391,13 @@ input ServerLogCreateInput {
 
 type ServerError {
   id: ID!
-  method: String
-  url: String
-  status: String
-  graphql: String
-  userID: String
   errorMessage: String
+  url: String
+  graphql: String
   createdAt: DateTime
+  status: String
+  method: String
+  userID: String
 }
 
 input ServerErrorWhereUniqueInput {
@@ -409,34 +409,34 @@ input ServerErrorWhereInput {
   OR: [ServerErrorWhereInput!]
   NOT: [ServerErrorWhereInput!]
   id: IDFilter
-  method: StringFilter
-  url: StringFilter
-  status: StringFilter
-  graphql: StringFilter
-  userID: StringFilter
   errorMessage: StringFilter
+  url: StringFilter
+  graphql: StringFilter
   createdAt: DateTimeNullableFilter
+  status: StringFilter
+  method: StringFilter
+  userID: StringFilter
 }
 
 input ServerErrorOrderByInput {
   id: OrderDirection
-  method: OrderDirection
-  url: OrderDirection
-  status: OrderDirection
-  graphql: OrderDirection
-  userID: OrderDirection
   errorMessage: OrderDirection
+  url: OrderDirection
+  graphql: OrderDirection
   createdAt: OrderDirection
+  status: OrderDirection
+  method: OrderDirection
+  userID: OrderDirection
 }
 
 input ServerErrorUpdateInput {
-  method: String
-  url: String
-  status: String
-  graphql: String
-  userID: String
   errorMessage: String
+  url: String
+  graphql: String
   createdAt: DateTime
+  status: String
+  method: String
+  userID: String
 }
 
 input ServerErrorUpdateArgs {
@@ -445,13 +445,13 @@ input ServerErrorUpdateArgs {
 }
 
 input ServerErrorCreateInput {
-  method: String
-  url: String
-  status: String
-  graphql: String
-  userID: String
   errorMessage: String
+  url: String
+  graphql: String
   createdAt: DateTime
+  status: String
+  method: String
+  userID: String
 }
 
 """

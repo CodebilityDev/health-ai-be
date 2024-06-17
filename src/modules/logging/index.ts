@@ -13,9 +13,9 @@ export const ServerLogging = new Module({
         fields: {
           method: text(),
           url: text(),
+          graphql: text(),
           status: text(),
           elapsed: text(),
-          graphql: text(),
           userID: text(),
           errorMessage: text(),
           createdAt: timestamp({
@@ -36,17 +36,21 @@ export const ServerLogging = new Module({
       }),
       ServerError: list({
         fields: {
-          method: text(),
+          errorMessage: text({
+            ui: {
+              views: "./admin/ui/fields/ErrorMessage.tsx",
+            },
+          }),
           url: text(),
-          status: text(),
           graphql: text(),
-          userID: text(),
-          errorMessage: text(),
           createdAt: timestamp({
             defaultValue: {
               kind: "now",
             },
           }),
+          status: text(),
+          method: text(),
+          userID: text(),
         },
         access: schemaAccessConfig({
           isAuthed: true,

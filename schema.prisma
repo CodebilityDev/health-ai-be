@@ -60,9 +60,9 @@ model ServerLog {
   id           String    @id @default(cuid())
   method       String    @default("")
   url          String    @default("")
+  graphql      String    @default("")
   status       String    @default("")
   elapsed      String    @default("")
-  graphql      String    @default("")
   userID       String    @default("")
   errorMessage String    @default("")
   createdAt    DateTime? @default(now())
@@ -70,13 +70,13 @@ model ServerLog {
 
 model ServerError {
   id           String    @id @default(cuid())
-  method       String    @default("")
-  url          String    @default("")
-  status       String    @default("")
-  graphql      String    @default("")
-  userID       String    @default("")
   errorMessage String    @default("")
+  url          String    @default("")
+  graphql      String    @default("")
   createdAt    DateTime? @default(now())
+  status       String    @default("")
+  method       String    @default("")
+  userID       String    @default("")
 }
 
 enum UserRoleType {

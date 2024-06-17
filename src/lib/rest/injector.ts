@@ -14,7 +14,8 @@ import fileUpload from "express-fileupload";
 import swaggerUi from "swagger-ui-express";
 import { GlobalContext } from "~/common/context";
 import { RouteDeclarationList } from "./declarations";
-import { devErrorHandler, requestLogger } from "./middleware/errorHandler";
+import { devErrorHandler } from "./middleware/errorHandler";
+import { requestLogger } from "./middleware/requestLogger";
 import { RequestInputType } from "./types";
 
 const registry = new OpenAPIRegistry();
