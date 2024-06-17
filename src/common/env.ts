@@ -34,5 +34,6 @@ export const CONFIG = {
     process.env.SESSION_SECRET ||
     '"secretashdasifhjldgjaisjflsjkasldfklaskdjf"',
   LOG_REQUESTS: process.env.LOG_REQUESTS || "short,true",
-  LOG_TODB: process.env.LOG_TODB || "true",
+  LOG_TODB: process.env.LOG_TODB || "",
+  WRITE_MODULE_DEFINITIONS: process.env.WRITE_MODULE_DEFINITIONS || "false",
 };

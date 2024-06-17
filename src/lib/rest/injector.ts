@@ -13,6 +13,7 @@ import {
 import fileUpload from "express-fileupload";
 import swaggerUi from "swagger-ui-express";
 import { GlobalContext } from "~/common/context";
+import { SocketDeclarationList } from "../socket/types";
 import { RouteDeclarationList } from "./declarations";
 import { devErrorHandler } from "./middleware/errorHandler";
 import { requestLogger } from "./middleware/requestLogger";
@@ -25,6 +26,51 @@ const MAIN_API_ROUTE = "/api";
 // create a function to convert :var to {var}
 function convertExpressRouteToOpenApiRoute(route: string) {
   return route.replace(/:(\w+)/g, "{$1}");
+}
+
+function parseSocketDeclarationList(socketRouteList: SocketDeclarationList[]) {
+  const routes = [];
+  for (const d of socketRouteList) {
+    const r = {
+      app: "/ws" + d.name,
+      namespace: {},
+      descriptions: d.description,
+    };
+    for (const namespace of d.socket.keys()) {
+      // @ts-ignore
+      r.namespace[namespace] = {
+        path: "/ws" + d.name + "/" + namespace,
+        listener: [],
+        broadcasts: [],
+      };
+
+      for (let lis of d.socket.get(namespace)?.listen.keys() ?? []) {
+        const listener = d.socket.get(namespace)?.listen.get(lis);
+        if (listener) {
+          // @ts-ignore
+          r.namespace[namespace].listener.push({
+            event: lis,
+            description: listener.description,
+            // input: listener.inputParams,
+            // output: listener.outputParams,
+          });
+        }
+      }
+      for (let broad of d.socket.get(namespace)?.broadcast.keys() ?? []) {
+        const broadcaster = d.socket.get(namespace)?.broadcast.get(broad);
+        if (broadcaster) {
+          // @ts-ignore
+          r.namespace[namespace].broadcasts.push({
+            event: broad,
+            description: broadcaster.description,
+            // output: broadcaster.outputParams,
+          });
+        }
+      }
+    }
+    routes.push(r);
+  }
+  return routes;
 }
 
 function implementRouteDeclaration(
@@ -186,6 +232,7 @@ export function bootstrapExpress(
   app: Express,
   commonContext: GlobalContext,
   extraRouteList: RouteDeclarationList[],
+  socketRouteList: SocketDeclarationList[],
 ) {
   app.use(json());
   app.use(requestLogger(commonContext));
@@ -218,6 +265,9 @@ export function bootstrapExpress(
   };
 
   app.use("/api/swagger", swaggerUi.serve, swaggerUi.setup(document));
+  app.use("/ws/docs", (req, res) => {
+    return res.send(parseSocketDeclarationList(socketRouteList));
+  });
   app.use(MAIN_API_ROUTE, mainRouter);
   app.use(devErrorHandler(commonContext));
 }

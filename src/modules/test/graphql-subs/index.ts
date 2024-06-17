@@ -1,12 +1,10 @@
 import { withFilter } from "graphql-subscriptions";
 import { z } from "zod";
-import { GlobalDataType } from "~/common/context";
 import { graphqlAccessConfig } from "~/lib/graphql/access";
 import {
   GraphqlActionMetadata,
   GraphqlMethodDeclarationList,
 } from "~/lib/graphql/declarations";
-import { array } from "~/lib/graphql/lib";
 import { GraphqlMethods, GraphqlScalarType } from "~/lib/graphql/types";
 import { pubSub } from "~/lib/socket/graphql/pubsub";
 
@@ -31,7 +29,7 @@ testGraphqlDeclarations.add(
         fields: {
           output: GraphqlScalarType.String,
           args: "TestMethodOutput_Args",
-          posts: array(GlobalDataType("Post")),
+          // posts: array(GlobalDataType("Post")),
         },
       },
       {
@@ -72,9 +70,9 @@ testGraphqlDeclarations.add(
       },
     ],
     resolve: async (_, args, context) => {
-      const _post = await context.prisma.post.findFirst();
+      // const _post = await context.prisma.post.findFirst();
       return {
-        post: _post?.id || "",
+        // post: _post?.id || "",
         details: { id: "1", name: "test" },
       };
     },
@@ -153,12 +151,12 @@ testGraphqlDeclarations.add(
     resolve: async function* (a, { input, x }, context) {
       for await (const word of ["Hello", "Bonjour", "Ciaso"]) {
         await sleep(200);
-        const d = await context.prisma.post.findFirst();
+        // const d = await context.prisma.post.findFirst();
         yield {
           asyncType: {
             word,
-            id: d?.id || "",
-            title: d?.title || "",
+            // id: d?.id || "",
+            // title: d?.title || "",
             input,
             x,
           },

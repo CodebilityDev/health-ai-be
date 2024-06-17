@@ -1,6 +1,5 @@
-import { PageContainer } from "@keystone-6/core/admin-ui/components";
-import { Heading } from "@keystone-ui/core";
 import React from "react";
+import GlobalTemplate from "../components/GlobalTemplate";
 
 function byteToString(bytes: number) {
   const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
@@ -19,25 +18,9 @@ function numberToSeconds(number: number) {
 
 function CardComponent({ title, data }: { title: string; data: any }) {
   return (
-    <div
-      style={{
-        boxShadow: "0 0 5px rgba(0, 0, 0, 0.1)",
-        padding: "10px",
-        borderRadius: "5px",
-        width: "200px",
-        // create a background of diagonal linear gradient, beautiful color please
-        background: "linear-gradient(45deg, #f3ec7877, #af426177)",
-      }}
-    >
+    <div className="p-4 border border-gray-200 rounded-md shadow-md bg-gradient-to-br from-yellow-200 to-pink-200 w-[200px]">
       {Object.keys(data).map((key) => (
-        <h3
-          key={key}
-          style={{
-            margin: "0",
-            padding: "0",
-            fontSize: "2.2em",
-          }}
-        >
+        <h3 key={key} className="text-4xl font-semibold min-h-[4rem]">
           {data[key]}
         </h3>
       ))}
@@ -93,7 +76,7 @@ export default function CustomPage() {
   }, []);
 
   return (
-    <PageContainer header={<Heading type="h3">Stats</Heading>}>
+    <GlobalTemplate headerTitle="Stats">
       <h1
         style={{
           width: "100%",
@@ -102,13 +85,7 @@ export default function CustomPage() {
       >
         Server Statistics
       </h1>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-        }}
-      >
+      <div className="flex flex-col gap-4">
         <h2>Server Ping</h2>
         <div
           style={{
@@ -191,6 +168,6 @@ export default function CustomPage() {
         </div>
       </div>
       <div style={{ height: "100px" }}></div>
-    </PageContainer>
+    </GlobalTemplate>
   );
 }

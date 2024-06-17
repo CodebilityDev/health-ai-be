@@ -499,6 +499,15 @@ type Mutation {
   authclient_newAccountPasswordReset(email: String!): Boolean
   authclient_resetPassword(token: String!, password: String!): Boolean
   authclient_changePassword(oldPassword: String!, newPassword: String!): Boolean
+
+  """
+  !!!READ!!! Dont use this.
+  
+  Only usable if you are logged in.
+  
+  This is a test mutation.
+  """
+  TestMethodMutation: TestMethodMutationOutput
 }
 
 union ClientItemAuthenticationWithPasswordResult = ClientItemAuthenticationWithPasswordSuccess | ClientItemAuthenticationWithPasswordFailure
@@ -547,6 +556,7 @@ type Query {
   serverErrorsCount(where: ServerErrorWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
+  TestMethod(input: TestMethodInput!): TestMethodOutput
   ErrorTest: String
 }
 
@@ -652,4 +662,66 @@ type KeystoneAdminUISort {
 enum KeystoneAdminUISortDirection {
   ASC
   DESC
+}
+
+type TestMethodOutput {
+  output: String
+  args: TestMethodOutput_Args
+}
+
+type TestMethodOutput_Args {
+  input: String!
+  x: Float!
+}
+
+input TestMethodInput {
+  input: String
+  x: Float
+}
+
+type TestMethodMutationOutputDetails {
+  id: String!
+  name: String!
+}
+
+type TestMethodMutationOutput {
+  post: String!
+  details: TestMethodMutationOutputDetails!
+  sub(input: SubInput!): SubOutput
+}
+
+type SubOutput {
+  parentID: String!
+  sum: Float!
+}
+
+input SubInput {
+  x: Float!
+  y: Float!
+}
+
+type Time {
+  iso: String!
+}
+
+input TimeInput {
+  repoFullName: String!
+}
+
+type Subscription {
+  time(input: TimeInput!): Time
+  asyncType(input: AsyncTypeInput!): AsyncTypeReturn
+}
+
+type AsyncTypeReturn {
+  word: String!
+  id: String!
+  title: String!
+  input: String!
+  x: Float!
+}
+
+input AsyncTypeInput {
+  input: String
+  x: Float
 }

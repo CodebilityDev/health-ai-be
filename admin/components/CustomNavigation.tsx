@@ -17,6 +17,7 @@ export function CustomNavigation({
       <NavItem href="/stats">Stats</NavItem>
       <NavItem href="/api/swagger">Swagger (REST)</NavItem>
       <NavItem href="/api/graphql">Apollo (Graphql)</NavItem>
+      <NavItem href="/socket">Socket (Websocket)</NavItem>
       <ListNavItems
         lists={lists.filter((e) => {
           return e.label.includes("Server");

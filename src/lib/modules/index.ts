@@ -81,7 +81,12 @@ export function injectModules(
     };
   }
   config.server.extendExpressApp = (app, context) => {
-    bootstrapExpress(app, context, allRestExtensions);
+    bootstrapExpress(
+      app,
+      context,
+      allRestExtensions,
+      allSocketExtensions ?? [],
+    );
   };
 
   config.server.extendHttpServer = (server, context) => {

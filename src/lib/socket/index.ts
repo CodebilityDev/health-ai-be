@@ -4,6 +4,8 @@ import { Server } from "http";
 import { Server as WsServer } from "socket.io";
 import { WebSocketServer } from "ws";
 import { GlobalContext } from "~/common/context";
+import { errorJSON } from "~/functions/errorJson";
+import { eventEmitter } from "../events";
 import { pubSub } from "./graphql/pubsub";
 import { SocketDeclarationList } from "./types";
 
@@ -14,26 +16,76 @@ function implementSocketDeclaration(
 ) {
   if (data.socket) {
     for (const [namespace, fxList] of data.socket) {
-      console.log("✅ Socket namespace", `${data.name}/${namespace}`);
-      io.of(`${data.name}/${namespace}`).on("connection", (socket) => {
+      console.log("✅ Socket namespace", `/ws${data.name}/${namespace}`);
+      io.of(`/ws${data.name}/${namespace}`).on("connection", async (socket) => {
         // console.log("connected fx");
         const sessionContext = {};
 
-        for (const [event, fx] of fxList) {
-          socket.on(event, (arg1, arg2, callback) => {
-            return fx({
-              context: commonContext,
-              server: io,
-              socket,
-              namespaceContext: sessionContext,
-              args: {
-                args1: arg1,
-                args2: arg2,
-                callback,
-              },
-            });
+        const context = await commonContext.withRequest(socket.request);
+        let emitters: {
+          key: string;
+          emitter: any;
+        }[] = [];
+
+        for (const [event, k] of fxList.broadcast) {
+          const eventEmitterKey = k.key({ context });
+          const fx = async (data: any) => {
+            try {
+              if (await k.filter({ context })) socket.emit(event, data);
+            } catch (error) {
+              (async function () {
+                await context.prisma.serverError.create({
+                  data: {
+                    method: "SOCKETIO",
+                    url: socket.request.url,
+                    status: "400",
+                    userID: context.session?.itemId || "",
+                    errorMessage: JSON.stringify(errorJSON(error)),
+                  },
+                });
+              })();
+            }
+          };
+          eventEmitter.on(eventEmitterKey, fx);
+          emitters.push({
+            key: eventEmitterKey,
+            emitter: fx,
           });
         }
+
+        for (const [event, fx] of fxList.listen) {
+          socket.on(event, async (...args) => {
+            try {
+              const res = await fx.fx({
+                context: context,
+                server: io,
+                socket,
+                namespaceContext: sessionContext,
+                args,
+              });
+              return res;
+            } catch (e) {
+              (async function () {
+                await context.prisma.serverError.create({
+                  data: {
+                    method: "SOCKETIO",
+                    url: socket.request.url,
+                    status: "400",
+                    userID: context.session?.itemId || "",
+                    errorMessage: JSON.stringify(errorJSON(e)),
+                  },
+                });
+              })();
+            }
+          });
+        }
+
+        // on disconnect, remove all the listeners
+        socket.on("disconnect", () => {
+          for (const emitter of emitters) {
+            eventEmitter.removeListener(emitter.key, emitter.emitter);
+          }
+        });
       });
     }
   }
