@@ -35,5 +35,4 @@ export const CONFIG = {
     '"secretashdasifhjldgjaisjflsjkasldfklaskdjf"',
   LOG_REQUESTS: process.env.LOG_REQUESTS || "short,true",
   LOG_TODB: process.env.LOG_TODB || "",
-  WRITE_MODULE_DEFINITIONS: process.env.WRITE_MODULE_DEFINITIONS || "false",
 };
