@@ -44,11 +44,11 @@ export const requestLogger =
         console.log(
           `${method} ${url} [${logData.graphql.join(", ")}] ${res.statusCode} ${elapsed}ms`,
         );
-      } else if (CONFIG.LOG_REQUESTS) {
+      } else if (CONFIG.LOG_REQUESTS === "true") {
         console.log(JSON.stringify(logData));
       }
       const userID = context.session?.itemId;
-      if (CONFIG.LOG_TODB) {
+      if (CONFIG.LOG_TODB === "true") {
         if (logData.status >= 400) {
           // (async function () {
           //   await context.prisma.serverError.create({

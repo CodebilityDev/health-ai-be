@@ -26,7 +26,7 @@ export const devErrorHandler =
     const status = err.status || 500;
     const error = errorJSON(err);
     res.status(status);
-    if (CONFIG.LOG_TODB) {
+    if (CONFIG.LOG_TODB === "true") {
       const isGraphql = req.url.includes("/api/graphql");
       let logData = {
         method: req.method,
