@@ -33,13 +33,14 @@ function parseSocketDeclarationList(socketRouteList: SocketDeclarationList[]) {
   for (const d of socketRouteList) {
     const r = {
       app: "/ws" + d.name,
+      description: d.description,
       namespace: {},
-      descriptions: d.description,
     };
     for (const namespace of d.socket.keys()) {
       // @ts-ignore
       r.namespace[namespace] = {
         path: "/ws" + d.name + "/" + namespace,
+        description: d.socket.get(namespace)?.description,
         listener: [],
         broadcasts: [],
       };

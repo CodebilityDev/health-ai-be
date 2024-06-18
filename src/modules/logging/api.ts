@@ -77,6 +77,9 @@ export const responseBreakdown = async (context: GlobalContext) => {
           total: 0,
           lowest: 0,
           highest: 0,
+          method: curr.method,
+          url: curr.url,
+          graphql: curr.graphql,
         };
       }
       acc[key].count += 1;
@@ -91,12 +94,20 @@ export const responseBreakdown = async (context: GlobalContext) => {
     },
     {} as Record<
       string,
-      { count: number; total: number; lowest: number; highest: number }
+      {
+        count: number;
+        total: number;
+        lowest: number;
+        highest: number;
+        method: string;
+        url: string;
+        graphql: string;
+      }
     >,
   );
 
   for (const key in uniquePathGraphql) {
-    const [method, url, graphql] = key.split(" ");
+    const { method, url, graphql } = uniquePathGraphql[key];
     const { count, total, lowest, highest } = uniquePathGraphql[key];
     paths.push({
       method,

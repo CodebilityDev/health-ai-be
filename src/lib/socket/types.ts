@@ -30,6 +30,7 @@ export class SocketDeclarationList {
   socket: Map<
     string,
     {
+      description?: string;
       listen: Map<string, SocketFunctionListener>;
       broadcast: Map<string, SocketFunctionBroadcaster>;
     }
@@ -40,10 +41,11 @@ export class SocketDeclarationList {
     this.socket = new Map();
   }
 
-  addNamespace(namespace: string) {
+  addNamespace(namespace: string, description?: string) {
     const socketData = {
       listen: new Map(),
       broadcast: new Map(),
+      description,
     };
     this.socket.set(namespace, socketData);
   }

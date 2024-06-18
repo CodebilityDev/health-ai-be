@@ -5,12 +5,14 @@ const extraSocketDeclaration = new SocketDeclarationList({
   path: "/post-ws",
 });
 
-extraSocketDeclaration.description = "This is a test socket";
+extraSocketDeclaration.description = "Test Socket Declaration";
+
+extraSocketDeclaration.addNamespace("test", "Test Namespace");
 
 extraSocketDeclaration.addListener({
   namespace: "test",
   event: "set",
-  description: "Set value",
+  description: "Sets the current value as the current date",
   fx: async ({ context, namespaceContext, args }) => {
     console.log("setting value with user", args);
     namespaceContext["test"] = new Date().toISOString();
@@ -21,7 +23,8 @@ extraSocketDeclaration.addListener({
 extraSocketDeclaration.addListener({
   namespace: "test",
   event: "get",
-  description: "Get value",
+  description:
+    "Pass a function that receives a string as an argument to receive the value",
   fx: async ({ namespaceContext, args }) => {
     console.log("getting value", namespaceContext["test"]);
     console.log("args", args);
@@ -35,7 +38,8 @@ extraSocketDeclaration.addListener({
 extraSocketDeclaration.addBroadcaster({
   namespace: "test",
   event: "test",
-  description: "Test broadcaster",
+  description:
+    "This Event will be called when the test event is emitted (trigger by calling set event)",
   eventKey: () => {
     return "test";
   },
