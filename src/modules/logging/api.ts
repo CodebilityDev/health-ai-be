@@ -47,6 +47,75 @@ export const responseAnalytics = async (context: GlobalContext) => {
   };
 };
 
+export const responseBreakdown = async (context: GlobalContext) => {
+  // compute the average response time for each unique path and graphql query
+  const logs = await context.prisma.serverLog.findMany({
+    where: {
+      createdAt: {
+        gte: new Date(Date.now() - 1000 * 60 * 60 * 12),
+      },
+    },
+  });
+
+  const paths: {
+    method: string;
+    key: string;
+    url: string;
+    graphql: string;
+    count: number;
+    average: number;
+    lowest: number;
+    highest: number;
+  }[] = [];
+
+  const uniquePathGraphql = logs.reduce(
+    (acc, curr) => {
+      const key = `${curr.method} ${curr.url} ${curr.graphql}`;
+      if (!acc[key]) {
+        acc[key] = {
+          count: 0,
+          total: 0,
+          lowest: 0,
+          highest: 0,
+        };
+      }
+      acc[key].count += 1;
+      acc[key].total += parseInt(curr.elapsed);
+      acc[key].lowest = acc[key].lowest
+        ? Math.min(acc[key].lowest, parseInt(curr.elapsed))
+        : parseInt(curr.elapsed);
+      acc[key].highest = acc[key].highest
+        ? Math.max(acc[key].highest, parseInt(curr.elapsed))
+        : parseInt(curr.elapsed);
+      return acc;
+    },
+    {} as Record<
+      string,
+      { count: number; total: number; lowest: number; highest: number }
+    >,
+  );
+
+  for (const key in uniquePathGraphql) {
+    const [method, url, graphql] = key.split(" ");
+    const { count, total, lowest, highest } = uniquePathGraphql[key];
+    paths.push({
+      method,
+      key,
+      url,
+      graphql,
+      count,
+      average: total / count,
+      lowest,
+      highest,
+    });
+  }
+
+  // sprt the paths by average response time
+  paths.sort((a, b) => b.average - a.average);
+
+  return paths;
+};
+
 const responseAnalyticsRouteDeclaration = new RouteDeclarationList({
   path: "/logs",
 });
@@ -58,6 +127,18 @@ responseAnalyticsRouteDeclaration.routes.set(
 
     func: async ({ context, res }) => {
       const analytics = await responseAnalytics(context);
+      res.json(analytics);
+    },
+  }),
+);
+
+responseAnalyticsRouteDeclaration.routes.set(
+  "/breakdown",
+  new RouteDeclarationMetadata({
+    inputParser: NO_INPUT,
+
+    func: async ({ context, res }) => {
+      const analytics = await responseBreakdown(context);
       res.json(analytics);
     },
   }),

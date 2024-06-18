@@ -8,7 +8,9 @@ export const requestLogger =
   async (req: Request, res: Response, next: NextFunction) => {
     const context = await commonContext.withRequest(req, res);
     // get the request url, method, and the time it takes to respond
-    const { url, method } = req;
+    let { url, method } = req;
+    // remove the query params from the url
+    url = url.split("?")[0];
     const start = Date.now();
     // is graphql request
     const isGraphql = url.includes("/api/graphql");

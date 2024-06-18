@@ -29,6 +29,13 @@ function CardComponent({ title, data }: { title: string; data: any }) {
   );
 }
 
+const METHOD_COLORS = {
+  GET: "#009b00",
+  POST: "#a000009d",
+  PUT: "#0000be",
+  DELETE: "#a100a1",
+};
+
 export default function CustomPage() {
   const [pingData, setPingData] = React.useState<null | {
     database: boolean;
@@ -54,25 +61,43 @@ export default function CustomPage() {
       system: number;
     };
   }>(null);
-  const [serverLoaded, setServerLoaded] = React.useState(false);
-  const [reactionLoaded, setReactionLoaded] = React.useState(false);
+  const [breakdownData, setBreakdownData] = React.useState<
+    | null
+    | {
+        method: string;
+        key: string;
+        url: string;
+        graphql: string;
+        count: number;
+        average: number;
+        lowest: number;
+        highest: number;
+      }[]
+  >(null);
+
+  const [serverBreakdownFilter, setServerBreakdownFilter] =
+    React.useState<string>("");
 
   const getServerPing = async () => {
     const res = await fetch("/api/health/?database=true&s3=true&unified=false");
     const data = await res.json();
     setPingData(data);
-    setServerLoaded(true);
   };
   const getReactionPing = async () => {
     const res = await fetch("/api/logs/analytics");
     const data = await res.json();
     setReactionData(data);
-    setReactionLoaded(true);
+  };
+  const getBreakdown = async () => {
+    const res = await fetch("/api/logs/breakdown");
+    const data = await res.json();
+    setBreakdownData(data);
   };
 
   React.useEffect(() => {
     getServerPing();
     getReactionPing();
+    getBreakdown();
   }, []);
 
   return (
@@ -165,6 +190,58 @@ export default function CustomPage() {
               Time: numberToSeconds(reactionData?.maxResponseTime ?? 0),
             }}
           />
+        </div>
+        <h2>Server Breakdown</h2>
+        <div>
+          <input
+            type="text"
+            value={serverBreakdownFilter}
+            onChange={(e) => setServerBreakdownFilter(e.target.value)}
+            placeholder="Filter"
+            className="p-2 border shadow-md"
+          />
+        </div>
+        <div>
+          {breakdownData
+            ?.filter((data) => data.key.includes(serverBreakdownFilter))
+            ?.map((data) => (
+              <div key={data.key} className="p-2 border-b">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-mono font-bold">
+                    <span
+                      style={{
+                        color: METHOD_COLORS[data.method],
+                      }}
+                    >
+                      {data.method}
+                    </span>{" "}
+                    {data.url}{" "}
+                  </h3>
+                  {data.graphql && (
+                    <p className="p-1 font-mono bg-gray-200 w-fit">
+                      [{data.graphql}]
+                    </p>
+                  )}
+                </div>
+                <div className="flex gap-2 font-mono">
+                  <p>
+                    <span className="text-gray-400">Cnt:</span> {data.count}
+                  </p>
+                  <p>
+                    <span className="text-gray-400">Low:</span>{" "}
+                    {numberToSeconds(data.lowest)}
+                  </p>
+                  <p>
+                    <span className="text-gray-400">Ave:</span>{" "}
+                    {numberToSeconds(data.average)}
+                  </p>
+                  <p>
+                    <span className="text-gray-400">Hi:</span>{" "}
+                    {numberToSeconds(data.highest)}
+                  </p>
+                </div>
+              </div>
+            ))}
         </div>
       </div>
       <div style={{ height: "100px" }}></div>
