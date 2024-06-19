@@ -13,17 +13,17 @@ export class Module {
   socketExtensions?: SocketDeclarationList[];
 
   constructor(args: {
-    schema: Lists[];
-    graphqlExtensions: (
+    schema?: Lists[];
+    graphqlExtensions?: (
       | GraphqlMethodDeclarationList
       | GraphqlSchemaInjection
     )[];
-    restExtensions: RouteDeclarationList[];
+    restExtensions?: RouteDeclarationList[];
     socketExtensions?: SocketDeclarationList[];
   }) {
-    this.schema = args.schema;
-    this.graphqlExtensions = args.graphqlExtensions;
-    this.restExtensions = args.restExtensions;
+    this.schema = args.schema ?? [];
+    this.graphqlExtensions = args.graphqlExtensions ?? [];
+    this.restExtensions = args.restExtensions ?? [];
     this.socketExtensions = args.socketExtensions;
   }
 
