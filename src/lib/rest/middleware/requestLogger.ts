@@ -41,10 +41,12 @@ export const requestLogger =
       if (url.includes("_next")) return;
 
       if (CONFIG.LOG_REQUESTS === "short") {
+        if (logData.graphql?.[0] === "__schema") return;
         console.log(
           `${method} ${url} [${logData.graphql.join(", ")}] ${res.statusCode} ${elapsed}ms`,
         );
       } else if (CONFIG.LOG_REQUESTS === "true") {
+        if (logData.graphql?.[0] === "__schema") return;
         console.log(JSON.stringify(logData));
       }
       const userID = context.session?.itemId;
@@ -62,6 +64,7 @@ export const requestLogger =
           //   });
           // })();
         } else {
+          if (logData.graphql?.[0] === "__schema") return;
           (async function () {
             await context.prisma.serverLog.create({
               data: {

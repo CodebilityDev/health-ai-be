@@ -155,7 +155,7 @@ export const userDataList: Lists = {
         read: SchemaAccessTemplate.allow,
         write: SchemaAccessTemplate.sequential([
           SchemaAccessTemplate.hasRole({ roles: [PERMISSION_ENUM.ADMIN] }),
-          SchemaAccessTemplate.isOwner(),
+          SchemaAccessTemplate.isOwner({ itemIDKey: "authorId" }),
         ]),
       },
     }),
