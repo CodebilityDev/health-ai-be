@@ -32,11 +32,9 @@ export const graphqlAccessConfig: GraphqlActionAccessConfigBuilder = (
     isAllowed = isAllowed || globalMiddleware(operation);
 
     for (const condition of generatorArgs.conditions || []) {
-      if (isAllowed) {
-        isAllowed = isAllowed || condition(operation);
-      }
+      isAllowed = isAllowed || condition(operation);
 
-      if (!isAllowed) {
+      if (isAllowed) {
         break;
       }
     }
