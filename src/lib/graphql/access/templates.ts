@@ -7,6 +7,11 @@ const hasRole =
     );
   };
 
+const isLoggedIn = (operation: GraphqlActionArgs) => {
+  return !!operation.context.session?.data;
+};
+
 export const GraphqlAccessTemplate = {
   hasRole,
+  isLoggedIn,
 };

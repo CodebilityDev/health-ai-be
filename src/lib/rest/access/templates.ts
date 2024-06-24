@@ -6,6 +6,11 @@ const hasRole =
     return args.roles.includes(operation.session?.data?.role ?? "xxnorolexx");
   };
 
+const isLoggedIn = (operation: ServerOperationArgs) => {
+  return !!operation.session?.data;
+};
+
 export const RestAccessTemplate = {
   hasRole,
+  isLoggedIn,
 };
