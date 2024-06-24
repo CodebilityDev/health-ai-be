@@ -1,5 +1,6 @@
 import { UserRoleType } from "~/common/graphql-types";
 import { ServerOperationArgs } from "../types";
+import { RestAccessTemplate } from "./templates";
 import { ServerAccessConfigBuilder } from "./types";
 
 export const serverAccessConfig: ServerAccessConfigBuilder = (
@@ -32,7 +33,9 @@ export const serverAccessConfig: ServerAccessConfigBuilder = (
     // global middleware is to take precedence
     isAllowed = isAllowed || globalMiddleware(operation);
 
-    for (const condition of generatorArgs.conditions || []) {
+    for (const condition of generatorArgs.conditions || [
+      RestAccessTemplate.isLoggedIn,
+    ]) {
       isAllowed = isAllowed || condition(operation);
 
       if (isAllowed) {

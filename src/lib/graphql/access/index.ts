@@ -1,5 +1,6 @@
 import { UserRoleType } from "~/common/graphql-types";
 import { GraphqlActionAccessConfigBuilder, GraphqlActionArgs } from "../types";
+import { GraphqlAccessTemplate } from "./templates";
 
 export const graphqlAccessConfig: GraphqlActionAccessConfigBuilder = (
   generatorArgs,
@@ -31,7 +32,9 @@ export const graphqlAccessConfig: GraphqlActionAccessConfigBuilder = (
     // global middleware is to take precedence
     isAllowed = isAllowed || globalMiddleware(operation);
 
-    for (const condition of generatorArgs.conditions || []) {
+    for (const condition of generatorArgs.conditions || [
+      GraphqlAccessTemplate.isLoggedIn,
+    ]) {
       isAllowed = isAllowed || condition(operation);
 
       if (isAllowed) {
