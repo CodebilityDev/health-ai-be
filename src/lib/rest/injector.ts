@@ -1,6 +1,7 @@
 import {
   OpenAPIRegistry,
   OpenApiGeneratorV3,
+  RouteConfig,
 } from "@asteasolutions/zod-to-openapi";
 import {
   Express,
@@ -85,8 +86,9 @@ function implementRouteDeclaration(
   for (const [route, routeData] of data.routes) {
     const method = routeData.method;
 
-    let pathData = {
+    let pathData: RouteConfig = {
       method: method as any,
+      operationId: data.name + route,
       path: convertExpressRouteToOpenApiRoute(
         MAIN_API_ROUTE + data.name + route,
       ),
