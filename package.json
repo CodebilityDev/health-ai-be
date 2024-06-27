@@ -52,6 +52,7 @@
     "get-graphql-from-jsonschema": "^8.1.0",
     "graphql-subscriptions": "^2.0.0",
     "graphql-ws": "^5.16.0",
+    "json-to-pretty-yaml": "^1.2.2",
     "jsonwebtoken": "^9.0.2",
     "minio": "^7.1.4",
     "moment": "^2.30.1",
@@ -72,6 +73,7 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/express-fileupload": "^1.5.0",
+    "@types/json-to-pretty-yaml": "^1.2.1",
     "@types/node-fetch": "^2.6.11",
     "@types/socket.io": "^3.0.2",
     "autoprefixer": "^10.4.19",

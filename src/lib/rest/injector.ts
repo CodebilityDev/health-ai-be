@@ -11,6 +11,7 @@ import {
   json,
 } from "express";
 import fileUpload from "express-fileupload";
+import YAML from "json-to-pretty-yaml";
 import swaggerUi from "swagger-ui-express";
 import { GlobalContext } from "~/common/context";
 import { SocketDeclarationList } from "../socket/types";
@@ -267,7 +268,23 @@ export function bootstrapExpress(
 
   app.use("/api/swagger", swaggerUi.serve, swaggerUi.setup(document));
   app.use("/api/swagger-json", (req, res) => {
-    return res.json(document);
+    // send json as a json file
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=swagger-api.json",
+    );
+    return res.send(JSON.stringify(document, null, 2));
+  });
+  app.use("/api/swagger-yaml", (req, res) => {
+    const yaml = YAML.stringify(document);
+    // send yaml as a yaml file
+    res.setHeader("Content-Type", "application/x-yaml");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=swagger-api.yaml",
+    );
+    return res.send(yaml);
   });
   app.use("/ws/docs", (req, res) => {
     return res.send(parseSocketDeclarationList(socketRouteList));
