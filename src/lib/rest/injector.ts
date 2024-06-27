@@ -266,6 +266,9 @@ export function bootstrapExpress(
   };
 
   app.use("/api/swagger", swaggerUi.serve, swaggerUi.setup(document));
+  app.use("/api/swagger-json", (req, res) => {
+    return res.json(document);
+  });
   app.use("/ws/docs", (req, res) => {
     return res.send(parseSocketDeclarationList(socketRouteList));
   });
