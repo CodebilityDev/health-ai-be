@@ -11,6 +11,29 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model ServerLog {
+  id           String    @id @default(cuid())
+  method       String    @default("")
+  url          String    @default("")
+  graphql      String    @default("")
+  status       String    @default("")
+  elapsed      String    @default("")
+  userID       String    @default("")
+  errorMessage String    @default("")
+  createdAt    DateTime? @default(now())
+}
+
+model ServerError {
+  id           String    @id @default(cuid())
+  errorMessage String    @default("")
+  url          String    @default("")
+  graphql      String    @default("")
+  createdAt    DateTime? @default(now())
+  status       String    @default("")
+  method       String    @default("")
+  userID       String    @default("")
+}
+
 model User {
   id               String         @id @default(cuid())
   name             String         @default("")
@@ -56,27 +79,17 @@ model GroupMember {
   @@index([userId])
 }
 
-model ServerLog {
-  id           String    @id @default(cuid())
-  method       String    @default("")
-  url          String    @default("")
-  graphql      String    @default("")
-  status       String    @default("")
-  elapsed      String    @default("")
-  userID       String    @default("")
-  errorMessage String    @default("")
-  createdAt    DateTime? @default(now())
-}
-
-model ServerError {
-  id           String    @id @default(cuid())
-  errorMessage String    @default("")
-  url          String    @default("")
-  graphql      String    @default("")
-  createdAt    DateTime? @default(now())
-  status       String    @default("")
-  method       String    @default("")
-  userID       String    @default("")
+model BotConfig {
+  id                      String @id @default(cuid())
+  name                    String @default("")
+  companyStatement        String @default("")
+  tonestyle               String @default("")
+  priorityPlan            String @default("")
+  healthInsuranceCarriers String @default("")
+  presentationStrategy    String @default("")
+  specificQuestions       String @default("")
+  summaryPrompt           String @default("")
+  welcomeMessage          String @default("")
 }
 
 enum UserRoleType {

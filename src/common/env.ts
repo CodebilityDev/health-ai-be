@@ -19,7 +19,7 @@ export const CONFIG = {
   PAGE_RESET_PASSWORD_URL:
     process.env.PAGE_RESET_PASSWORD_URL || "/reset-password",
   PAGE_URL: process.env.PAGE_URL || "http://localhost:300",
-  RUN_CRON_JOB: process.env.RUN_CRON_JOB || "true",
+  RUN_CRON_JOB: process.env.RUN_CRON_JOB || "false",
   S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID || "value",
   S3_BUCKET_NAME: process.env.S3_BUCKET_NAME || "value",
   S3_ENDPOINT: process.env.S3_ENDPOINT || "https://value",
@@ -34,5 +34,5 @@ export const CONFIG = {
     process.env.SESSION_SECRET ||
     '"secretashdasifhjldgjaisjflsjkasldfklaskdjf"',
   LOG_REQUESTS: process.env.LOG_REQUESTS || "short,true",
-  LOG_TODB: process.env.LOG_TODB || "",
+  LOG_TODB: process.env.LOG_TODB || "trueBASE_URL",
 };
