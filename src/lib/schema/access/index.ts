@@ -135,7 +135,7 @@ export const schemaAccessConfig = <T, N = any, O = any>(generatorArgs: {
             },
             update: (args: ItemArgs<N, O>) => {
               let checkerFunction =
-                generatorArgs.item!.create ||
+                generatorArgs.item!.update ||
                 generatorArgs.item!.write ||
                 generatorArgs.item?.all;
               if (!checkerFunction) {
@@ -149,7 +149,7 @@ export const schemaAccessConfig = <T, N = any, O = any>(generatorArgs: {
             },
             delete: (args: ItemArgs<N, O>) => {
               let checkerFunction =
-                generatorArgs.item!.create ||
+                generatorArgs.item!.delete ||
                 generatorArgs.item!.write ||
                 generatorArgs.item?.all;
               if (!checkerFunction) {
