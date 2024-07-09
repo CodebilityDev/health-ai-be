@@ -6,8 +6,8 @@ FROM node:18
 WORKDIR /usr/src/app
 
 # Set environment variables
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
+# ARG NODE_ENV=production
+# ENV NODE_ENV=${NODE_ENV}
 
 # Install app dependencies
 COPY package*.json ./
