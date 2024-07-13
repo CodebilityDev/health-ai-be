@@ -35,5 +35,9 @@ export const CONFIG = {
     process.env.SESSION_SECRET ||
     '"secretashdasifhjldgjaisjflsjkasldfklaskdjf"',
   LOG_REQUESTS: process.env.LOG_REQUESTS || "short,true",
-  LOG_TODB: process.env.LOG_TODB || "trueBASE_URL",
+  LOG_TODB: process.env.LOG_TODB || "true",
+  GHL_CLIENTID: process.env.GHL_CLIENTID || "gh-key",
+  GHL_CLIENTSECRET: process.env.GHL_CLIENTSECRET || "ghl-sec",
+  GHL_REDIRECT_URI:
+    process.env.GHL_REDIRECT_URI || "http://localhost:3000/ghl-callback",
 };

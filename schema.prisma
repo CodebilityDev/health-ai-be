@@ -51,6 +51,8 @@ model User {
   createdAt        DateTime?      @default(now())
   groups           GroupMember[]  @relation("GroupMember_user")
   botConfig        BotConfig?     @relation("BotConfig_user")
+  ghlAccess        GHLAccess?     @relation("GHLAccess_user")
+  aiKey            AIKey?         @relation("AIKey_user")
 }
 
 model UserLocalAuth {
@@ -93,6 +95,25 @@ model BotConfig {
   welcomeMessage          String  @default("")
   user                    User?   @relation("BotConfig_user", fields: [userId], references: [id])
   userId                  String? @unique @map("user")
+}
+
+model GHLAccess {
+  id           String  @id @default(cuid())
+  user         User?   @relation("GHLAccess_user", fields: [userId], references: [id])
+  userId       String? @unique @map("user")
+  refreshToken String  @default("")
+  ghsUserId    String  @default("")
+  planId       String  @default("")
+  locationId   String  @default("")
+  companyId    String  @default("")
+  scope        String  @default("")
+}
+
+model AIKey {
+  id         String  @id @default(cuid())
+  user       User?   @relation("AIKey_user", fields: [userId], references: [id])
+  userId     String? @unique @map("user")
+  openapiKey String  @default("")
 }
 
 enum UserRoleType {

@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "GHLAccess" ADD COLUMN     "companyId" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "ghsUserId" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "locationId" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "planId" TEXT NOT NULL DEFAULT '';

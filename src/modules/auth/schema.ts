@@ -146,6 +146,14 @@ export const userDataList: Lists = {
         ref: "BotConfig.user",
         many: false,
       }),
+      ghlAccess: relationship({
+        ref: "GHLAccess.user",
+        many: false,
+      }),
+      aiKey: relationship({
+        ref: "AIKey.user",
+        many: false,
+      }),
     },
     access: schemaAccessConfig({
       isAuthed: true,
@@ -159,7 +167,7 @@ export const userDataList: Lists = {
         read: SchemaAccessTemplate.allow,
         write: SchemaAccessTemplate.sequential([
           SchemaAccessTemplate.hasRole({ roles: [PERMISSION_ENUM.ADMIN] }),
-          SchemaAccessTemplate.isOwner({ itemIDKey: "authorId" }),
+          SchemaAccessTemplate.isOwner({ itemIDKey: "id" }),
         ]),
       },
     }),

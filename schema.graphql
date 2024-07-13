@@ -212,6 +212,8 @@ type User {
   groups(where: GroupMemberWhereInput! = {}, orderBy: [GroupMemberOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupMemberWhereUniqueInput): [GroupMember!]
   groupsCount(where: GroupMemberWhereInput! = {}): Int
   botConfig: BotConfig
+  ghlAccess: GHLAccess
+  aiKey: AIKey
 }
 
 type PasswordState {
@@ -259,6 +261,8 @@ input UserWhereInput {
   createdAt: DateTimeNullableFilter
   groups: GroupMemberManyRelationFilter
   botConfig: BotConfigWhereInput
+  ghlAccess: GHLAccessWhereInput
+  aiKey: AIKeyWhereInput
 }
 
 input PasswordFilter {
@@ -304,6 +308,8 @@ input UserUpdateInput {
   createdAt: DateTime
   groups: GroupMemberRelateToManyForUpdateInput
   botConfig: BotConfigRelateToOneForUpdateInput
+  ghlAccess: GHLAccessRelateToOneForUpdateInput
+  aiKey: AIKeyRelateToOneForUpdateInput
 }
 
 input ImageFieldInput {
@@ -326,6 +332,18 @@ input BotConfigRelateToOneForUpdateInput {
   disconnect: Boolean
 }
 
+input GHLAccessRelateToOneForUpdateInput {
+  create: GHLAccessCreateInput
+  connect: GHLAccessWhereUniqueInput
+  disconnect: Boolean
+}
+
+input AIKeyRelateToOneForUpdateInput {
+  create: AIKeyCreateInput
+  connect: AIKeyWhereUniqueInput
+  disconnect: Boolean
+}
+
 input UserUpdateArgs {
   where: UserWhereUniqueInput!
   data: UserUpdateInput!
@@ -341,6 +359,8 @@ input UserCreateInput {
   createdAt: DateTime
   groups: GroupMemberRelateToManyForCreateInput
   botConfig: BotConfigRelateToOneForCreateInput
+  ghlAccess: GHLAccessRelateToOneForCreateInput
+  aiKey: AIKeyRelateToOneForCreateInput
 }
 
 input GroupMemberRelateToManyForCreateInput {
@@ -351,6 +371,16 @@ input GroupMemberRelateToManyForCreateInput {
 input BotConfigRelateToOneForCreateInput {
   create: BotConfigCreateInput
   connect: BotConfigWhereUniqueInput
+}
+
+input GHLAccessRelateToOneForCreateInput {
+  create: GHLAccessCreateInput
+  connect: GHLAccessWhereUniqueInput
+}
+
+input AIKeyRelateToOneForCreateInput {
+  create: AIKeyCreateInput
+  connect: AIKeyWhereUniqueInput
 }
 
 type Group {
@@ -548,6 +578,109 @@ input BotConfigCreateInput {
   user: UserRelateToOneForCreateInput
 }
 
+type GHLAccess {
+  id: ID!
+  user: User
+  refreshToken: String
+  ghsUserId: String
+  planId: String
+  locationId: String
+  companyId: String
+  scope: String
+}
+
+input GHLAccessWhereUniqueInput {
+  id: ID
+}
+
+input GHLAccessWhereInput {
+  AND: [GHLAccessWhereInput!]
+  OR: [GHLAccessWhereInput!]
+  NOT: [GHLAccessWhereInput!]
+  id: IDFilter
+  user: UserWhereInput
+  refreshToken: StringFilter
+  ghsUserId: StringFilter
+  planId: StringFilter
+  locationId: StringFilter
+  companyId: StringFilter
+  scope: StringFilter
+}
+
+input GHLAccessOrderByInput {
+  id: OrderDirection
+  refreshToken: OrderDirection
+  ghsUserId: OrderDirection
+  planId: OrderDirection
+  locationId: OrderDirection
+  companyId: OrderDirection
+  scope: OrderDirection
+}
+
+input GHLAccessUpdateInput {
+  user: UserRelateToOneForUpdateInput
+  refreshToken: String
+  ghsUserId: String
+  planId: String
+  locationId: String
+  companyId: String
+  scope: String
+}
+
+input GHLAccessUpdateArgs {
+  where: GHLAccessWhereUniqueInput!
+  data: GHLAccessUpdateInput!
+}
+
+input GHLAccessCreateInput {
+  user: UserRelateToOneForCreateInput
+  refreshToken: String
+  ghsUserId: String
+  planId: String
+  locationId: String
+  companyId: String
+  scope: String
+}
+
+type AIKey {
+  id: ID!
+  user: User
+  openapiKey: String
+}
+
+input AIKeyWhereUniqueInput {
+  id: ID
+}
+
+input AIKeyWhereInput {
+  AND: [AIKeyWhereInput!]
+  OR: [AIKeyWhereInput!]
+  NOT: [AIKeyWhereInput!]
+  id: IDFilter
+  user: UserWhereInput
+  openapiKey: StringFilter
+}
+
+input AIKeyOrderByInput {
+  id: OrderDirection
+  openapiKey: OrderDirection
+}
+
+input AIKeyUpdateInput {
+  user: UserRelateToOneForUpdateInput
+  openapiKey: String
+}
+
+input AIKeyUpdateArgs {
+  where: AIKeyWhereUniqueInput!
+  data: AIKeyUpdateInput!
+}
+
+input AIKeyCreateInput {
+  user: UserRelateToOneForCreateInput
+  openapiKey: String
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -590,6 +723,18 @@ type Mutation {
   updateBotConfigs(data: [BotConfigUpdateArgs!]!): [BotConfig]
   deleteBotConfig(where: BotConfigWhereUniqueInput!): BotConfig
   deleteBotConfigs(where: [BotConfigWhereUniqueInput!]!): [BotConfig]
+  createGHLAccess(data: GHLAccessCreateInput!): GHLAccess
+  createGHLAccesses(data: [GHLAccessCreateInput!]!): [GHLAccess]
+  updateGHLAccess(where: GHLAccessWhereUniqueInput!, data: GHLAccessUpdateInput!): GHLAccess
+  updateGHLAccesses(data: [GHLAccessUpdateArgs!]!): [GHLAccess]
+  deleteGHLAccess(where: GHLAccessWhereUniqueInput!): GHLAccess
+  deleteGHLAccesses(where: [GHLAccessWhereUniqueInput!]!): [GHLAccess]
+  createAIKey(data: AIKeyCreateInput!): AIKey
+  createAIKeys(data: [AIKeyCreateInput!]!): [AIKey]
+  updateAIKey(where: AIKeyWhereUniqueInput!, data: AIKeyUpdateInput!): AIKey
+  updateAIKeys(data: [AIKeyUpdateArgs!]!): [AIKey]
+  deleteAIKey(where: AIKeyWhereUniqueInput!): AIKey
+  deleteAIKeys(where: [AIKeyWhereUniqueInput!]!): [AIKey]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, adminPassword: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -647,9 +792,17 @@ type Query {
   botConfigs(where: BotConfigWhereInput! = {}, orderBy: [BotConfigOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: BotConfigWhereUniqueInput): [BotConfig!]
   botConfig(where: BotConfigWhereUniqueInput!): BotConfig
   botConfigsCount(where: BotConfigWhereInput! = {}): Int
+  gHLAccesses(where: GHLAccessWhereInput! = {}, orderBy: [GHLAccessOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GHLAccessWhereUniqueInput): [GHLAccess!]
+  gHLAccess(where: GHLAccessWhereUniqueInput!): GHLAccess
+  gHLAccessesCount(where: GHLAccessWhereInput! = {}): Int
+  aIKeys(where: AIKeyWhereInput! = {}, orderBy: [AIKeyOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: AIKeyWhereUniqueInput): [AIKey!]
+  aIKey(where: AIKeyWhereUniqueInput!): AIKey
+  aIKeysCount(where: AIKeyWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
   ErrorTest: String
+  ghl_accessToken: String
+  ghl_me: GHLMeReturn
 }
 
 union AuthenticatedItem = User
@@ -754,4 +907,16 @@ type KeystoneAdminUISort {
 enum KeystoneAdminUISortDirection {
   ASC
   DESC
+}
+
+type GHLMeReturn {
+  name: String!
+  email: String!
+  firstName: String!
+  lastName: String!
+  phone: String!
+  address: String!
+  state: String!
+  country: String!
+  postalCode: String!
 }
