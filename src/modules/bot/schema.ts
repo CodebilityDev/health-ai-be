@@ -1,7 +1,11 @@
 import type { Lists } from ".keystone/types";
 import { list } from "@keystone-6/core";
-import { allowAll } from "@keystone-6/core/access";
-import { text } from "@keystone-6/core/fields";
+import { relationship, text } from "@keystone-6/core/fields";
+import { schemaAccessConfig } from "~/lib/schema/access";
+import {
+  SchemaAccessTemplate,
+  userOwnershipCheck,
+} from "~/lib/schema/access/templates";
 
 export const botDataList: Lists = {
   BotConfig: list({
@@ -15,7 +19,20 @@ export const botDataList: Lists = {
       specificQuestions: text(),
       summaryPrompt: text(),
       welcomeMessage: text(),
+      user: relationship({ ref: "User.botConfigs", many: false }),
     },
-    access: allowAll,
+    access: schemaAccessConfig({
+      isAuthed: {
+        all: true,
+        read: false,
+      },
+      operations: {
+        all: SchemaAccessTemplate.allow,
+      },
+      filter: {
+        read: SchemaAccessTemplate.allow,
+        write: userOwnershipCheck(),
+      },
+    }),
   }),
 };

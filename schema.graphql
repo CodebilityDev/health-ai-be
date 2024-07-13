@@ -211,6 +211,8 @@ type User {
   createdAt: DateTime
   groups(where: GroupMemberWhereInput! = {}, orderBy: [GroupMemberOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupMemberWhereUniqueInput): [GroupMember!]
   groupsCount(where: GroupMemberWhereInput! = {}): Int
+  botConfigs(where: BotConfigWhereInput! = {}, orderBy: [BotConfigOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: BotConfigWhereUniqueInput): [BotConfig!]
+  botConfigsCount(where: BotConfigWhereInput! = {}): Int
 }
 
 type PasswordState {
@@ -257,6 +259,7 @@ input UserWhereInput {
   role: UserRoleTypeNullableFilter
   createdAt: DateTimeNullableFilter
   groups: GroupMemberManyRelationFilter
+  botConfigs: BotConfigManyRelationFilter
 }
 
 input PasswordFilter {
@@ -283,6 +286,12 @@ input GroupMemberManyRelationFilter {
   none: GroupMemberWhereInput
 }
 
+input BotConfigManyRelationFilter {
+  every: BotConfigWhereInput
+  some: BotConfigWhereInput
+  none: BotConfigWhereInput
+}
+
 input UserOrderByInput {
   id: OrderDirection
   name: OrderDirection
@@ -301,6 +310,7 @@ input UserUpdateInput {
   role: UserRoleType
   createdAt: DateTime
   groups: GroupMemberRelateToManyForUpdateInput
+  botConfigs: BotConfigRelateToManyForUpdateInput
 }
 
 input ImageFieldInput {
@@ -317,6 +327,13 @@ input GroupMemberRelateToManyForUpdateInput {
   connect: [GroupMemberWhereUniqueInput!]
 }
 
+input BotConfigRelateToManyForUpdateInput {
+  disconnect: [BotConfigWhereUniqueInput!]
+  set: [BotConfigWhereUniqueInput!]
+  create: [BotConfigCreateInput!]
+  connect: [BotConfigWhereUniqueInput!]
+}
+
 input UserUpdateArgs {
   where: UserWhereUniqueInput!
   data: UserUpdateInput!
@@ -331,11 +348,17 @@ input UserCreateInput {
   role: UserRoleType
   createdAt: DateTime
   groups: GroupMemberRelateToManyForCreateInput
+  botConfigs: BotConfigRelateToManyForCreateInput
 }
 
 input GroupMemberRelateToManyForCreateInput {
   create: [GroupMemberCreateInput!]
   connect: [GroupMemberWhereUniqueInput!]
+}
+
+input BotConfigRelateToManyForCreateInput {
+  create: [BotConfigCreateInput!]
+  connect: [BotConfigWhereUniqueInput!]
 }
 
 type Group {
@@ -465,6 +488,7 @@ type BotConfig {
   specificQuestions: String
   summaryPrompt: String
   welcomeMessage: String
+  user: User
 }
 
 input BotConfigWhereUniqueInput {
@@ -485,6 +509,7 @@ input BotConfigWhereInput {
   specificQuestions: StringFilter
   summaryPrompt: StringFilter
   welcomeMessage: StringFilter
+  user: UserWhereInput
 }
 
 input BotConfigOrderByInput {
@@ -510,6 +535,7 @@ input BotConfigUpdateInput {
   specificQuestions: String
   summaryPrompt: String
   welcomeMessage: String
+  user: UserRelateToOneForUpdateInput
 }
 
 input BotConfigUpdateArgs {
@@ -527,6 +553,7 @@ input BotConfigCreateInput {
   specificQuestions: String
   summaryPrompt: String
   welcomeMessage: String
+  user: UserRelateToOneForCreateInput
 }
 
 """
@@ -574,6 +601,22 @@ type Mutation {
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, adminPassword: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
+  authclient_login(email: String!, password: String!): ClientItemAuthenticationWithPasswordResult
+  authclient_register(email: String!, firstName: String, lastName: String, password: String!): Boolean
+  authclient_requestPasswordReset(email: String!): Boolean
+  authclient_resetPassword(token: String!, password: String!): Boolean
+  authclient_changePassword(oldPassword: String!, newPassword: String!): Boolean
+}
+
+union ClientItemAuthenticationWithPasswordResult = ClientItemAuthenticationWithPasswordSuccess | ClientItemAuthenticationWithPasswordFailure
+
+type ClientItemAuthenticationWithPasswordSuccess {
+  sessionToken: String!
+  item: User!
+}
+
+type ClientItemAuthenticationWithPasswordFailure {
+  message: String!
 }
 
 union UserAuthenticationWithPasswordResult = UserAuthenticationWithPasswordSuccess | UserAuthenticationWithPasswordFailure

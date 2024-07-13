@@ -84,6 +84,17 @@ export async function sendEmailByBrevoTemplate(
   return messageId;
 }
 
+export async function sendEmail(to: string, subject: string, text: string) {
+  const messageId = await _sendEmailRoutine({
+    to: to,
+    cc: "",
+    subject: subject,
+    html: text,
+  });
+
+  return messageId;
+}
+
 async function _sendEmailRoutine(
   options: any,
   extra?: {

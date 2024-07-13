@@ -3,7 +3,16 @@ import { deepMerge } from "~/functions/deepMerge";
 import { ItemArgs, OperationArgs } from "./types";
 
 export const schemaAccessConfig = <T, N = any, O = any>(generatorArgs: {
-  isAuthed?: boolean;
+  isAuthed?:
+    | {
+        all?: boolean;
+        read?: boolean;
+        write?: boolean;
+        create?: boolean;
+        update?: boolean;
+        delete?: boolean;
+      }
+    | boolean;
   superAccess?: string[];
   operations: {
     all?: (context: OperationArgs) => boolean;
@@ -32,16 +41,67 @@ export const schemaAccessConfig = <T, N = any, O = any>(generatorArgs: {
   extraConfig?: Partial<T>;
 }) => {
   const globalMiddleware = (operation: OperationArgs) => {
-    if (generatorArgs.isAuthed) {
-      if (!operation.context.session?.itemId) {
-        throw new Error("Not Authenticated");
+    let throwAuthError = false;
+
+    let isLoggedIn = operation.context.session?.itemId;
+
+    if (typeof generatorArgs.isAuthed === "boolean") {
+      throwAuthError = !generatorArgs.isAuthed;
+    } else {
+      switch (operation.operation) {
+        case "query":
+          let shouldCheck =
+            generatorArgs.isAuthed?.read ?? generatorArgs.isAuthed?.all;
+          if (shouldCheck) {
+            throwAuthError = !isLoggedIn;
+          }
+          break;
+        case "create":
+          let shouldCheckCreate =
+            generatorArgs.isAuthed?.create ??
+            generatorArgs.isAuthed?.write ??
+            generatorArgs.isAuthed?.all;
+          if (shouldCheckCreate) {
+            throwAuthError = !isLoggedIn;
+          }
+          break;
+        case "update":
+          let shouldCheckUpdate =
+            generatorArgs.isAuthed?.update ??
+            generatorArgs.isAuthed?.write ??
+            generatorArgs.isAuthed?.all;
+          if (shouldCheckUpdate) {
+            throwAuthError = !isLoggedIn;
+          }
+          break;
+        case "delete":
+          let shouldCheckDelete =
+            generatorArgs.isAuthed?.delete ??
+            generatorArgs.isAuthed?.write ??
+            generatorArgs.isAuthed?.all;
+          if (shouldCheckDelete) {
+            throwAuthError = !isLoggedIn;
+          }
+          break;
+        default:
+          throw new Error("Invalid operation");
       }
+    }
+
+    if (throwAuthError) {
+      throw new Error("Not Authenticated");
+    }
+
+    if (!isLoggedIn) {
+      // we wont do anymore checks, we allow guest access
+      return true;
     }
 
     const superAccessRoles = [
       ...(generatorArgs.superAccess || []),
       UserRoleType.Dev,
     ];
+
     // check for dev super user
     if (superAccessRoles.includes(operation.session.data.role)) {
       return true;
@@ -53,7 +113,7 @@ export const schemaAccessConfig = <T, N = any, O = any>(generatorArgs: {
     operation: {
       query: (args: OperationArgs) => {
         let checkerFunction =
-          generatorArgs.operations.read || generatorArgs.operations.all;
+          generatorArgs.operations.read ?? generatorArgs.operations.all;
         if (!checkerFunction) {
           checkerFunction = () => true;
         }
@@ -61,8 +121,8 @@ export const schemaAccessConfig = <T, N = any, O = any>(generatorArgs: {
       },
       create: (args: OperationArgs) => {
         let checkerFunction =
-          generatorArgs.operations.create ||
-          generatorArgs.operations.write ||
+          generatorArgs.operations.create ??
+          generatorArgs.operations.write ??
           generatorArgs.operations.all;
         if (!checkerFunction) {
           checkerFunction = () => true;
@@ -71,8 +131,8 @@ export const schemaAccessConfig = <T, N = any, O = any>(generatorArgs: {
       },
       update: (args: OperationArgs) => {
         let checkerFunction =
-          generatorArgs.operations.update ||
-          generatorArgs.operations.write ||
+          generatorArgs.operations.update ??
+          generatorArgs.operations.write ??
           generatorArgs.operations.all;
         if (!checkerFunction) {
           checkerFunction = () => true;
@@ -81,8 +141,8 @@ export const schemaAccessConfig = <T, N = any, O = any>(generatorArgs: {
       },
       delete: (args: OperationArgs) => {
         let checkerFunction =
-          generatorArgs.operations.delete ||
-          generatorArgs.operations.write ||
+          generatorArgs.operations.delete ??
+          generatorArgs.operations.write ??
           generatorArgs.operations.all;
         if (!checkerFunction) {
           checkerFunction = () => true;
@@ -101,8 +161,8 @@ export const schemaAccessConfig = <T, N = any, O = any>(generatorArgs: {
       },
       update: (args: OperationArgs) => {
         let checkerFunction =
-          generatorArgs.filter.update ||
-          generatorArgs.filter.write ||
+          generatorArgs.filter.update ??
+          generatorArgs.filter.write ??
           generatorArgs.filter.all;
         if (!checkerFunction) {
           checkerFunction = () => true;
@@ -111,8 +171,8 @@ export const schemaAccessConfig = <T, N = any, O = any>(generatorArgs: {
       },
       delete: (args: OperationArgs) => {
         let checkerFunction =
-          generatorArgs.filter.delete ||
-          generatorArgs.filter.write ||
+          generatorArgs.filter.delete ??
+          generatorArgs.filter.write ??
           generatorArgs.filter.all;
         if (!checkerFunction) {
           checkerFunction = () => true;
@@ -125,8 +185,8 @@ export const schemaAccessConfig = <T, N = any, O = any>(generatorArgs: {
           item: {
             create: (args: ItemArgs<N, O>) => {
               let checkerFunction =
-                generatorArgs.item!.create ||
-                generatorArgs.item!.write ||
+                generatorArgs.item!.create ??
+                generatorArgs.item!.write ??
                 generatorArgs.item?.all;
               if (!checkerFunction) {
                 checkerFunction = () => true;
@@ -135,22 +195,22 @@ export const schemaAccessConfig = <T, N = any, O = any>(generatorArgs: {
             },
             update: (args: ItemArgs<N, O>) => {
               let checkerFunction =
-                generatorArgs.item!.update ||
-                generatorArgs.item!.write ||
+                generatorArgs.item!.update ??
+                generatorArgs.item!.write ??
                 generatorArgs.item?.all;
               if (!checkerFunction) {
                 checkerFunction = () => true;
               }
               return (
-                globalMiddleware(args) ||
-                checkerFunction(args) ||
+                globalMiddleware(args) ??
+                checkerFunction(args) ??
                 generatorArgs.operations.all
               );
             },
             delete: (args: ItemArgs<N, O>) => {
               let checkerFunction =
-                generatorArgs.item!.delete ||
-                generatorArgs.item!.write ||
+                generatorArgs.item!.delete ??
+                generatorArgs.item!.write ??
                 generatorArgs.item?.all;
               if (!checkerFunction) {
                 checkerFunction = () => true;

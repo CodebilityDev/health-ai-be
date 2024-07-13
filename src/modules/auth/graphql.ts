@@ -6,7 +6,6 @@ import {
   changePassword,
   requestResetPassword,
   resetPassword,
-  resetPasswordForNewUser,
 } from "./services/reset_password";
 const gqlNames = {
   ItemAuthenticationWithPasswordSuccess:
@@ -119,7 +118,7 @@ export const clientAuthGraphqlExtension = graphql.extend((base) => {
         type: graphql.Boolean,
         args: {
           email: graphql.arg({ type: graphql.nonNull(graphql.String) }),
-          firstName: graphql.arg({ type: graphql.nonNull(graphql.String) }),
+          firstName: graphql.arg({ type: graphql.String }),
           lastName: graphql.arg({ type: graphql.String }),
           password: graphql.arg({ type: graphql.nonNull(graphql.String) }),
         },
@@ -132,7 +131,7 @@ export const clientAuthGraphqlExtension = graphql.extend((base) => {
           const user = await context.prisma.user.create({
             data: {
               email,
-              name: firstName,
+              name: firstName || "",
               lastName: lastName || "",
             },
           });
@@ -168,27 +167,6 @@ export const clientAuthGraphqlExtension = graphql.extend((base) => {
           // Call the appropriate service function
           try {
             await requestResetPassword(email, "1h", context);
-            return true;
-          } catch (e) {
-            console.error(e);
-            return false;
-          }
-        },
-      }),
-      authclient_newAccountPasswordReset: graphql.field({
-        type: graphql.Boolean,
-        args: {
-          email: graphql.arg({ type: graphql.nonNull(graphql.String) }),
-        },
-        async resolve(_, { email }, context: GlobalContext) {
-          // Call the appropriate service function
-          try {
-            await resetPasswordForNewUser(
-              {
-                email,
-              },
-              context,
-            );
             return true;
           } catch (e) {
             console.error(e);

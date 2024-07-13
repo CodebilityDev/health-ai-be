@@ -142,6 +142,10 @@ export const userDataList: Lists = {
         ref: "GroupMember.user",
         many: true,
       }),
+      botConfigs: relationship({
+        ref: "BotConfig.user",
+        many: true,
+      }),
     },
     access: schemaAccessConfig({
       isAuthed: true,

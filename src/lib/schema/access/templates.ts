@@ -59,6 +59,17 @@ const checkRole = (role: string, allowedRoles: string[]) => {
   return allowedRoles.includes(role);
 };
 
+export const userOwnershipCheck =
+  (fargs?: { userIDKey?: string }) => (args: { context: GlobalContext }) => {
+    return {
+      [fargs?.userIDKey ?? "user"]: {
+        id: {
+          equals: args.context.session?.itemId,
+        },
+      },
+    };
+  };
+
 const memberhipCheckString = (
   check: {
     userId?: string;

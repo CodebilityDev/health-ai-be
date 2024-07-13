@@ -13,8 +13,9 @@ export const CONFIG = {
   GRAPHQL_INSTROSPECTION: process.env.GRAPHQL_INSTROSPECTION || "true",
   JWT_SECRET: process.env.JWT_SECRET || "secret",
   MAILER_BREVO_API_KEY: process.env.MAILER_BREVO_API_KEY || "secret",
-  MAILER_EMAILADDRESS: process.env.MAILER_EMAILADDRESS || "mailer@test.com",
-  MAILER_NAME: process.env.MAILER_NAME || "mailer",
+  MAILER_EMAILADDRESS:
+    process.env.MAILER_EMAILADDRESS || "leomarkcastro123@gmail.com",
+  MAILER_NAME: process.env.MAILER_NAME || "federal_plans",
   NEW_ACCOUNT_URL: process.env.NEW_ACCOUNT_URL || "/new-account",
   PAGE_RESET_PASSWORD_URL:
     process.env.PAGE_RESET_PASSWORD_URL || "/reset-password",

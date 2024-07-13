@@ -50,6 +50,7 @@ model User {
   role             UserRoleType?  @default(user)
   createdAt        DateTime?      @default(now())
   groups           GroupMember[]  @relation("GroupMember_user")
+  botConfigs       BotConfig[]    @relation("BotConfig_user")
 }
 
 model UserLocalAuth {
@@ -80,16 +81,20 @@ model GroupMember {
 }
 
 model BotConfig {
-  id                      String @id @default(cuid())
-  name                    String @default("")
-  companyStatement        String @default("")
-  tonestyle               String @default("")
-  priorityPlan            String @default("")
-  healthInsuranceCarriers String @default("")
-  presentationStrategy    String @default("")
-  specificQuestions       String @default("")
-  summaryPrompt           String @default("")
-  welcomeMessage          String @default("")
+  id                      String  @id @default(cuid())
+  name                    String  @default("")
+  companyStatement        String  @default("")
+  tonestyle               String  @default("")
+  priorityPlan            String  @default("")
+  healthInsuranceCarriers String  @default("")
+  presentationStrategy    String  @default("")
+  specificQuestions       String  @default("")
+  summaryPrompt           String  @default("")
+  welcomeMessage          String  @default("")
+  user                    User?   @relation("BotConfig_user", fields: [userId], references: [id])
+  userId                  String? @map("user")
+
+  @@index([userId])
 }
 
 enum UserRoleType {

@@ -2,8 +2,9 @@ import { hashSync } from "bcrypt";
 import { GlobalContext } from "~/common/context";
 import { CONFIG } from "~/common/env";
 import { jwt_sign, jwt_verify } from "~/services/jwt";
-import { sendEmailByBrevoTemplate } from "~/services/mail";
+import { sendEmail, sendEmailByBrevoTemplate } from "~/services/mail";
 import { IChangePassword, IUserJwt } from "./UserJWT.dto";
+import { templateResetEmail } from "./templates/resetEmail";
 
 export async function resetPasswordForNewUser(
   args: { email: string },
@@ -66,16 +67,14 @@ export async function requestResetPassword(
   });
 
   // send email
-  await sendEmailByBrevoTemplate(
+  await sendEmail(
     user.email,
     "Reset Password",
-    CONFIG.BREVO_TEMPLATE_RESET_PASSWORD,
-    {
+    templateResetEmail({
       username:
         user.name + (user.lastName ? ` ${user.lastName}` : "") || user.email,
-      time_date: new Date().toLocaleString(),
       reset_url: `${CONFIG.PAGE_URL}${CONFIG.PAGE_RESET_PASSWORD_URL}?token=${token}`,
-    },
+    }),
   );
 }
 
