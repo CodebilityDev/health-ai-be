@@ -142,9 +142,9 @@ export const userDataList: Lists = {
         ref: "GroupMember.user",
         many: true,
       }),
-      botConfigs: relationship({
+      botConfig: relationship({
         ref: "BotConfig.user",
-        many: true,
+        many: false,
       }),
     },
     access: schemaAccessConfig({

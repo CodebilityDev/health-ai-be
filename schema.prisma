@@ -50,7 +50,7 @@ model User {
   role             UserRoleType?  @default(user)
   createdAt        DateTime?      @default(now())
   groups           GroupMember[]  @relation("GroupMember_user")
-  botConfigs       BotConfig[]    @relation("BotConfig_user")
+  botConfig        BotConfig?     @relation("BotConfig_user")
 }
 
 model UserLocalAuth {
@@ -92,9 +92,7 @@ model BotConfig {
   summaryPrompt           String  @default("")
   welcomeMessage          String  @default("")
   user                    User?   @relation("BotConfig_user", fields: [userId], references: [id])
-  userId                  String? @map("user")
-
-  @@index([userId])
+  userId                  String? @unique @map("user")
 }
 
 enum UserRoleType {

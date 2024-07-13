@@ -211,8 +211,7 @@ type User {
   createdAt: DateTime
   groups(where: GroupMemberWhereInput! = {}, orderBy: [GroupMemberOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupMemberWhereUniqueInput): [GroupMember!]
   groupsCount(where: GroupMemberWhereInput! = {}): Int
-  botConfigs(where: BotConfigWhereInput! = {}, orderBy: [BotConfigOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: BotConfigWhereUniqueInput): [BotConfig!]
-  botConfigsCount(where: BotConfigWhereInput! = {}): Int
+  botConfig: BotConfig
 }
 
 type PasswordState {
@@ -259,7 +258,7 @@ input UserWhereInput {
   role: UserRoleTypeNullableFilter
   createdAt: DateTimeNullableFilter
   groups: GroupMemberManyRelationFilter
-  botConfigs: BotConfigManyRelationFilter
+  botConfig: BotConfigWhereInput
 }
 
 input PasswordFilter {
@@ -286,12 +285,6 @@ input GroupMemberManyRelationFilter {
   none: GroupMemberWhereInput
 }
 
-input BotConfigManyRelationFilter {
-  every: BotConfigWhereInput
-  some: BotConfigWhereInput
-  none: BotConfigWhereInput
-}
-
 input UserOrderByInput {
   id: OrderDirection
   name: OrderDirection
@@ -310,7 +303,7 @@ input UserUpdateInput {
   role: UserRoleType
   createdAt: DateTime
   groups: GroupMemberRelateToManyForUpdateInput
-  botConfigs: BotConfigRelateToManyForUpdateInput
+  botConfig: BotConfigRelateToOneForUpdateInput
 }
 
 input ImageFieldInput {
@@ -327,11 +320,10 @@ input GroupMemberRelateToManyForUpdateInput {
   connect: [GroupMemberWhereUniqueInput!]
 }
 
-input BotConfigRelateToManyForUpdateInput {
-  disconnect: [BotConfigWhereUniqueInput!]
-  set: [BotConfigWhereUniqueInput!]
-  create: [BotConfigCreateInput!]
-  connect: [BotConfigWhereUniqueInput!]
+input BotConfigRelateToOneForUpdateInput {
+  create: BotConfigCreateInput
+  connect: BotConfigWhereUniqueInput
+  disconnect: Boolean
 }
 
 input UserUpdateArgs {
@@ -348,7 +340,7 @@ input UserCreateInput {
   role: UserRoleType
   createdAt: DateTime
   groups: GroupMemberRelateToManyForCreateInput
-  botConfigs: BotConfigRelateToManyForCreateInput
+  botConfig: BotConfigRelateToOneForCreateInput
 }
 
 input GroupMemberRelateToManyForCreateInput {
@@ -356,9 +348,9 @@ input GroupMemberRelateToManyForCreateInput {
   connect: [GroupMemberWhereUniqueInput!]
 }
 
-input BotConfigRelateToManyForCreateInput {
-  create: [BotConfigCreateInput!]
-  connect: [BotConfigWhereUniqueInput!]
+input BotConfigRelateToOneForCreateInput {
+  create: BotConfigCreateInput
+  connect: BotConfigWhereUniqueInput
 }
 
 type Group {

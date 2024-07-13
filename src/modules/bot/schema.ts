@@ -19,7 +19,7 @@ export const botDataList: Lists = {
       specificQuestions: text(),
       summaryPrompt: text(),
       welcomeMessage: text(),
-      user: relationship({ ref: "User.botConfigs", many: false }),
+      user: relationship({ ref: "User.botConfig", many: false }),
     },
     access: schemaAccessConfig({
       isAuthed: {
