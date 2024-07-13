@@ -8,6 +8,7 @@ import {
 } from "~/lib/rest/declarations";
 import { RequestInputType, RouteMethod } from "~/lib/rest/types";
 import { base64 } from "~/services/base64";
+import { AccessTokenList } from "./service/getGHLToken";
 
 const ghlRouteDeclaration = new RouteDeclarationList({
   path: "/ghapi",
@@ -162,6 +163,9 @@ ghlRouteDeclaration.routes.set(
           },
         });
       }
+
+      // clear cache
+      AccessTokenList[userId] = null;
 
       res.redirect(redirect || CONFIG.PAGE_URL);
       // return data;

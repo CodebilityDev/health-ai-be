@@ -1,7 +1,7 @@
 import { GlobalContext } from "~/common/context";
 import { CONFIG } from "~/common/env";
 
-const AccessTokenList: Record<
+export const AccessTokenList: Record<
   string,
   {
     accessToken: string;
@@ -9,7 +9,7 @@ const AccessTokenList: Record<
     companyId: string;
     userId: string;
     expiresAt: number;
-  }
+  } | null
 > = {};
 
 export const getAccessToken = async (args: {
