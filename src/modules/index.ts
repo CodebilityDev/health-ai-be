@@ -1,9 +1,10 @@
 import { Module } from "~/lib/modules/declarations";
 import { authDefinition } from "./auth";
-import { Bots } from "./bot";
-import { GHL } from "./gh";
-import { ServerHealth } from "./health";
-import { ServerLogging } from "./logging";
+import { Bots } from "./botconfig";
+import { ChatAI } from "./chatai";
+import { GHL } from "./gohighlevel";
+import { ServerHealth } from "./serverhealth";
+import { ServerLogging } from "./serverlogging";
 
 export const moduleDefinitions: Module[] = [
   ServerHealth,
@@ -13,4 +14,5 @@ export const moduleDefinitions: Module[] = [
   // testDefinition,
   Bots,
   GHL,
+  ChatAI,
 ];
