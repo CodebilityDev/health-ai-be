@@ -35,13 +35,13 @@ export const getAccessToken = async (args: {
   });
 
   if (!user) {
-    throw new Error("User not found");
+    return null;
   }
 
   const ghsToken = user.ghlAccess;
 
   if (!ghsToken) {
-    throw new Error("No token found");
+    return null;
   }
 
   const encodedParams = new URLSearchParams();
@@ -87,5 +87,6 @@ export const getAccessToken = async (args: {
     return AccessTokenList[userID];
   } catch (error) {
     console.error(error);
+    return null;
   }
 };

@@ -511,6 +511,8 @@ type BotConfig {
   summaryPrompt: String
   welcomeMessage: String
   user: User
+  sessions(where: ChatSessionWhereInput! = {}, orderBy: [ChatSessionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatSessionWhereUniqueInput): [ChatSession!]
+  sessionsCount(where: ChatSessionWhereInput! = {}): Int
 }
 
 input BotConfigWhereUniqueInput {
@@ -532,6 +534,13 @@ input BotConfigWhereInput {
   summaryPrompt: StringFilter
   welcomeMessage: StringFilter
   user: UserWhereInput
+  sessions: ChatSessionManyRelationFilter
+}
+
+input ChatSessionManyRelationFilter {
+  every: ChatSessionWhereInput
+  some: ChatSessionWhereInput
+  none: ChatSessionWhereInput
 }
 
 input BotConfigOrderByInput {
@@ -558,6 +567,14 @@ input BotConfigUpdateInput {
   summaryPrompt: String
   welcomeMessage: String
   user: UserRelateToOneForUpdateInput
+  sessions: ChatSessionRelateToManyForUpdateInput
+}
+
+input ChatSessionRelateToManyForUpdateInput {
+  disconnect: [ChatSessionWhereUniqueInput!]
+  set: [ChatSessionWhereUniqueInput!]
+  create: [ChatSessionCreateInput!]
+  connect: [ChatSessionWhereUniqueInput!]
 }
 
 input BotConfigUpdateArgs {
@@ -576,6 +593,12 @@ input BotConfigCreateInput {
   summaryPrompt: String
   welcomeMessage: String
   user: UserRelateToOneForCreateInput
+  sessions: ChatSessionRelateToManyForCreateInput
+}
+
+input ChatSessionRelateToManyForCreateInput {
+  create: [ChatSessionCreateInput!]
+  connect: [ChatSessionWhereUniqueInput!]
 }
 
 type GHLAccess {
@@ -681,6 +704,48 @@ input AIKeyCreateInput {
   openapiKey: String
 }
 
+type ChatSession {
+  id: ID!
+  keywords: String
+  sessionData: JSON
+  botConfig: BotConfig
+}
+
+input ChatSessionWhereUniqueInput {
+  id: ID
+}
+
+input ChatSessionWhereInput {
+  AND: [ChatSessionWhereInput!]
+  OR: [ChatSessionWhereInput!]
+  NOT: [ChatSessionWhereInput!]
+  id: IDFilter
+  keywords: StringFilter
+  botConfig: BotConfigWhereInput
+}
+
+input ChatSessionOrderByInput {
+  id: OrderDirection
+  keywords: OrderDirection
+}
+
+input ChatSessionUpdateInput {
+  keywords: String
+  sessionData: JSON
+  botConfig: BotConfigRelateToOneForUpdateInput
+}
+
+input ChatSessionUpdateArgs {
+  where: ChatSessionWhereUniqueInput!
+  data: ChatSessionUpdateInput!
+}
+
+input ChatSessionCreateInput {
+  keywords: String
+  sessionData: JSON
+  botConfig: BotConfigRelateToOneForCreateInput
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -735,6 +800,12 @@ type Mutation {
   updateAIKeys(data: [AIKeyUpdateArgs!]!): [AIKey]
   deleteAIKey(where: AIKeyWhereUniqueInput!): AIKey
   deleteAIKeys(where: [AIKeyWhereUniqueInput!]!): [AIKey]
+  createChatSession(data: ChatSessionCreateInput!): ChatSession
+  createChatSessions(data: [ChatSessionCreateInput!]!): [ChatSession]
+  updateChatSession(where: ChatSessionWhereUniqueInput!, data: ChatSessionUpdateInput!): ChatSession
+  updateChatSessions(data: [ChatSessionUpdateArgs!]!): [ChatSession]
+  deleteChatSession(where: ChatSessionWhereUniqueInput!): ChatSession
+  deleteChatSessions(where: [ChatSessionWhereUniqueInput!]!): [ChatSession]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, adminPassword: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -798,6 +869,9 @@ type Query {
   aIKeys(where: AIKeyWhereInput! = {}, orderBy: [AIKeyOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: AIKeyWhereUniqueInput): [AIKey!]
   aIKey(where: AIKeyWhereUniqueInput!): AIKey
   aIKeysCount(where: AIKeyWhereInput! = {}): Int
+  chatSessions(where: ChatSessionWhereInput! = {}, orderBy: [ChatSessionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatSessionWhereUniqueInput): [ChatSession!]
+  chatSession(where: ChatSessionWhereUniqueInput!): ChatSession
+  chatSessionsCount(where: ChatSessionWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
   ErrorTest: String

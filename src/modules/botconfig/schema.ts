@@ -20,6 +20,7 @@ export const botDataList: Lists = {
       summaryPrompt: text(),
       welcomeMessage: text(),
       user: relationship({ ref: "User.botConfig", many: false }),
+      sessions: relationship({ ref: "ChatSession.botConfig", many: true }),
     },
     access: schemaAccessConfig({
       isAuthed: {

@@ -10,7 +10,7 @@ export function CustomNavigation({
   authenticatedItem,
   lists,
 }: NavigationProps) {
-  console.log("CustomNavigation", lists);
+  // console.log("CustomNavigation", lists);
   return (
     <NavigationContainer authenticatedItem={authenticatedItem}>
       <NavItem href="/">Dashboard</NavItem>

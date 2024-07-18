@@ -40,4 +40,6 @@ export const CONFIG = {
   GHL_CLIENTSECRET: process.env.GHL_CLIENTSECRET || "ghl-sec",
   GHL_REDIRECT_URI:
     process.env.GHL_REDIRECT_URI || "http://localhost:3000/ghl-callback",
+  CMS_MARKETPLACE_API: process.env.CMS_MARKETPLACE_API || "key",
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY || "secret",
 };

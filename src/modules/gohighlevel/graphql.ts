@@ -3,6 +3,7 @@ import {
   GraphqlActionMetadata,
   GraphqlMethodDeclarationList,
 } from "~/lib/graphql/declarations";
+import { getGHLMe } from "./service/getGHLMe";
 import { getAccessToken } from "./service/getGHLToken";
 
 const ghAPIGqlDeclaration = new GraphqlMethodDeclarationList();
@@ -57,36 +58,27 @@ ghAPIGqlDeclaration.add(
 
       const userID = context.session.itemId;
 
-      const accessToken = await getAccessToken({
-        prismaClient: context.prisma,
+      const userInfo = await getGHLMe({
+        context,
         userID,
       });
 
-      const resp = await fetch(
-        `https://services.leadconnectorhq.com/locations/${accessToken?.locationId}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${accessToken?.accessToken}`,
-            Version: "2021-07-28",
-            Accept: "application/json",
-          },
-        },
-      );
+      if (!userInfo) {
+        throw new Error("No Account Found");
+      }
 
-      const data = await resp.json();
-      // console.log(data);
+      // console.log(userInfo);
 
       return {
-        name: data.location.name,
-        email: data.location.email,
-        firstName: data.location.firstName,
-        lastName: data.location.lastName,
-        phone: data.location.phone,
-        address: data.location.address,
-        state: data.location.state,
-        country: data.location.country,
-        postalCode: data.location.postalCode,
+        name: `${userInfo.firstName} ${userInfo.lastName}`,
+        email: userInfo.email,
+        firstName: userInfo.firstName,
+        lastName: userInfo.lastName,
+        phone: userInfo.phone,
+        address: userInfo.address,
+        state: userInfo.state,
+        country: userInfo.country,
+        postalCode: userInfo.postalCode,
       };
     },
   }),
