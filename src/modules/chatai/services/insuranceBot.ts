@@ -127,5 +127,8 @@ export async function buildInsuranceBotReplier(args: {
   });
 
   args.res && args.res.end();
-  return lastResponse;
+  return {
+    lastResponse,
+    messages: [...gitomerTemplate, ...curMessages],
+  };
 }

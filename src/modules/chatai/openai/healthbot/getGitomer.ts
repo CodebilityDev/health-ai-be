@@ -40,6 +40,7 @@ export const getGitomerText = (data: {
     lastName: string;
   };
 }) => {
+  // console.log(data);
   let query =
     "Please give me insurance plans which matches all the following criteria.";
 
@@ -50,7 +51,7 @@ export const getGitomerText = (data: {
   });
   msg.push({
     role: "system",
-    content: "Your tone should be: " + data.botSettings.tone || defaultTone,
+    content: "Your tone should be: " + (data.botSettings.tone || defaultTone),
   });
   msg.push({
     role: "system",
@@ -64,13 +65,13 @@ export const getGitomerText = (data: {
     role: "system",
     content:
       "If the user provides zip code, please respond with this format: " +
-        data.botSettings.welcomeMessage || example1,
+      (data.botSettings.welcomeMessage || example1),
   });
   msg.push({
     role: "system",
     content:
       "If the user doesn't provide zip code, please respond with this format:" +
-        data.botSettings.noZipCodeMessage || example2,
+      (data.botSettings.noZipCodeMessage || example2),
   });
   msg.push({ role: "user", content: query });
   msg.push({
@@ -91,16 +92,16 @@ export const getGitomerText = (data: {
   }
 
   const recommendedPlan = data.botSettings.recommendedPlan;
-  if (recommendedPlan.includes("best")) {
-    msg.push({
-      role: "user",
-      content: "Criteria 2: Only respond the Best one plan.",
-    });
-  } else {
+  if (recommendedPlan.includes("3")) {
     msg.push({
       role: "user",
       content:
         "Criteria 2: Please respond several plans. Max 3 plans, Min 1 plan.",
+    });
+  } else {
+    msg.push({
+      role: "user",
+      content: "Criteria 2: Only respond the Best one plan.",
     });
   }
 
