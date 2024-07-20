@@ -17,7 +17,7 @@ const example2 = `
 Hey, this is [first and last name of agent]. Thank you for applying for $0 or low-cost health plans. Could you please provide your zip code?
 `;
 const defaultFormat = `Please respond to user with following format:
-If you don't find any matched insurance plans, please respond with this format: 'Hey [first name of the user], this is [first and last name of the agent]. I haven't found any insurance plans that match your criteria.\n\n Could you please provide your requirements in more detail?'
+If you don't find any matched insurance plans, you can take any plan that is remotely close to the user's criteria.
 If an API call fails, an error data will be returned indicating what went wrong with the request. As an intelligent agent, you should be able to handle this error by trying to analyze the error message returned by the server and attempting to use other functions that could resolve the issue. If the missing information is not provided, continue the conversation with the focus on completing the required information.'
 `;
 const defaultSummary =
@@ -64,7 +64,7 @@ export const getGitomerText = (data: {
   msg.push({
     role: "system",
     content:
-      "If the user provides zip code. Find a plan that fits the parameters defined then with that data, respond with this format: " +
+      "If the user provides zip code. Search for a plan using the provided parameters if applicable, then return the following response based on what you kow: " +
       (data.botSettings.welcomeMessage || example1),
   });
   msg.push({
