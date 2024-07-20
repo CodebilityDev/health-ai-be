@@ -31,6 +31,8 @@ export const getGitomerText = (data: {
     mission: string;
     tone: string;
     exMessage: string;
+    welcomeMessage: string;
+    noZipCodeMessage: string;
     summary: string;
     plan: any;
     recommendedPlan: any;
@@ -55,10 +57,7 @@ export const getGitomerText = (data: {
   });
   msg.push({
     role: "system",
-    content: `Please respond to user with following format:
-        If the user doesn't provide zip code, please respond with this format: 'Hey [first name of the user], this is [first and last name of the agent]. Thank you for applying for $0 or low-cost health plans. Could you please provide your zip code?'
-        If you don't find any matched insurance plans, please respond with this format: 'Hey [first name of the user], this is [first and last name of the agent]. I haven't found any insurance plans that match your criteria. Could you please provide your requirements in more detail?'
-        If the user provides zip code, please respond with this format: '${data.botSettings.exMessage || defaultFormat}'`,
+    content: `${data.botSettings.exMessage || defaultFormat}`,
   });
   msg.push({
     role: "system",
@@ -66,11 +65,14 @@ export const getGitomerText = (data: {
   });
   msg.push({
     role: "assistant",
-    content: "This is example format1:" + example1,
+    content:
+      "This is example format1:" + data.botSettings.welcomeMessage || example1,
   });
   msg.push({
     role: "assistant",
-    content: "This is example format2:" + example2,
+    content:
+      "This is example format2:" + data.botSettings.noZipCodeMessage ||
+      example2,
   });
   msg.push({ role: "user", content: query });
   msg.push({

@@ -19,6 +19,8 @@ export const botDataList: Lists = {
       specificQuestions: text(),
       summaryPrompt: text(),
       welcomeMessage: text(),
+      welcomeMessageFormat: text(),
+      noZipCodeMessage: text(),
       user: relationship({ ref: "User.botConfig", many: false }),
       sessions: relationship({ ref: "ChatSession.botConfig", many: true }),
     },

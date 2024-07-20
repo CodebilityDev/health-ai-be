@@ -510,6 +510,8 @@ type BotConfig {
   specificQuestions: String
   summaryPrompt: String
   welcomeMessage: String
+  welcomeMessageFormat: String
+  noZipCodeMessage: String
   user: User
   sessions(where: ChatSessionWhereInput! = {}, orderBy: [ChatSessionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatSessionWhereUniqueInput): [ChatSession!]
   sessionsCount(where: ChatSessionWhereInput! = {}): Int
@@ -533,6 +535,8 @@ input BotConfigWhereInput {
   specificQuestions: StringFilter
   summaryPrompt: StringFilter
   welcomeMessage: StringFilter
+  welcomeMessageFormat: StringFilter
+  noZipCodeMessage: StringFilter
   user: UserWhereInput
   sessions: ChatSessionManyRelationFilter
 }
@@ -554,6 +558,8 @@ input BotConfigOrderByInput {
   specificQuestions: OrderDirection
   summaryPrompt: OrderDirection
   welcomeMessage: OrderDirection
+  welcomeMessageFormat: OrderDirection
+  noZipCodeMessage: OrderDirection
 }
 
 input BotConfigUpdateInput {
@@ -566,6 +572,8 @@ input BotConfigUpdateInput {
   specificQuestions: String
   summaryPrompt: String
   welcomeMessage: String
+  welcomeMessageFormat: String
+  noZipCodeMessage: String
   user: UserRelateToOneForUpdateInput
   sessions: ChatSessionRelateToManyForUpdateInput
 }
@@ -592,6 +600,8 @@ input BotConfigCreateInput {
   specificQuestions: String
   summaryPrompt: String
   welcomeMessage: String
+  welcomeMessageFormat: String
+  noZipCodeMessage: String
   user: UserRelateToOneForCreateInput
   sessions: ChatSessionRelateToManyForCreateInput
 }
