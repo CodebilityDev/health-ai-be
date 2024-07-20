@@ -59,8 +59,6 @@ ghlWelcomeRouteDeclaration.routes.set(
         modelID = newModel.id;
       }
 
-      console.log("modelID", modelID);
-
       const chatGPTReply = await buildInsuranceBotReplier({
         context,
         input: {
@@ -73,9 +71,13 @@ ghlWelcomeRouteDeclaration.routes.set(
         res: undefined,
       });
 
-      const message = chatGPTReply.choices[0].message.content ?? "";
+      const message = chatGPTReply?.choices[0]?.message.content || "";
 
-      return { message, body };
+      return {
+        message,
+        body,
+        modelID,
+      };
     },
   }),
 );
