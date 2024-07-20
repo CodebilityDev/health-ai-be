@@ -82,7 +82,7 @@ ghlWelcomeRouteDeclaration.routes.set(
           prompt:
             `I have the following identity information: ` +
             JSON.stringify(body),
-          sessionID: `${body.first_name} ${body.last_name} - ${body.agent_first_name} ${body.agent_last_name}`,
+          sessionID: `${body.first_name} ${body.last_name} - ${body.agent_first_name} ${body.agent_last_name} ${Date.now()}`,
         },
         res: undefined,
       });
