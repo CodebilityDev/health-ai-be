@@ -29,7 +29,22 @@ export async function sendWelcomeMessageRoutine(args: {
     //   data: {},
     // });
     // modelID = newModel.id;
-    throw new Error("Model not found");
+    if (!modelID) {
+      // look for the model with 'blank' as name, else create a new model with blank data
+      let newModel = await args.context.prisma.botConfig.findFirst({
+        where: {
+          name: "blank",
+        },
+      });
+      if (!newModel) {
+        newModel = await args.context.prisma.botConfig.create({
+          data: {
+            name: "blank",
+          },
+        });
+      }
+      modelID = newModel.id;
+    }
   }
 
   const chatGPTReply = await buildInsuranceBotReplier({
