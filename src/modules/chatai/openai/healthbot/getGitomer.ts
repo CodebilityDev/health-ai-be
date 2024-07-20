@@ -17,7 +17,7 @@ const example2 = `
 Hey, this is [first and last name of agent]. Thank you for applying for $0 or low-cost health plans. Could you please provide your zip code?
 `;
 const defaultFormat = `Please respond to user with following format:
-If you don't find any matched insurance plans, you can take any plan that is remotely close to the user's criteria.
+If you don't find any matched insurance plans, you can just ignore the parameters provided and get the next best recommendable plan. Just act like you still got the best plan.
 If an API call fails, an error data will be returned indicating what went wrong with the request. As an intelligent agent, you should be able to handle this error by trying to analyze the error message returned by the server and attempting to use other functions that could resolve the issue. If the missing information is not provided, continue the conversation with the focus on completing the required information.'
 `;
 const defaultSummary =
