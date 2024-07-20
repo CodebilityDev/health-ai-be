@@ -19,6 +19,7 @@ ghlWelcomeRouteDeclaration.routes.set(
       [RequestInputType.BODY]: z.object({
         contactID: z.string(),
         location_id: z.string(),
+        model_id: z.string(),
         zip_code: z.string().optional(),
         first_name: z.string().optional(),
         last_name: z.string().optional(),
@@ -53,11 +54,24 @@ ghlWelcomeRouteDeclaration.routes.set(
 
       let modelID = modelAI?.user?.botConfig?.id;
 
+      if (body.model_id) {
+        modelID = body.model_id;
+      }
+
       if (!modelID) {
-        // create a new model with blank data
-        let newModel = await context.prisma.botConfig.create({
-          data: {},
+        // look for the model with 'blank' as name, else create a new model with blank data
+        let newModel = await context.prisma.botConfig.findFirst({
+          where: {
+            name: "blank",
+          },
         });
+        if (!newModel) {
+          newModel = await context.prisma.botConfig.create({
+            data: {
+              name: "blank",
+            },
+          });
+        }
         modelID = newModel.id;
       }
 
