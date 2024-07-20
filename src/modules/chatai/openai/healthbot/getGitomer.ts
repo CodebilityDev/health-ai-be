@@ -64,7 +64,7 @@ export const getGitomerText = (data: {
   msg.push({
     role: "system",
     content:
-      "If the user provides zip code and you managed to find a plan that fits the parameters defined, please respond with this format: " +
+      "If the user provides zip code. Find a plan that fits the parameters defined then with that data, respond with this format: " +
       (data.botSettings.welcomeMessage || example1),
   });
   msg.push({
