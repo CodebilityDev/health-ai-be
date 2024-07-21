@@ -1,6 +1,6 @@
 import type { Lists } from ".keystone/types";
 import { list } from "@keystone-6/core";
-import { relationship, text } from "@keystone-6/core/fields";
+import { relationship, text, timestamp } from "@keystone-6/core/fields";
 import { schemaAccessConfig } from "~/lib/schema/access";
 import {
   SchemaAccessTemplate,
@@ -17,6 +17,11 @@ export const ghlSchema: Lists = {
       locationId: text(),
       companyId: text(),
       scope: text(),
+      updatedAt: timestamp({
+        defaultValue: {
+          kind: "now",
+        },
+      }),
     },
     access: schemaAccessConfig({
       isAuthed: true,

@@ -4,8 +4,9 @@ import {
   GraphqlMethodDeclarationList,
 } from "~/lib/graphql/declarations";
 import { getGHLContacts } from "~modules/gohighlevel/service/getGHLContacts";
+import { getGHLMessages } from "~modules/gohighlevel/service/getGHLMessages";
 import { sendGHLMessage } from "~modules/gohighlevel/service/sendGHLMessage";
-import { sendWelcomeMessageRoutine } from "./services/sendMessageRoutine";
+import { sendWelcomeMessageRoutine } from "./services/sendWelcomeMessageRoutine";
 
 const ghWelcomeAPIGqlDeclaration = new GraphqlMethodDeclarationList();
 
@@ -60,6 +61,55 @@ ghWelcomeAPIGqlDeclaration.add(
   }),
 );
 
+// ghWelcomeAPIGqlDeclaration.add(
+//   new GraphqlActionMetadata({
+//     root: "Query",
+//     name: "ghl_getContact",
+//     output: [
+//       {
+//         name: "GHLDetailedContact",
+//         schema: z.object({
+//           id: z.string().optional(),
+//           locationId: z.string().optional(),
+//           firstName: z.string().optional(),
+//           lastName: z.string().optional(),
+//           fullName: z.string().optional(),
+//           email: z.string().optional(),
+//           timezone: z.string().optional(),
+//           address1: z.string().optional(),
+//           country: z.string().optional(),
+//           city: z.string().optional(),
+//           postalCode: z.string().optional(),
+//           state: z.string().optional(),
+//           dateUpdated: z.string().optional(),
+//           businessId: z.string().optional(),
+//           customFields: z.array(
+//             z.object({
+//               id: z.string(),
+//               name: z.string(),
+//               value: z.string(),
+//             })
+//           ),
+//         }),
+//         isMain: true,
+//       },
+//     ],
+//     input: z.object({
+//       id: z.string(),
+//     }),
+//     resolve: async (_, input, context) => {
+//       if (!context.session) {
+//         throw new Error("Unauthorized");
+//       }
+
+//       return getGHLDetailedContact({
+//         context,
+//         input,
+//       });
+//     },
+//   })
+// );
+
 ghWelcomeAPIGqlDeclaration.add(
   new GraphqlActionMetadata({
     root: "Mutation",
@@ -101,7 +151,15 @@ ghWelcomeAPIGqlDeclaration.add(
       }
 
       const message = await sendWelcomeMessageRoutine({
-        body: input,
+        // @ts-ignore
+        body: {
+          ...input,
+          location_id: input.location_id,
+          first_name: input.first_name || "",
+          last_name: input.last_name || "",
+          agent_first_name: input.agent_first_name || "Insurance Agent",
+          agent_last_name: input.agent_last_name || "",
+        },
         context,
       });
 
@@ -121,6 +179,32 @@ ghWelcomeAPIGqlDeclaration.add(
         contactID: input.contactID,
         thread: JSON.stringify(message.thread, null, 2),
       };
+    },
+  }),
+);
+
+ghWelcomeAPIGqlDeclaration.add(
+  new GraphqlActionMetadata({
+    root: "Query",
+    name: "ghl_getMessages",
+    output: "String",
+    input: z.object({
+      conversationID: z.string(),
+    }),
+    resolve: async (_, input, context) => {
+      if (!context.session) {
+        throw new Error("Unauthorized");
+      }
+
+      return JSON.stringify(
+        await getGHLMessages({
+          context,
+          userID: context.session.itemId,
+          conversationID: input.conversationID,
+        }),
+        null,
+        2,
+      );
     },
   }),
 );

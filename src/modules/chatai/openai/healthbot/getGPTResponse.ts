@@ -91,7 +91,10 @@ export const getGPTResponse = async (args: {
       curMessages.push({
         role: "function",
         name: functionName,
-        content: JSON.stringify({ error: e.message, tryAgain: true }),
+        content: JSON.stringify({
+          error: JSON.stringify(e.response.data),
+          tryAgain: true,
+        }),
       });
     }
   }

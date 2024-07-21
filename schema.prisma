@@ -101,15 +101,16 @@ model BotConfig {
 }
 
 model GHLAccess {
-  id           String  @id @default(cuid())
-  user         User?   @relation("GHLAccess_user", fields: [userId], references: [id])
-  userId       String? @unique @map("user")
-  refreshToken String  @default("")
-  ghsUserId    String  @default("")
-  planId       String  @default("")
-  locationId   String  @default("")
-  companyId    String  @default("")
-  scope        String  @default("")
+  id           String    @id @default(cuid())
+  user         User?     @relation("GHLAccess_user", fields: [userId], references: [id])
+  userId       String?   @unique @map("user")
+  refreshToken String    @default("")
+  ghsUserId    String    @default("")
+  planId       String    @default("")
+  locationId   String    @default("")
+  companyId    String    @default("")
+  scope        String    @default("")
+  updatedAt    DateTime? @default(now())
 }
 
 model AIKey {

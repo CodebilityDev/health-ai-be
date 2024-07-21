@@ -9,7 +9,11 @@ Hey [first name of user], this is [first and last name of agent]. Thank you for 
 
 I found several $0 plans that match your criteria in your zip code [zip code]:
 
-- [Plan name] from [Carrier name]. [Monthly Fee as 'savings'] [Reason why you choose this plan]
+[plan name] of [plan provider]. [plan_id] Only [price] per month. 
+- [unique selling point]
+- [selling point]
+- [selling point]
+- [selling point]
 
 Please reach out if you have any other preferences, otherwise, we'll move forward with ensuring you are covered!
 `;
@@ -70,7 +74,7 @@ export const getGitomerText = (data: {
   msg.push({
     role: "system",
     content:
-      "If the user doesn't provide zip code, please respond with this format:" +
+      "If the user doesn't provide zip or postal code, don't recommend any plan and instead reply with this message:" +
       (data.botSettings.noZipCodeMessage || example2),
   });
   msg.push({ role: "user", content: query });

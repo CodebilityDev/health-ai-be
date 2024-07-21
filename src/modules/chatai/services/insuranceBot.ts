@@ -14,6 +14,7 @@ export async function buildInsuranceBotReplier(args: {
     modelID: string;
     prompt: string;
     sessionID: string;
+    chatHistory?: ChatCompletionMessageParam[];
   };
 }) {
   // get modelID from database
@@ -93,6 +94,9 @@ export async function buildInsuranceBotReplier(args: {
   const messages: ChatCompletionMessageParam[] = [
     // put the chat session history here
     ...chatSessionData.history,
+
+    // put chat history here
+    ...(args.input.chatHistory || []),
 
     // put the user prompt here
     {

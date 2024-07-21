@@ -620,6 +620,7 @@ type GHLAccess {
   locationId: String
   companyId: String
   scope: String
+  updatedAt: DateTime
 }
 
 input GHLAccessWhereUniqueInput {
@@ -638,6 +639,7 @@ input GHLAccessWhereInput {
   locationId: StringFilter
   companyId: StringFilter
   scope: StringFilter
+  updatedAt: DateTimeNullableFilter
 }
 
 input GHLAccessOrderByInput {
@@ -648,6 +650,7 @@ input GHLAccessOrderByInput {
   locationId: OrderDirection
   companyId: OrderDirection
   scope: OrderDirection
+  updatedAt: OrderDirection
 }
 
 input GHLAccessUpdateInput {
@@ -658,6 +661,7 @@ input GHLAccessUpdateInput {
   locationId: String
   companyId: String
   scope: String
+  updatedAt: DateTime
 }
 
 input GHLAccessUpdateArgs {
@@ -673,6 +677,7 @@ input GHLAccessCreateInput {
   locationId: String
   companyId: String
   scope: String
+  updatedAt: DateTime
 }
 
 type AIKey {
@@ -889,6 +894,7 @@ type Query {
   ghl_accessToken: String
   ghl_me: GHLMeReturn
   ghl_getContacts(input: Ghl_getContactsInput!): GHLContactList
+  ghl_getMessages(input: Ghl_getMessagesInput!): String
 }
 
 union AuthenticatedItem = User
@@ -1053,4 +1059,8 @@ input Ghl_sendMessageInput {
   projected_annual_household_income: String
   agent_first_name: String
   agent_last_name: String
+}
+
+input Ghl_getMessagesInput {
+  conversationID: String!
 }

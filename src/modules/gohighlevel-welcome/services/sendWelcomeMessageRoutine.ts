@@ -1,11 +1,12 @@
-import { ChatCompletionMessageParam } from "openai/resources";
 import { GlobalContext } from "~/common/context";
 import { buildInsuranceBotReplier } from "~modules/chatai/services/insuranceBot";
 
-export async function sendMessageRoutine(args: {
+export const profileBuilderPrompt = (args: any) =>
+  `I have the following identity information. Use these data to properly address me or consider my needs: ${JSON.stringify(args)}`;
+
+export async function sendWelcomeMessageRoutine(args: {
   context: GlobalContext;
-  location_id: string;
-  clientInfo: {
+  body: {
     location_id: string;
     first_name: string;
     last_name: string;
@@ -13,12 +14,10 @@ export async function sendMessageRoutine(args: {
     agent_last_name: string;
     [key: string]: any;
   };
-  chatHistory: ChatCompletionMessageParam[];
-  prompt: string;
 }) {
   const modelAI = await args.context.prisma.gHLAccess.findFirst({
     where: {
-      locationId: args.location_id,
+      locationId: args.body.location_id,
     },
     include: {
       user: {
@@ -62,9 +61,8 @@ export async function sendMessageRoutine(args: {
     context: args.context,
     input: {
       modelID: modelID,
-      chatHistory: args.chatHistory,
-      prompt: args.prompt,
-      sessionID: `${args.clientInfo.first_name} ${args.clientInfo.last_name} - ${args.clientInfo.agent_first_name} ${args.clientInfo.agent_last_name} ${Date.now()}`,
+      prompt: profileBuilderPrompt(args.body),
+      sessionID: `${args.body.first_name} ${args.body.last_name} - ${args.body.agent_first_name} ${args.body.agent_last_name} ${Date.now()}`,
     },
     res: undefined,
   });
@@ -74,7 +72,7 @@ export async function sendMessageRoutine(args: {
   return {
     message,
     thread: chatGPTReply?.messages,
-    body: args.clientInfo,
+    body: args.body,
     modelID,
   };
 }
