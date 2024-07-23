@@ -16,7 +16,7 @@ import {
   sendWelcomeMessageRoutine,
 } from "./sendWelcomeMessageRoutine";
 
-const WebhookRoutines = {
+export const WebhookRoutines = {
   onCreate: async (args: {
     locationID: string;
     userID: string;
@@ -33,11 +33,11 @@ const WebhookRoutines = {
     });
 
     // check if user has a 'federalplan' tag
-    const hasFederalPlan = user.tags.includes("federalplan-ai");
+    // const hasFederalPlan = user.tags.includes("federalplan-ai");
 
-    if (!hasFederalPlan) {
-      return;
-    }
+    // if (!hasFederalPlan) {
+    //   return;
+    // }
 
     // console.log("User", user);
 
@@ -96,11 +96,11 @@ const WebhookRoutines = {
     });
 
     // check if user has a 'federalplan' tag
-    const hasFederalPlan = user.tags.includes("federalplan-ai");
+    // const hasFederalPlan = user.tags.includes("federalplan-ai");
 
-    if (!hasFederalPlan) {
-      return;
-    }
+    // if (!hasFederalPlan) {
+    //   return;
+    // }
 
     // get conversation history
     const conversation = await getGHLMessages({

@@ -4,8 +4,9 @@ import {
   RouteDeclarationMetadata,
 } from "~/lib/rest/declarations";
 import { RequestInputType, RouteMethod } from "~/lib/rest/types";
+import { getGHLConversations } from "~modules/gohighlevel/service/getGHLConversations";
 import { sendWelcomeMessageRoutine } from "./services/sendWelcomeMessageRoutine";
-import { webhookRoutine } from "./services/webhookRoutine";
+import { webhookRoutine, WebhookRoutines } from "./services/webhookRoutine";
 
 export const ghlWelcomeRouteDeclaration = new RouteDeclarationList({
   path: "/ghwh",
@@ -64,6 +65,83 @@ ghlWelcomeRouteDeclaration.routes.set(
         },
         context,
       });
+    },
+  }),
+);
+
+//https://federal-plans-be.int-node.srv-01.xyzapps.xyz/api/ghwh/welcome/callback
+ghlWelcomeRouteDeclaration.routes.set(
+  "/reply/callback",
+  new RouteDeclarationMetadata({
+    method: RouteMethod.POST,
+    inputParser: z.object({
+      [RequestInputType.BODY]: z.object({
+        locationId: z.string(),
+        message: z.string(),
+        contact: z.string(),
+      }),
+    }),
+    func: async ({ context, inputData: { body } }) => {
+      // get the latest user that is binded to the contact
+      const ghlAccess = await context.prisma.gHLAccess.findFirst({
+        where: {
+          locationId: body.locationId,
+        },
+        include: {
+          user: {
+            include: {
+              botConfig: true,
+            },
+          },
+        },
+      });
+
+      if (!ghlAccess || !ghlAccess.userId) {
+        return;
+      }
+
+      // const contactInfo = await getGHLContact({
+      //   contactID: body.contact,
+      //   context,
+      //   userID: ghlAccess.userId,
+      // });
+
+      // console.log(contactInfo);
+
+      const data = await getGHLConversations({
+        context,
+        userID: ghlAccess.userId,
+        contactID: body.contact,
+      });
+
+      // get the first conversation thread where the lastMessageBody is equal to the message
+      const conversation = data.find((d) => d.lastMessageBody === body.message);
+
+      if (!conversation) {
+        return { action: "No action taken" };
+      }
+
+      if (!ghlAccess.userId) {
+        return { action: "No user found" };
+      }
+
+      (async () => {
+        let conversationID = conversation.id;
+
+        // send reply
+        await WebhookRoutines.onNewMessage({
+          contactID: body.contact,
+          context,
+          conversationID,
+          locationID: body.locationId,
+          message: body.message,
+          userID: ghlAccess.userId!,
+        });
+
+        return { data };
+      })();
+
+      return { action: "Replying to the conversation" };
     },
   }),
 );
