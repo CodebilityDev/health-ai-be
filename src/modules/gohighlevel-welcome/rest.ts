@@ -87,6 +87,9 @@ ghlWelcomeRouteDeclaration.routes.set(
         where: {
           locationId: body.locationId,
         },
+        orderBy: {
+          updatedAt: "desc",
+        },
         include: {
           user: {
             include: {
