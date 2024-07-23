@@ -19,6 +19,9 @@ export async function sendWelcomeMessageRoutine(args: {
     where: {
       locationId: args.body.location_id,
     },
+    orderBy: {
+      updatedAt: "desc",
+    },
     include: {
       user: {
         include: {

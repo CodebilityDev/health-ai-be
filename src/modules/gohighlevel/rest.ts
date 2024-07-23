@@ -148,6 +148,7 @@ ghlRouteDeclaration.routes.set(
             ghsUserId: data.userId,
             locationId: data.locationId,
             planId: data.planId,
+            updatedAt: new Date(),
           },
         });
       } else {
@@ -160,6 +161,7 @@ ghlRouteDeclaration.routes.set(
             locationId: data.locationId,
             planId: data.planId,
             user: { connect: { id: userId } },
+            updatedAt: new Date(),
           },
         });
       }
