@@ -891,8 +891,8 @@ type Query {
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
   ErrorTest: String
-  ghl_accessToken: String
-  ghl_me: GHLMeReturn
+  ghl_accessToken(input: Ghl_accessTokenInput!): String
+  ghl_me(input: Ghl_meInput!): GHLMeReturn
   ghl_getContacts(input: Ghl_getContactsInput!): GHLContactList
   ghl_getMessages(input: Ghl_getMessagesInput!): String
 }
@@ -1001,6 +1001,10 @@ enum KeystoneAdminUISortDirection {
   DESC
 }
 
+input Ghl_accessTokenInput {
+  groupID: String!
+}
+
 type GHLMeReturn {
   name: String!
   email: String!
@@ -1011,6 +1015,10 @@ type GHLMeReturn {
   state: String!
   country: String!
   postalCode: String!
+}
+
+input Ghl_meInput {
+  groupID: String!
 }
 
 type GHLContact {
@@ -1032,6 +1040,7 @@ type GHLContactList {
 }
 
 input Ghl_getContactsInput {
+  groupID: String!
   query: String
 }
 
@@ -1042,6 +1051,7 @@ type GHLMessageReturn {
 }
 
 input Ghl_sendMessageInput {
+  groupID: String!
   contactID: String!
   location_id: String!
   actualSend: Boolean
@@ -1062,5 +1072,6 @@ input Ghl_sendMessageInput {
 }
 
 input Ghl_getMessagesInput {
+  groupID: String!
   conversationID: String!
 }
