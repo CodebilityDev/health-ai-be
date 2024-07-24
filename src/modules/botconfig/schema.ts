@@ -2,10 +2,7 @@ import type { Lists } from ".keystone/types";
 import { list } from "@keystone-6/core";
 import { relationship, text } from "@keystone-6/core/fields";
 import { schemaAccessConfig } from "~/lib/schema/access";
-import {
-  SchemaAccessTemplate,
-  userOwnershipCheck,
-} from "~/lib/schema/access/templates";
+import { SchemaAccessTemplate } from "~/lib/schema/access/templates";
 
 export const botDataList: Lists = {
   BotConfig: list({
@@ -21,7 +18,7 @@ export const botDataList: Lists = {
       welcomeMessage: text(),
       welcomeMessageFormat: text(),
       noZipCodeMessage: text(),
-      user: relationship({ ref: "User.botConfig", many: false }),
+      group: relationship({ ref: "Group.botConfig", many: false }),
       sessions: relationship({ ref: "ChatSession.botConfig", many: true }),
     },
     access: schemaAccessConfig({
@@ -34,7 +31,7 @@ export const botDataList: Lists = {
       },
       filter: {
         read: SchemaAccessTemplate.allow,
-        write: userOwnershipCheck(),
+        write: SchemaAccessTemplate.quickMembershipCheck(),
       },
     }),
   }),

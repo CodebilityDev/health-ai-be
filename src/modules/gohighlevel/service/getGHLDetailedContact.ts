@@ -4,20 +4,20 @@ import { getGHLCustomFields } from "./getGHLCustomFields";
 
 export const getGHLDetailedContact = async (args: {
   context: GlobalContext;
-  userID: string;
+  groupID: string;
   input: {
     id: string;
   };
 }) => {
   const contactList = await getGHLContact({
     context: args.context,
-    userID: args.userID,
+    groupID: args.groupID,
     contactID: args.input.id,
   });
 
   const customFields = await getGHLCustomFields({
     context: args.context,
-    userID: args.userID,
+    groupID: args.groupID,
   });
 
   // replace customFields with actual values

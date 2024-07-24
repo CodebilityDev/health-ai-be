@@ -91,7 +91,7 @@ ghlWelcomeRouteDeclaration.routes.set(
           updatedAt: "desc",
         },
         include: {
-          user: {
+          group: {
             include: {
               botConfig: true,
             },
@@ -99,7 +99,7 @@ ghlWelcomeRouteDeclaration.routes.set(
         },
       });
 
-      if (!ghlAccess || !ghlAccess.userId) {
+      if (!ghlAccess || !ghlAccess.group) {
         return;
       }
 
@@ -113,7 +113,7 @@ ghlWelcomeRouteDeclaration.routes.set(
 
       const data = await getGHLConversations({
         context,
-        userID: ghlAccess.userId,
+        groupID: ghlAccess.group.id,
         contactID: body.contact,
       });
 
@@ -124,7 +124,7 @@ ghlWelcomeRouteDeclaration.routes.set(
         return { action: "No action taken" };
       }
 
-      if (!ghlAccess.userId) {
+      if (!ghlAccess.groupId) {
         return { action: "No user found" };
       }
 
@@ -138,7 +138,7 @@ ghlWelcomeRouteDeclaration.routes.set(
           conversationID,
           locationID: body.locationId,
           message: body.message,
-          userID: ghlAccess.userId!,
+          groupID: ghlAccess.groupId!,
         });
 
         return { data };

@@ -26,7 +26,7 @@ type MessagesData = {
 
 export const getGHLMessages = async (args: {
   context: GlobalContext;
-  userID: string;
+  groupID: string;
   conversationID: string;
   params?: {
     lastMessageId?: string;
@@ -36,7 +36,7 @@ export const getGHLMessages = async (args: {
 }): Promise<MessagesData> => {
   const accessToken = await getAccessToken({
     prismaClient: args.context.prisma,
-    userID: args.userID,
+    groupID: args.groupID,
   });
 
   if (!accessToken?.locationId) {

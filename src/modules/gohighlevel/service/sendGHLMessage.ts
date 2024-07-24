@@ -11,7 +11,7 @@ interface MessageResponse {
 
 export const sendGHLMessage = async (args: {
   context: GlobalContext;
-  userID: string;
+  groupID: string;
   input: {
     type: "SMS" | string;
     contactID: string;
@@ -20,7 +20,7 @@ export const sendGHLMessage = async (args: {
 }): Promise<MessageResponse> => {
   const accessToken = await getAccessToken({
     prismaClient: args.context.prisma,
-    userID: args.userID,
+    groupID: args.groupID,
   });
 
   const resp = await fetch(

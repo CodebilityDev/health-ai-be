@@ -61,11 +61,11 @@ interface Reseller {}
 
 export const getGHLMe = async (args: {
   context: GlobalContext;
-  userID: string;
+  groupID: string;
 }): Promise<GetGHLMe> => {
   const accessToken = await getAccessToken({
     prismaClient: args.context.prisma,
-    userID: args.userID,
+    groupID: args.groupID,
   });
 
   const resp = await fetch(

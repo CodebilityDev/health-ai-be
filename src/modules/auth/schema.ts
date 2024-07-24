@@ -142,18 +142,6 @@ export const userDataList: Lists = {
         ref: "GroupMember.user",
         many: true,
       }),
-      botConfig: relationship({
-        ref: "BotConfig.user",
-        many: false,
-      }),
-      ghlAccess: relationship({
-        ref: "GHLAccess.user",
-        many: false,
-      }),
-      aiKey: relationship({
-        ref: "AIKey.user",
-        many: false,
-      }),
     },
     access: schemaAccessConfig({
       isAuthed: true,
@@ -239,6 +227,19 @@ export const userDataList: Lists = {
       members: relationship({
         ref: "GroupMember.group",
         many: true,
+      }),
+
+      botConfig: relationship({
+        ref: "BotConfig.group",
+        many: false,
+      }),
+      ghlAccess: relationship({
+        ref: "GHLAccess.group",
+        many: false,
+      }),
+      aiKey: relationship({
+        ref: "AIKey.group",
+        many: false,
       }),
     },
     hooks: {

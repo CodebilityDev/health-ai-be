@@ -50,9 +50,6 @@ model User {
   role             UserRoleType?  @default(user)
   createdAt        DateTime?      @default(now())
   groups           GroupMember[]  @relation("GroupMember_user")
-  botConfig        BotConfig?     @relation("BotConfig_user")
-  ghlAccess        GHLAccess?     @relation("GHLAccess_user")
-  aiKey            AIKey?         @relation("AIKey_user")
 }
 
 model UserLocalAuth {
@@ -65,9 +62,12 @@ model UserLocalAuth {
 }
 
 model Group {
-  id      String        @id @default(cuid())
-  name    String        @default("")
-  members GroupMember[] @relation("GroupMember_group")
+  id        String        @id @default(cuid())
+  name      String        @default("")
+  members   GroupMember[] @relation("GroupMember_group")
+  botConfig BotConfig?    @relation("BotConfig_group")
+  ghlAccess GHLAccess?    @relation("GHLAccess_group")
+  aiKey     AIKey?        @relation("AIKey_group")
 }
 
 model GroupMember {
@@ -95,15 +95,15 @@ model BotConfig {
   welcomeMessage          String        @default("")
   welcomeMessageFormat    String        @default("")
   noZipCodeMessage        String        @default("")
-  user                    User?         @relation("BotConfig_user", fields: [userId], references: [id])
-  userId                  String?       @unique @map("user")
+  group                   Group?        @relation("BotConfig_group", fields: [groupId], references: [id])
+  groupId                 String?       @unique @map("group")
   sessions                ChatSession[] @relation("ChatSession_botConfig")
 }
 
 model GHLAccess {
   id           String    @id @default(cuid())
-  user         User?     @relation("GHLAccess_user", fields: [userId], references: [id])
-  userId       String?   @unique @map("user")
+  group        Group?    @relation("GHLAccess_group", fields: [groupId], references: [id])
+  groupId      String?   @unique @map("group")
   refreshToken String    @default("")
   ghsUserId    String    @default("")
   planId       String    @default("")
@@ -115,8 +115,8 @@ model GHLAccess {
 
 model AIKey {
   id         String  @id @default(cuid())
-  user       User?   @relation("AIKey_user", fields: [userId], references: [id])
-  userId     String? @unique @map("user")
+  group      Group?  @relation("AIKey_group", fields: [groupId], references: [id])
+  groupId    String? @unique @map("group")
   openapiKey String  @default("")
 }
 

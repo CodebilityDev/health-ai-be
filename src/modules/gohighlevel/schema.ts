@@ -2,15 +2,12 @@ import type { Lists } from ".keystone/types";
 import { list } from "@keystone-6/core";
 import { relationship, text, timestamp } from "@keystone-6/core/fields";
 import { schemaAccessConfig } from "~/lib/schema/access";
-import {
-  SchemaAccessTemplate,
-  userOwnershipCheck,
-} from "~/lib/schema/access/templates";
+import { SchemaAccessTemplate } from "~/lib/schema/access/templates";
 
 export const ghlSchema: Lists = {
   GHLAccess: list({
     fields: {
-      user: relationship({ ref: "User.ghlAccess", many: false }),
+      group: relationship({ ref: "Group.ghlAccess", many: false }),
       refreshToken: text({ validation: { isRequired: true } }),
       ghsUserId: text(),
       planId: text(),
@@ -29,13 +26,13 @@ export const ghlSchema: Lists = {
         all: SchemaAccessTemplate.allow,
       },
       filter: {
-        all: userOwnershipCheck(),
+        all: SchemaAccessTemplate.quickMembershipCheck(),
       },
     }),
   }),
   AIKey: list({
     fields: {
-      user: relationship({ ref: "User.aiKey", many: false }),
+      group: relationship({ ref: "Group.aiKey", many: false }),
       openapiKey: text(),
     },
     access: schemaAccessConfig({
@@ -44,7 +41,7 @@ export const ghlSchema: Lists = {
         all: SchemaAccessTemplate.allow,
       },
       filter: {
-        all: userOwnershipCheck(),
+        all: SchemaAccessTemplate.quickMembershipCheck(),
       },
     }),
   }),

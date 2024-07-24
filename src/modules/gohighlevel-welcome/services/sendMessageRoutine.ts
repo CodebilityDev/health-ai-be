@@ -21,7 +21,7 @@ export async function sendMessageRoutine(args: {
       locationId: args.location_id,
     },
     include: {
-      user: {
+      group: {
         include: {
           botConfig: true,
         },
@@ -29,7 +29,7 @@ export async function sendMessageRoutine(args: {
     },
   });
 
-  let modelID = modelAI?.user?.botConfig?.id;
+  let modelID = modelAI?.group?.botConfig?.id;
 
   // console.log("argsBody", args.body);
   // console.log("modelID", modelID);

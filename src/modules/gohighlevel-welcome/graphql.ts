@@ -6,7 +6,7 @@ import {
 import { getGHLContacts } from "~modules/gohighlevel/service/getGHLContacts";
 import { getGHLMessages } from "~modules/gohighlevel/service/getGHLMessages";
 import { sendGHLMessage } from "~modules/gohighlevel/service/sendGHLMessage";
-import { sendWelcomeMessageRoutine } from "./services/sendWelcomeMessageRoutine";
+import { sendWelcomeMessageRoutine as generateWelcomeMessage } from "./services/sendWelcomeMessageRoutine";
 
 const ghWelcomeAPIGqlDeclaration = new GraphqlMethodDeclarationList();
 
@@ -14,6 +14,10 @@ ghWelcomeAPIGqlDeclaration.add(
   new GraphqlActionMetadata({
     root: "Query",
     name: "ghl_getContacts",
+    input: z.object({
+      groupID: z.string(),
+      query: z.string().optional(),
+    }),
     output: [
       {
         name: "GHLContact",
@@ -39,18 +43,30 @@ ghWelcomeAPIGqlDeclaration.add(
         },
       },
     ],
-    input: z.object({
-      query: z.string().optional(),
-    }),
     inputRequired: false,
     resolve: async (_, input, context) => {
       if (!context.session) {
         throw new Error("Unauthorized");
       }
 
+      const group = await context.prisma.group.findFirst({
+        where: {
+          id: input.groupID,
+          members: {
+            some: {
+              userId: context.session.itemId,
+            },
+          },
+        },
+      });
+
+      if (!group) {
+        throw new Error("Unauthorized");
+      }
+
       const contactList = await getGHLContacts({
         context: context,
-        userID: context.session.itemId,
+        groupID: input.groupID,
         query: input?.query,
       });
 
@@ -125,6 +141,7 @@ ghWelcomeAPIGqlDeclaration.add(
       },
     ],
     input: z.object({
+      groupID: z.string(),
       contactID: z.string(),
       location_id: z.string(),
       actualSend: z.boolean().optional(),
@@ -150,7 +167,22 @@ ghWelcomeAPIGqlDeclaration.add(
         throw new Error("Unauthorized");
       }
 
-      const message = await sendWelcomeMessageRoutine({
+      const group = await context.prisma.group.findFirst({
+        where: {
+          id: input.groupID,
+          members: {
+            some: {
+              userId: context.session.itemId,
+            },
+          },
+        },
+      });
+
+      if (!group) {
+        throw new Error("Unauthorized");
+      }
+
+      const message = await generateWelcomeMessage({
         // @ts-ignore
         body: {
           ...input,
@@ -166,7 +198,7 @@ ghWelcomeAPIGqlDeclaration.add(
       if (input.actualSend) {
         await sendGHLMessage({
           context: context,
-          userID: context.session.itemId,
+          groupID: input.groupID,
           input: {
             contactID: input.contactID,
             message: message.message,
@@ -189,6 +221,7 @@ ghWelcomeAPIGqlDeclaration.add(
     name: "ghl_getMessages",
     output: "String",
     input: z.object({
+      groupID: z.string(),
       conversationID: z.string(),
     }),
     resolve: async (_, input, context) => {
@@ -196,10 +229,25 @@ ghWelcomeAPIGqlDeclaration.add(
         throw new Error("Unauthorized");
       }
 
+      const group = await context.prisma.group.findFirst({
+        where: {
+          id: input.groupID,
+          members: {
+            some: {
+              userId: context.session.itemId,
+            },
+          },
+        },
+      });
+
+      if (!group) {
+        throw new Error("Unauthorized");
+      }
+
       return JSON.stringify(
         await getGHLMessages({
           context,
-          userID: context.session.itemId,
+          groupID: input.groupID,
           conversationID: input.conversationID,
         }),
         null,

@@ -211,9 +211,6 @@ type User {
   createdAt: DateTime
   groups(where: GroupMemberWhereInput! = {}, orderBy: [GroupMemberOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupMemberWhereUniqueInput): [GroupMember!]
   groupsCount(where: GroupMemberWhereInput! = {}): Int
-  botConfig: BotConfig
-  ghlAccess: GHLAccess
-  aiKey: AIKey
 }
 
 type PasswordState {
@@ -260,9 +257,6 @@ input UserWhereInput {
   role: UserRoleTypeNullableFilter
   createdAt: DateTimeNullableFilter
   groups: GroupMemberManyRelationFilter
-  botConfig: BotConfigWhereInput
-  ghlAccess: GHLAccessWhereInput
-  aiKey: AIKeyWhereInput
 }
 
 input PasswordFilter {
@@ -307,9 +301,6 @@ input UserUpdateInput {
   role: UserRoleType
   createdAt: DateTime
   groups: GroupMemberRelateToManyForUpdateInput
-  botConfig: BotConfigRelateToOneForUpdateInput
-  ghlAccess: GHLAccessRelateToOneForUpdateInput
-  aiKey: AIKeyRelateToOneForUpdateInput
 }
 
 input ImageFieldInput {
@@ -324,6 +315,66 @@ input GroupMemberRelateToManyForUpdateInput {
   set: [GroupMemberWhereUniqueInput!]
   create: [GroupMemberCreateInput!]
   connect: [GroupMemberWhereUniqueInput!]
+}
+
+input UserUpdateArgs {
+  where: UserWhereUniqueInput!
+  data: UserUpdateInput!
+}
+
+input UserCreateInput {
+  name: String
+  lastName: String
+  email: String
+  adminPassword: String
+  avatar: ImageFieldInput
+  role: UserRoleType
+  createdAt: DateTime
+  groups: GroupMemberRelateToManyForCreateInput
+}
+
+input GroupMemberRelateToManyForCreateInput {
+  create: [GroupMemberCreateInput!]
+  connect: [GroupMemberWhereUniqueInput!]
+}
+
+type Group {
+  id: ID!
+  name: String
+  members(where: GroupMemberWhereInput! = {}, orderBy: [GroupMemberOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupMemberWhereUniqueInput): [GroupMember!]
+  membersCount(where: GroupMemberWhereInput! = {}): Int
+  botConfig: BotConfig
+  ghlAccess: GHLAccess
+  aiKey: AIKey
+}
+
+input GroupWhereUniqueInput {
+  id: ID
+}
+
+input GroupWhereInput {
+  AND: [GroupWhereInput!]
+  OR: [GroupWhereInput!]
+  NOT: [GroupWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  members: GroupMemberManyRelationFilter
+  botConfig: BotConfigWhereInput
+  ghlAccess: GHLAccessWhereInput
+  aiKey: AIKeyWhereInput
+}
+
+input GroupOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+}
+
+input GroupUpdateInput {
+  name: String
+  members: GroupMemberRelateToManyForUpdateInput
+  botConfig: BotConfigRelateToOneForUpdateInput
+  ghlAccess: GHLAccessRelateToOneForUpdateInput
+  aiKey: AIKeyRelateToOneForUpdateInput
 }
 
 input BotConfigRelateToOneForUpdateInput {
@@ -344,28 +395,17 @@ input AIKeyRelateToOneForUpdateInput {
   disconnect: Boolean
 }
 
-input UserUpdateArgs {
-  where: UserWhereUniqueInput!
-  data: UserUpdateInput!
+input GroupUpdateArgs {
+  where: GroupWhereUniqueInput!
+  data: GroupUpdateInput!
 }
 
-input UserCreateInput {
+input GroupCreateInput {
   name: String
-  lastName: String
-  email: String
-  adminPassword: String
-  avatar: ImageFieldInput
-  role: UserRoleType
-  createdAt: DateTime
-  groups: GroupMemberRelateToManyForCreateInput
+  members: GroupMemberRelateToManyForCreateInput
   botConfig: BotConfigRelateToOneForCreateInput
   ghlAccess: GHLAccessRelateToOneForCreateInput
   aiKey: AIKeyRelateToOneForCreateInput
-}
-
-input GroupMemberRelateToManyForCreateInput {
-  create: [GroupMemberCreateInput!]
-  connect: [GroupMemberWhereUniqueInput!]
 }
 
 input BotConfigRelateToOneForCreateInput {
@@ -381,46 +421,6 @@ input GHLAccessRelateToOneForCreateInput {
 input AIKeyRelateToOneForCreateInput {
   create: AIKeyCreateInput
   connect: AIKeyWhereUniqueInput
-}
-
-type Group {
-  id: ID!
-  name: String
-  members(where: GroupMemberWhereInput! = {}, orderBy: [GroupMemberOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupMemberWhereUniqueInput): [GroupMember!]
-  membersCount(where: GroupMemberWhereInput! = {}): Int
-}
-
-input GroupWhereUniqueInput {
-  id: ID
-}
-
-input GroupWhereInput {
-  AND: [GroupWhereInput!]
-  OR: [GroupWhereInput!]
-  NOT: [GroupWhereInput!]
-  id: IDFilter
-  name: StringFilter
-  members: GroupMemberManyRelationFilter
-}
-
-input GroupOrderByInput {
-  id: OrderDirection
-  name: OrderDirection
-}
-
-input GroupUpdateInput {
-  name: String
-  members: GroupMemberRelateToManyForUpdateInput
-}
-
-input GroupUpdateArgs {
-  where: GroupWhereUniqueInput!
-  data: GroupUpdateInput!
-}
-
-input GroupCreateInput {
-  name: String
-  members: GroupMemberRelateToManyForCreateInput
 }
 
 type GroupMember {
@@ -512,7 +512,7 @@ type BotConfig {
   welcomeMessage: String
   welcomeMessageFormat: String
   noZipCodeMessage: String
-  user: User
+  group: Group
   sessions(where: ChatSessionWhereInput! = {}, orderBy: [ChatSessionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatSessionWhereUniqueInput): [ChatSession!]
   sessionsCount(where: ChatSessionWhereInput! = {}): Int
 }
@@ -537,7 +537,7 @@ input BotConfigWhereInput {
   welcomeMessage: StringFilter
   welcomeMessageFormat: StringFilter
   noZipCodeMessage: StringFilter
-  user: UserWhereInput
+  group: GroupWhereInput
   sessions: ChatSessionManyRelationFilter
 }
 
@@ -574,7 +574,7 @@ input BotConfigUpdateInput {
   welcomeMessage: String
   welcomeMessageFormat: String
   noZipCodeMessage: String
-  user: UserRelateToOneForUpdateInput
+  group: GroupRelateToOneForUpdateInput
   sessions: ChatSessionRelateToManyForUpdateInput
 }
 
@@ -602,7 +602,7 @@ input BotConfigCreateInput {
   welcomeMessage: String
   welcomeMessageFormat: String
   noZipCodeMessage: String
-  user: UserRelateToOneForCreateInput
+  group: GroupRelateToOneForCreateInput
   sessions: ChatSessionRelateToManyForCreateInput
 }
 
@@ -613,7 +613,7 @@ input ChatSessionRelateToManyForCreateInput {
 
 type GHLAccess {
   id: ID!
-  user: User
+  group: Group
   refreshToken: String
   ghsUserId: String
   planId: String
@@ -632,7 +632,7 @@ input GHLAccessWhereInput {
   OR: [GHLAccessWhereInput!]
   NOT: [GHLAccessWhereInput!]
   id: IDFilter
-  user: UserWhereInput
+  group: GroupWhereInput
   refreshToken: StringFilter
   ghsUserId: StringFilter
   planId: StringFilter
@@ -654,7 +654,7 @@ input GHLAccessOrderByInput {
 }
 
 input GHLAccessUpdateInput {
-  user: UserRelateToOneForUpdateInput
+  group: GroupRelateToOneForUpdateInput
   refreshToken: String
   ghsUserId: String
   planId: String
@@ -670,7 +670,7 @@ input GHLAccessUpdateArgs {
 }
 
 input GHLAccessCreateInput {
-  user: UserRelateToOneForCreateInput
+  group: GroupRelateToOneForCreateInput
   refreshToken: String
   ghsUserId: String
   planId: String
@@ -682,7 +682,7 @@ input GHLAccessCreateInput {
 
 type AIKey {
   id: ID!
-  user: User
+  group: Group
   openapiKey: String
 }
 
@@ -695,7 +695,7 @@ input AIKeyWhereInput {
   OR: [AIKeyWhereInput!]
   NOT: [AIKeyWhereInput!]
   id: IDFilter
-  user: UserWhereInput
+  group: GroupWhereInput
   openapiKey: StringFilter
 }
 
@@ -705,7 +705,7 @@ input AIKeyOrderByInput {
 }
 
 input AIKeyUpdateInput {
-  user: UserRelateToOneForUpdateInput
+  group: GroupRelateToOneForUpdateInput
   openapiKey: String
 }
 
@@ -715,7 +715,7 @@ input AIKeyUpdateArgs {
 }
 
 input AIKeyCreateInput {
-  user: UserRelateToOneForCreateInput
+  group: GroupRelateToOneForCreateInput
   openapiKey: String
 }
 

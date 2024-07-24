@@ -19,14 +19,14 @@ import {
 export const WebhookRoutines = {
   onCreate: async (args: {
     locationID: string;
-    userID: string;
+    groupID: string;
     contactID: string;
     context: GlobalContext;
   }) => {
     // get user information
     const user = await getGHLDetailedContact({
       context: args.context,
-      userID: args.userID,
+      groupID: args.groupID,
       input: {
         id: args.contactID,
       },
@@ -43,7 +43,7 @@ export const WebhookRoutines = {
 
     const agentInfo = await getGHLMe({
       context: args.context,
-      userID: args.userID,
+      groupID: args.groupID,
     });
 
     // console.log("Agent Info", agentInfo);
@@ -66,7 +66,7 @@ export const WebhookRoutines = {
 
     await sendGHLMessage({
       context: args.context,
-      userID: args.userID,
+      groupID: args.groupID,
       input: {
         contactID: args.contactID,
         message: resp.message,
@@ -80,7 +80,7 @@ export const WebhookRoutines = {
   },
   onNewMessage: async (args: {
     locationID: string;
-    userID: string;
+    groupID: string;
     contactID: string;
     context: GlobalContext;
     message: string;
@@ -89,7 +89,7 @@ export const WebhookRoutines = {
     // get user information
     const user = await getGHLDetailedContact({
       context: args.context,
-      userID: args.userID,
+      groupID: args.groupID,
       input: {
         id: args.contactID,
       },
@@ -105,7 +105,7 @@ export const WebhookRoutines = {
     // get conversation history
     const conversation = await getGHLMessages({
       context: args.context,
-      userID: args.userID,
+      groupID: args.groupID,
       conversationID: args.conversationID,
     });
 
@@ -119,7 +119,7 @@ export const WebhookRoutines = {
     // get agent info
     const agentInfo = await getGHLMe({
       context: args.context,
-      userID: args.userID,
+      groupID: args.groupID,
     });
 
     // console.log("Agent Info", agentInfo);
@@ -165,7 +165,7 @@ export const WebhookRoutines = {
 
     await sendGHLMessage({
       context: args.context,
-      userID: args.userID,
+      groupID: args.groupID,
       input: {
         contactID: args.contactID,
         message: resp.message,
@@ -190,11 +190,11 @@ export const webhookRoutine = async (args: {
       locationId: locationID,
     },
     include: {
-      user: true,
+      group: true,
     },
   });
 
-  if (!user?.user) {
+  if (!user?.group) {
     return;
   }
 
@@ -204,7 +204,7 @@ export const webhookRoutine = async (args: {
       const _payload = args.payload as ContactUpdate;
       await WebhookRoutines.onCreate({
         locationID: _payload.locationId,
-        userID: user?.user.id,
+        groupID: user?.group.id,
         contactID: _payload.id,
         context: args.context,
       });
@@ -215,7 +215,7 @@ export const webhookRoutine = async (args: {
       const _payload = args.payload as ContactCreate;
       await WebhookRoutines.onCreate({
         locationID: _payload.locationId,
-        userID: user?.user.id,
+        groupID: user?.group.id,
         contactID: _payload.id,
         context: args.context,
       });
@@ -226,7 +226,7 @@ export const webhookRoutine = async (args: {
       const _payload = args.payload as InboundMessage;
       await WebhookRoutines.onNewMessage({
         locationID: _payload.locationId,
-        userID: user?.user.id,
+        groupID: user?.group.id,
         contactID: _payload.contactId,
         context: args.context,
         message: _payload.body,

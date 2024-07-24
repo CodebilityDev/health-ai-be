@@ -52,12 +52,12 @@ interface ContactsResponse {
 
 export const getGHLContacts = async (args: {
   context: GlobalContext;
-  userID: string;
+  groupID: string;
   query?: string;
 }): Promise<Contact[]> => {
   const accessToken = await getAccessToken({
     prismaClient: args.context.prisma,
-    userID: args.userID,
+    groupID: args.groupID,
   });
 
   const resp = await fetch(
@@ -120,12 +120,12 @@ type LeadContact = {
 
 export const getGHLContact = async (args: {
   context: GlobalContext;
-  userID: string;
+  groupID: string;
   contactID: string;
 }): Promise<LeadContact> => {
   const accessToken = await getAccessToken({
     prismaClient: args.context.prisma,
-    userID: args.userID,
+    groupID: args.groupID,
   });
 
   const resp = await fetch(

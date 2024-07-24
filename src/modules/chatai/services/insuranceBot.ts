@@ -21,7 +21,7 @@ export async function buildInsuranceBotReplier(args: {
   const modelConfig = await args.context.prisma.botConfig.findUnique({
     where: { id: args.input.modelID },
     include: {
-      user: {
+      group: {
         include: {
           aiKey: true,
         },
@@ -57,18 +57,18 @@ export async function buildInsuranceBotReplier(args: {
   }
 
   let ghlAccountMe: GetGHLMe | undefined;
-  if (modelConfig.userId) {
+  if (modelConfig.groupId) {
     // check the GHL Account
     ghlAccountMe = await getGHLMe({
       context: args.context,
-      userID: modelConfig.userId,
+      groupID: modelConfig.groupId,
     });
   }
 
   // load the openai client
   //   - use the user's api key if available, otherwise use the default
   const openAIKey =
-    modelConfig?.user?.aiKey?.openapiKey || CONFIG.OPENAI_API_KEY;
+    modelConfig?.group?.aiKey?.openapiKey || CONFIG.OPENAI_API_KEY;
 
   // console.log(modelConfig);
 

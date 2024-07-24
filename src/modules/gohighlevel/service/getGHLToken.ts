@@ -14,20 +14,20 @@ export const AccessTokenList: Record<
 
 export const getAccessToken = async (args: {
   prismaClient: GlobalContext["prisma"];
-  userID: string;
+  groupID: string;
 }) => {
-  const { prismaClient, userID } = args;
+  const { prismaClient, groupID } = args;
 
-  if (AccessTokenList[userID]) {
-    const accessToken = AccessTokenList[userID];
+  if (AccessTokenList[groupID]) {
+    const accessToken = AccessTokenList[groupID];
     if (accessToken.expiresAt > Date.now()) {
       return accessToken;
     }
   }
 
-  const user = await prismaClient.user.findUnique({
+  const user = await prismaClient.group.findUnique({
     where: {
-      id: userID,
+      id: groupID,
     },
     include: {
       ghlAccess: true,
@@ -76,7 +76,7 @@ export const getAccessToken = async (args: {
       planId: string;
     };
 
-    AccessTokenList[userID] = {
+    AccessTokenList[groupID] = {
       accessToken: data.access_token,
       locationId: data.locationId,
       companyId: data.companyId,
@@ -84,7 +84,7 @@ export const getAccessToken = async (args: {
       expiresAt: Date.now() + data.expires_in * 1000,
     };
 
-    return AccessTokenList[userID];
+    return AccessTokenList[groupID];
   } catch (error) {
     console.error(error);
     return null;

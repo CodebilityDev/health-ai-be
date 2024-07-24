@@ -25,12 +25,12 @@ const CachedLocationCustomFields: Record<string, CustomFieldsData> = {};
 
 export const getGHLCustomFields = async (args: {
   context: GlobalContext;
-  userID: string;
+  groupID: string;
   model?: "contact" | "opportunity" | "all" | string;
 }): Promise<CustomFieldsData> => {
   const accessToken = await getAccessToken({
     prismaClient: args.context.prisma,
-    userID: args.userID,
+    groupID: args.groupID,
   });
 
   if (!accessToken?.locationId) {

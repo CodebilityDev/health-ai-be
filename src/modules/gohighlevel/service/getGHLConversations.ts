@@ -27,12 +27,12 @@ export type ConversationData = {
 
 export const getGHLConversations = async (args: {
   context: GlobalContext;
-  userID: string;
+  groupID: string;
   contactID: string;
 }): Promise<ConversationData[]> => {
   const accessToken = await getAccessToken({
     prismaClient: args.context.prisma,
-    userID: args.userID,
+    groupID: args.groupID,
   });
 
   if (!accessToken?.locationId) {

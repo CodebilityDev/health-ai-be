@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ACCESS_LEVELS } from "~/common/context";
 import { CONFIG } from "~/common/env";
 import { serverAccessConfig } from "~/lib/rest/access";
 import { RestAccessTemplate } from "~/lib/rest/access/templates";
@@ -128,30 +129,63 @@ ghlRouteDeclaration.routes.set(
         planId: string;
       };
 
+      if (!data.locationId) {
+        res.status(400).json({ error: "Invalid location" });
+        return;
+      }
+
       const decodedState = base64.decode(state);
       const { userId, redirect } = JSON.parse(decodedState);
 
-      // console.log("userId", userId);
+      // check if locationID already has a group assigned to it, if it has, just update it and add the user to the group if not already added
 
-      // if a user is already connected, update the token
-      const existing = await prisma.gHLAccess.findFirst({
-        where: { userId: userId },
+      let groupData;
+
+      groupData = await prisma.group.findFirst({
+        where: {
+          id: data.locationId,
+        },
+        include: {
+          ghlAccess: true,
+        },
       });
 
-      if (existing) {
-        await prisma.gHLAccess.update({
-          where: { id: existing.id },
+      // if group dont exist, create it
+
+      if (!groupData) {
+        groupData = await prisma.group.create({
           data: {
-            refreshToken: data.refresh_token,
-            scope: data.scope,
-            companyId: data.companyId,
-            ghsUserId: data.userId,
-            locationId: data.locationId,
-            planId: data.planId,
-            updatedAt: new Date(),
+            id: data.locationId,
+            name: data.locationId,
+          },
+          include: {
+            ghlAccess: true,
           },
         });
-      } else {
+      }
+
+      // bind the user to the group if not already bound
+      const userGroup = await prisma.groupMember.findFirst({
+        where: {
+          groupId: data.locationId,
+          userId: userId,
+        },
+      });
+
+      if (!userGroup) {
+        await prisma.groupMember.create({
+          data: {
+            group: { connect: { id: data.locationId } },
+            user: { connect: { id: userId } },
+            access: ACCESS_LEVELS.ADMIN,
+          },
+        });
+      }
+
+      let ghlAccessID = groupData.ghlAccess?.id;
+
+      // if groupData doesnt have ghl binding, create it
+      if (!ghlAccessID) {
         await prisma.gHLAccess.create({
           data: {
             refreshToken: data.refresh_token,
@@ -160,14 +194,27 @@ ghlRouteDeclaration.routes.set(
             ghsUserId: data.userId,
             locationId: data.locationId,
             planId: data.planId,
-            user: { connect: { id: userId } },
+            group: { connect: { id: data.locationId } },
+            updatedAt: new Date(),
+          },
+        });
+      } else {
+        await prisma.gHLAccess.update({
+          where: { id: ghlAccessID },
+          data: {
+            refreshToken: data.refresh_token,
+            scope: data.scope,
+            companyId: data.companyId,
+            ghsUserId: data.userId,
+            locationId: data.locationId,
+            planId: data.planId,
             updatedAt: new Date(),
           },
         });
       }
 
       // clear cache
-      AccessTokenList[userId] = null;
+      AccessTokenList[data.locationId] = null;
 
       res.redirect(redirect || CONFIG.PAGE_URL);
       // return data;

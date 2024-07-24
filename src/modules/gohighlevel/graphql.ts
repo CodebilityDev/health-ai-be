@@ -13,16 +13,33 @@ ghAPIGqlDeclaration.add(
     root: "Query",
     name: "ghl_accessToken",
     output: "String",
-    resolve: async (_, {}, context) => {
+    input: z.object({
+      groupID: z.string(),
+    }),
+    resolve: async (_, { groupID }, context) => {
       if (!context.session) {
         throw new Error("Unauthorized");
       }
 
-      const userID = context.session.itemId;
+      // check if the user has access to the group
+      const group = await context.prisma.group.findFirst({
+        where: {
+          id: groupID,
+          members: {
+            some: {
+              userId: context.session.itemId,
+            },
+          },
+        },
+      });
+
+      if (!group) {
+        throw new Error("Unauthorized");
+      }
 
       const accessToken = await getAccessToken({
         prismaClient: context.prisma,
-        userID,
+        groupID,
       });
 
       return accessToken;
@@ -34,6 +51,9 @@ ghAPIGqlDeclaration.add(
   new GraphqlActionMetadata({
     root: "Query",
     name: "ghl_me",
+    input: z.object({
+      groupID: z.string(),
+    }),
     output: [
       {
         name: "GHLMeReturn",
@@ -51,16 +71,30 @@ ghAPIGqlDeclaration.add(
         }),
       },
     ],
-    resolve: async (_, {}, context) => {
+    resolve: async (_, { groupID }, context) => {
       if (!context.session) {
         throw new Error("Unauthorized");
       }
 
-      const userID = context.session.itemId;
+      // check if the user has access to the group
+      const group = await context.prisma.group.findFirst({
+        where: {
+          id: groupID,
+          members: {
+            some: {
+              userId: context.session.itemId,
+            },
+          },
+        },
+      });
+
+      if (!group) {
+        throw new Error("Unauthorized");
+      }
 
       const userInfo = await getGHLMe({
         context,
-        userID,
+        groupID,
       });
 
       if (!userInfo) {
