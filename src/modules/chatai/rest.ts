@@ -5,6 +5,7 @@ import {
 } from "~/lib/rest/declarations";
 import { RequestInputType, RouteMethod } from "~/lib/rest/types";
 import { buildInsuranceBotReplier } from "./services/insuranceBot";
+import { ChatSessionData } from "./types/ChatSessionData.type";
 
 const chatgptRouteDeclaration = new RouteDeclarationList({
   path: "/chatgpt",
@@ -28,15 +29,42 @@ chatgptRouteDeclaration.routes.set(
       res,
       context,
     }) => {
-      await buildInsuranceBotReplier({
+      const rawchatSession =
+        await context.prisma.chatConversationSession.findFirst({
+          where: {
+            id: sessionID,
+          },
+        });
+      const chatSession = ChatSessionData.fromString(
+        rawchatSession?.sessionData?.toString() ?? "{}",
+      );
+      const resp = await buildInsuranceBotReplier({
         context,
         input: {
+          chatSession,
+          type: "chat",
           modelID,
           prompt,
-          sessionID,
         },
         res,
       });
+      if (rawchatSession) {
+        await context.prisma.chatConversationSession.update({
+          where: {
+            id: sessionID,
+          },
+          data: {
+            sessionData: resp.chatSessionData.toString(),
+          },
+        });
+      } else {
+        await context.prisma.chatConversationSession.create({
+          data: {
+            id: sessionID,
+            sessionData: resp.chatSessionData.toString(),
+          },
+        });
+      }
       return;
     },
   }),

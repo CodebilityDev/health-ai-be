@@ -2,9 +2,11 @@ import { ChatCompletionMessageParam } from "openai/resources";
 
 export class ChatSessionData {
   history: ChatCompletionMessageParam[];
+  lastMessageID?: string;
 
-  constructor(history: ChatCompletionMessageParam[]) {
+  constructor(history: ChatCompletionMessageParam[], lastMessageID?: string) {
     this.history = history || [];
+    this.lastMessageID = lastMessageID;
   }
 
   addMessage(message: ChatCompletionMessageParam) {
@@ -16,6 +18,7 @@ export class ChatSessionData {
   }
 
   static fromString(data: string) {
-    return new ChatSessionData(JSON.parse(data).history);
+    let parsedData = JSON.parse(data);
+    return new ChatSessionData(parsedData.history, parsedData.lastMessageID);
   }
 }

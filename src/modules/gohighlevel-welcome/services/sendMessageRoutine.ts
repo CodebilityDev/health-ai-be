@@ -1,10 +1,13 @@
 import { ChatCompletionMessageParam } from "openai/resources";
 import { GlobalContext } from "~/common/context";
 import { buildInsuranceBotReplier } from "~modules/chatai/services/insuranceBot";
+import { ChatSessionData } from "~modules/chatai/types/ChatSessionData.type";
 
 export async function sendMessageRoutine(args: {
   context: GlobalContext;
   location_id: string;
+  summarizeLength?: number;
+  chatSession: ChatSessionData;
   clientInfo: {
     location_id: string;
     first_name: string;
@@ -15,6 +18,7 @@ export async function sendMessageRoutine(args: {
   };
   chatHistory: ChatCompletionMessageParam[];
   prompt: string;
+  type?: "welcome" | "chat";
 }) {
   const modelAI = await args.context.prisma.gHLAccess.findFirst({
     where: {
@@ -23,13 +27,20 @@ export async function sendMessageRoutine(args: {
     include: {
       group: {
         include: {
-          botConfig: true,
+          botConfig: args.type ?? "welcome" == "welcome" ? true : false,
+          conversationBotConfig: args.type == "chat" ? true : false,
         },
       },
     },
   });
 
-  let modelID = modelAI?.group?.botConfig?.id;
+  let modelID;
+
+  if (args.type == "chat") {
+    modelID = modelAI?.group?.conversationBotConfig?.id;
+  } else {
+    modelID = modelAI?.group?.botConfig?.id;
+  }
 
   // console.log("argsBody", args.body);
   // console.log("modelID", modelID);
@@ -41,20 +52,38 @@ export async function sendMessageRoutine(args: {
     // });
     // modelID = newModel.id;
     if (!modelID) {
-      // look for the model with 'blank' as name, else create a new model with blank data
-      let newModel = await args.context.prisma.botConfig.findFirst({
-        where: {
-          name: "blank",
-        },
-      });
-      if (!newModel) {
-        newModel = await args.context.prisma.botConfig.create({
-          data: {
+      if (args.type == "chat") {
+        // look for the model with 'blank' as name, else create a new model with blank data
+        let newModel =
+          await args.context.prisma.conversationBotConfig.findFirst({
+            where: {
+              name: "blank",
+            },
+          });
+        if (!newModel) {
+          newModel = await args.context.prisma.conversationBotConfig.create({
+            data: {
+              name: "blank",
+            },
+          });
+        }
+        modelID = newModel.id;
+      } else {
+        // look for the model with 'blank' as name, else create a new model with blank data
+        let newModel = await args.context.prisma.botConfig.findFirst({
+          where: {
             name: "blank",
           },
         });
+        if (!newModel) {
+          newModel = await args.context.prisma.botConfig.create({
+            data: {
+              name: "blank",
+            },
+          });
+        }
+        modelID = newModel.id;
       }
-      modelID = newModel.id;
     }
   }
 
@@ -62,9 +91,10 @@ export async function sendMessageRoutine(args: {
     context: args.context,
     input: {
       modelID: modelID,
+      type: args.type,
       chatHistory: args.chatHistory,
       prompt: args.prompt,
-      sessionID: `${args.clientInfo.first_name} ${args.clientInfo.last_name} - ${args.clientInfo.agent_first_name} ${args.clientInfo.agent_last_name} ${Date.now()}`,
+      chatSession: args.chatSession,
     },
     res: undefined,
   });
@@ -76,5 +106,6 @@ export async function sendMessageRoutine(args: {
     thread: chatGPTReply?.messages,
     body: args.clientInfo,
     modelID,
+    chatSession: args.chatSession,
   };
 }

@@ -43,6 +43,11 @@ export const getGHLMessages = async (args: {
     throw new Error("Unauthorized");
   }
 
+  // filter args.params to remove undefined values
+  args.params = Object.fromEntries(
+    Object.entries(args.params ?? {}).filter(([_, v]) => v !== undefined),
+  );
+
   const resp = await fetch(
     `https://services.leadconnectorhq.com/conversations/${args.conversationID}/messages` +
       (args.params ? `?${new URLSearchParams(args.params)}` : ""),

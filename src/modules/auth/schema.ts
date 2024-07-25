@@ -2,8 +2,10 @@ import type { Lists } from ".keystone/types";
 import { graphql, list } from "@keystone-6/core";
 import { denyAll } from "@keystone-6/core/access";
 import {
+  checkbox,
   image,
   integer,
+  json,
   password,
   relationship,
   select,
@@ -233,6 +235,10 @@ export const userDataList: Lists = {
         ref: "BotConfig.group",
         many: false,
       }),
+      conversationBotConfig: relationship({
+        ref: "ConversationBotConfig.group",
+        many: false,
+      }),
       ghlAccess: relationship({
         ref: "GHLAccess.group",
         many: false,
@@ -240,6 +246,14 @@ export const userDataList: Lists = {
       aiKey: relationship({
         ref: "AIKey.group",
         many: false,
+      }),
+      enable_globalWelcome: checkbox(),
+      enable_globalContactUpdate: checkbox(),
+      enable_globalAutoReply: checkbox(),
+      contactConfigs: json(),
+      aiLogs: relationship({
+        ref: "GroupAILog.group",
+        many: true,
       }),
     },
     hooks: {
@@ -285,6 +299,31 @@ export const userDataList: Lists = {
             };
           },
         ]),
+      },
+    }),
+  }),
+  GroupAILog: list({
+    fields: {
+      group: relationship({
+        ref: "Group.aiLogs",
+        many: false,
+      }),
+      contactID: text(),
+      contactName: text(),
+      locationID: text(),
+      locationName: text(),
+      modelID: text(),
+      type: text(),
+      status: text(),
+      log: json(),
+    },
+    access: schemaAccessConfig({
+      isAuthed: true,
+      operations: {
+        all: SchemaAccessTemplate.allow,
+      },
+      filter: {
+        all: SchemaAccessTemplate.quickMembershipCheck(),
       },
     }),
   }),

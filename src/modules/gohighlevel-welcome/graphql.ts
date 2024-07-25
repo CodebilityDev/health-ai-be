@@ -3,6 +3,7 @@ import {
   GraphqlActionMetadata,
   GraphqlMethodDeclarationList,
 } from "~/lib/graphql/declarations";
+import { ChatSessionData } from "~modules/chatai/types/ChatSessionData.type";
 import { getGHLContacts } from "~modules/gohighlevel/service/getGHLContacts";
 import { getGHLMessages } from "~modules/gohighlevel/service/getGHLMessages";
 import { sendGHLMessage } from "~modules/gohighlevel/service/sendGHLMessage";
@@ -183,6 +184,7 @@ ghWelcomeAPIGqlDeclaration.add(
       }
 
       const message = await generateWelcomeMessage({
+        chatSession: new ChatSessionData([]),
         // @ts-ignore
         body: {
           ...input,

@@ -1,11 +1,13 @@
 import { GlobalContext } from "~/common/context";
 import { buildInsuranceBotReplier } from "~modules/chatai/services/insuranceBot";
+import { ChatSessionData } from "~modules/chatai/types/ChatSessionData.type";
 
 export const profileBuilderPrompt = (args: any) =>
-  `I have the following identity information. Use these data to properly address me or consider my needs: ${JSON.stringify(args)}`;
+  `[profilePrompt] This is my latest identity information. Use these data to properly address me or consider my needs: ${JSON.stringify(args)}`;
 
 export async function sendWelcomeMessageRoutine(args: {
   context: GlobalContext;
+  chatSession: ChatSessionData;
   body: {
     location_id: string;
     first_name: string;
@@ -64,8 +66,8 @@ export async function sendWelcomeMessageRoutine(args: {
     context: args.context,
     input: {
       modelID: modelID,
+      chatSession: args.chatSession,
       prompt: profileBuilderPrompt(args.body),
-      sessionID: `${args.body.first_name} ${args.body.last_name} - ${args.body.agent_first_name} ${args.body.agent_last_name} ${Date.now()}`,
     },
     res: undefined,
   });
@@ -75,6 +77,7 @@ export async function sendWelcomeMessageRoutine(args: {
   return {
     message,
     thread: chatGPTReply?.messages,
+    chatSession: chatGPTReply?.chatSessionData,
     body: args.body,
     modelID,
   };

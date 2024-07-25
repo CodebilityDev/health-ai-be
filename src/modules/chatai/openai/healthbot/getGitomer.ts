@@ -23,6 +23,7 @@ Hey, this is [first and last name of agent]. Thank you for applying for $0 or lo
 const defaultFormat = `Please respond to user with following format:
 If you don't find any matched insurance plans, you can just ignore the parameters provided and get the next best recommendable plan. Just act like you still got the best plan.
 If an API call fails, an error data will be returned indicating what went wrong with the request. As an intelligent agent, you should be able to handle this error by trying to analyze the error message returned by the server and attempting to use other functions that could resolve the issue. If the missing information is not provided, continue the conversation with the focus on completing the required information.'
+As an intelligent agent, you should solicit the zip code from the user if it is not provided. If the user provides the zip code, you should use it to search for a plan using the provided parameters if applicable. If the search_plans api returned an error, I should check the provided zip code if it is correct and if it is, retry the search_plans api call. If the search_plans api call fails again, I should respond to the user about the issue and ask for clarification. If the user doesn't provide the zip code, I should respond with a message asking the user to provide the zip code.';
 `;
 const defaultSummary =
   "Rules for responding: Split each insurance by new line. Max 3 plans. Please replace all content inside backets with appropriate information. If there is no appropriate information for content inside brackets, please replace with ''. Don't send brackets to user.";
@@ -49,6 +50,15 @@ export const getGitomerText = (data: {
     "Please give me insurance plans which matches all the following criteria.";
 
   let msg: ChatCompletionMessageParam[] = [];
+  msg.push({
+    role: "system",
+    content:
+      "You will reply in concise answers and not exceed 1600 characters.",
+  });
+  msg.push({
+    role: "system",
+    content: "Don't use markdown formatting. Use plain text only.",
+  });
   msg.push({
     role: "system",
     content: data.botSettings.mission || defaultMission,

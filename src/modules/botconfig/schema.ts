@@ -35,4 +35,37 @@ export const botDataList: Lists = {
       },
     }),
   }),
+  ConversationBotConfig: list({
+    fields: {
+      name: text({ validation: { isRequired: true } }),
+      companyStatement: text(),
+      tonestyle: text(),
+      priorityPlan: text(),
+      healthInsuranceCarriers: text(),
+      presentationStrategy: text(),
+      specificQuestions: text(),
+      summaryPrompt: text(),
+      welcomeMessage: text(),
+      welcomeMessageFormat: text(),
+      noZipCodeMessage: text(),
+      group: relationship({ ref: "Group.conversationBotConfig", many: false }),
+      sessions: relationship({
+        ref: "ChatConversationSession.botConfig",
+        many: true,
+      }),
+    },
+    access: schemaAccessConfig({
+      isAuthed: {
+        all: true,
+        read: false,
+      },
+      operations: {
+        all: SchemaAccessTemplate.allow,
+      },
+      filter: {
+        read: SchemaAccessTemplate.allow,
+        write: SchemaAccessTemplate.quickMembershipCheck(),
+      },
+    }),
+  }),
 };

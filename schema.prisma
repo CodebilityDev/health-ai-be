@@ -62,12 +62,34 @@ model UserLocalAuth {
 }
 
 model Group {
-  id        String        @id @default(cuid())
-  name      String        @default("")
-  members   GroupMember[] @relation("GroupMember_group")
-  botConfig BotConfig?    @relation("BotConfig_group")
-  ghlAccess GHLAccess?    @relation("GHLAccess_group")
-  aiKey     AIKey?        @relation("AIKey_group")
+  id                         String                 @id @default(cuid())
+  name                       String                 @default("")
+  members                    GroupMember[]          @relation("GroupMember_group")
+  botConfig                  BotConfig?             @relation("BotConfig_group")
+  conversationBotConfig      ConversationBotConfig? @relation("ConversationBotConfig_group")
+  ghlAccess                  GHLAccess?             @relation("GHLAccess_group")
+  aiKey                      AIKey?                 @relation("AIKey_group")
+  enable_globalWelcome       Boolean                @default(false)
+  enable_globalContactUpdate Boolean                @default(false)
+  enable_globalAutoReply     Boolean                @default(false)
+  contactConfigs             Json?
+  aiLogs                     GroupAILog[]           @relation("GroupAILog_group")
+}
+
+model GroupAILog {
+  id           String  @id @default(cuid())
+  group        Group?  @relation("GroupAILog_group", fields: [groupId], references: [id])
+  groupId      String? @map("group")
+  contactID    String  @default("")
+  contactName  String  @default("")
+  locationID   String  @default("")
+  locationName String  @default("")
+  modelID      String  @default("")
+  type         String  @default("")
+  status       String  @default("")
+  log          Json?
+
+  @@index([groupId])
 }
 
 model GroupMember {
@@ -100,6 +122,24 @@ model BotConfig {
   sessions                ChatSession[] @relation("ChatSession_botConfig")
 }
 
+model ConversationBotConfig {
+  id                      String                    @id @default(cuid())
+  name                    String                    @default("")
+  companyStatement        String                    @default("")
+  tonestyle               String                    @default("")
+  priorityPlan            String                    @default("")
+  healthInsuranceCarriers String                    @default("")
+  presentationStrategy    String                    @default("")
+  specificQuestions       String                    @default("")
+  summaryPrompt           String                    @default("")
+  welcomeMessage          String                    @default("")
+  welcomeMessageFormat    String                    @default("")
+  noZipCodeMessage        String                    @default("")
+  group                   Group?                    @relation("ConversationBotConfig_group", fields: [groupId], references: [id])
+  groupId                 String?                   @unique @map("group")
+  sessions                ChatConversationSession[] @relation("ChatConversationSession_botConfig")
+}
+
 model GHLAccess {
   id           String    @id @default(cuid())
   group        Group?    @relation("GHLAccess_group", fields: [groupId], references: [id])
@@ -126,6 +166,16 @@ model ChatSession {
   sessionData Json?
   botConfig   BotConfig? @relation("ChatSession_botConfig", fields: [botConfigId], references: [id])
   botConfigId String?    @map("botConfig")
+
+  @@index([botConfigId])
+}
+
+model ChatConversationSession {
+  id          String                 @id @default(cuid())
+  keywords    String                 @default("")
+  sessionData Json?
+  botConfig   ConversationBotConfig? @relation("ChatConversationSession_botConfig", fields: [botConfigId], references: [id])
+  botConfigId String?                @map("botConfig")
 
   @@index([botConfigId])
 }

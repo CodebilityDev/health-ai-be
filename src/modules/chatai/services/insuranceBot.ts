@@ -12,49 +12,44 @@ export async function buildInsuranceBotReplier(args: {
   res?: Response;
   input: {
     modelID: string;
+    type?: "welcome" | "chat";
     prompt: string;
-    sessionID: string;
+    chatSession: ChatSessionData;
     chatHistory?: ChatCompletionMessageParam[];
+    summarizeLength?: number;
   };
 }) {
   // get modelID from database
-  const modelConfig = await args.context.prisma.botConfig.findUnique({
-    where: { id: args.input.modelID },
-    include: {
-      group: {
-        include: {
-          aiKey: true,
+  let modelConfig;
+  if (args.input.type == "chat") {
+    modelConfig = await args.context.prisma.conversationBotConfig.findUnique({
+      where: { id: args.input.modelID },
+      include: {
+        group: {
+          include: {
+            aiKey: true,
+          },
         },
       },
-    },
-  });
+    });
+  } else {
+    modelConfig = await args.context.prisma.botConfig.findUnique({
+      where: { id: args.input.modelID },
+      include: {
+        group: {
+          include: {
+            aiKey: true,
+          },
+        },
+      },
+    });
+  }
 
   if (!modelConfig) {
     throw new Error("Model not found");
   }
 
-  // get sessionID from chat history
-  const chatSession = await args.context.prisma.chatSession.findUnique({
-    where: { id: args.input.sessionID },
-  });
-
-  let chatSessionData: ChatSessionData | undefined;
-
-  // create a new chat session if it doesn't exist
-  if (!chatSession) {
-    chatSessionData = new ChatSessionData([]);
-    await args.context.prisma.chatSession.create({
-      data: {
-        id: args.input.sessionID,
-        sessionData: chatSessionData.toString(),
-        botConfigId: args.input.modelID,
-      },
-    });
-  } else {
-    chatSessionData = ChatSessionData.fromString(
-      chatSession.sessionData?.toString() || "{}",
-    );
-  }
+  let chatSessionData = args.input.chatSession;
 
   let ghlAccountMe: GetGHLMe | undefined;
   if (modelConfig.groupId) {
@@ -121,18 +116,10 @@ export async function buildInsuranceBotReplier(args: {
   // save the response to the chat session history
   chatSessionData.history = curMessages;
 
-  // save the chat session history
-  await args.context.prisma.chatSession.update({
-    where: { id: args.input.sessionID },
-    data: {
-      sessionData: chatSessionData.toString(),
-      botConfigId: args.input.modelID,
-    },
-  });
-
   args.res && args.res.end();
   return {
     lastResponse,
     messages: [...gitomerTemplate, ...curMessages],
+    chatSessionData,
   };
 }

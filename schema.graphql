@@ -344,8 +344,15 @@ type Group {
   members(where: GroupMemberWhereInput! = {}, orderBy: [GroupMemberOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupMemberWhereUniqueInput): [GroupMember!]
   membersCount(where: GroupMemberWhereInput! = {}): Int
   botConfig: BotConfig
+  conversationBotConfig: ConversationBotConfig
   ghlAccess: GHLAccess
   aiKey: AIKey
+  enable_globalWelcome: Boolean
+  enable_globalContactUpdate: Boolean
+  enable_globalAutoReply: Boolean
+  contactConfigs: JSON
+  aiLogs(where: GroupAILogWhereInput! = {}, orderBy: [GroupAILogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupAILogWhereUniqueInput): [GroupAILog!]
+  aiLogsCount(where: GroupAILogWhereInput! = {}): Int
 }
 
 input GroupWhereUniqueInput {
@@ -360,26 +367,57 @@ input GroupWhereInput {
   name: StringFilter
   members: GroupMemberManyRelationFilter
   botConfig: BotConfigWhereInput
+  conversationBotConfig: ConversationBotConfigWhereInput
   ghlAccess: GHLAccessWhereInput
   aiKey: AIKeyWhereInput
+  enable_globalWelcome: BooleanFilter
+  enable_globalContactUpdate: BooleanFilter
+  enable_globalAutoReply: BooleanFilter
+  aiLogs: GroupAILogManyRelationFilter
+}
+
+input BooleanFilter {
+  equals: Boolean
+  not: BooleanFilter
+}
+
+input GroupAILogManyRelationFilter {
+  every: GroupAILogWhereInput
+  some: GroupAILogWhereInput
+  none: GroupAILogWhereInput
 }
 
 input GroupOrderByInput {
   id: OrderDirection
   name: OrderDirection
+  enable_globalWelcome: OrderDirection
+  enable_globalContactUpdate: OrderDirection
+  enable_globalAutoReply: OrderDirection
 }
 
 input GroupUpdateInput {
   name: String
   members: GroupMemberRelateToManyForUpdateInput
   botConfig: BotConfigRelateToOneForUpdateInput
+  conversationBotConfig: ConversationBotConfigRelateToOneForUpdateInput
   ghlAccess: GHLAccessRelateToOneForUpdateInput
   aiKey: AIKeyRelateToOneForUpdateInput
+  enable_globalWelcome: Boolean
+  enable_globalContactUpdate: Boolean
+  enable_globalAutoReply: Boolean
+  contactConfigs: JSON
+  aiLogs: GroupAILogRelateToManyForUpdateInput
 }
 
 input BotConfigRelateToOneForUpdateInput {
   create: BotConfigCreateInput
   connect: BotConfigWhereUniqueInput
+  disconnect: Boolean
+}
+
+input ConversationBotConfigRelateToOneForUpdateInput {
+  create: ConversationBotConfigCreateInput
+  connect: ConversationBotConfigWhereUniqueInput
   disconnect: Boolean
 }
 
@@ -395,6 +433,13 @@ input AIKeyRelateToOneForUpdateInput {
   disconnect: Boolean
 }
 
+input GroupAILogRelateToManyForUpdateInput {
+  disconnect: [GroupAILogWhereUniqueInput!]
+  set: [GroupAILogWhereUniqueInput!]
+  create: [GroupAILogCreateInput!]
+  connect: [GroupAILogWhereUniqueInput!]
+}
+
 input GroupUpdateArgs {
   where: GroupWhereUniqueInput!
   data: GroupUpdateInput!
@@ -404,13 +449,24 @@ input GroupCreateInput {
   name: String
   members: GroupMemberRelateToManyForCreateInput
   botConfig: BotConfigRelateToOneForCreateInput
+  conversationBotConfig: ConversationBotConfigRelateToOneForCreateInput
   ghlAccess: GHLAccessRelateToOneForCreateInput
   aiKey: AIKeyRelateToOneForCreateInput
+  enable_globalWelcome: Boolean
+  enable_globalContactUpdate: Boolean
+  enable_globalAutoReply: Boolean
+  contactConfigs: JSON
+  aiLogs: GroupAILogRelateToManyForCreateInput
 }
 
 input BotConfigRelateToOneForCreateInput {
   create: BotConfigCreateInput
   connect: BotConfigWhereUniqueInput
+}
+
+input ConversationBotConfigRelateToOneForCreateInput {
+  create: ConversationBotConfigCreateInput
+  connect: ConversationBotConfigWhereUniqueInput
 }
 
 input GHLAccessRelateToOneForCreateInput {
@@ -421,6 +477,94 @@ input GHLAccessRelateToOneForCreateInput {
 input AIKeyRelateToOneForCreateInput {
   create: AIKeyCreateInput
   connect: AIKeyWhereUniqueInput
+}
+
+input GroupAILogRelateToManyForCreateInput {
+  create: [GroupAILogCreateInput!]
+  connect: [GroupAILogWhereUniqueInput!]
+}
+
+type GroupAILog {
+  id: ID!
+  group: Group
+  contactID: String
+  contactName: String
+  locationID: String
+  locationName: String
+  modelID: String
+  type: String
+  status: String
+  log: JSON
+}
+
+input GroupAILogWhereUniqueInput {
+  id: ID
+}
+
+input GroupAILogWhereInput {
+  AND: [GroupAILogWhereInput!]
+  OR: [GroupAILogWhereInput!]
+  NOT: [GroupAILogWhereInput!]
+  id: IDFilter
+  group: GroupWhereInput
+  contactID: StringFilter
+  contactName: StringFilter
+  locationID: StringFilter
+  locationName: StringFilter
+  modelID: StringFilter
+  type: StringFilter
+  status: StringFilter
+}
+
+input GroupAILogOrderByInput {
+  id: OrderDirection
+  contactID: OrderDirection
+  contactName: OrderDirection
+  locationID: OrderDirection
+  locationName: OrderDirection
+  modelID: OrderDirection
+  type: OrderDirection
+  status: OrderDirection
+}
+
+input GroupAILogUpdateInput {
+  group: GroupRelateToOneForUpdateInput
+  contactID: String
+  contactName: String
+  locationID: String
+  locationName: String
+  modelID: String
+  type: String
+  status: String
+  log: JSON
+}
+
+input GroupRelateToOneForUpdateInput {
+  create: GroupCreateInput
+  connect: GroupWhereUniqueInput
+  disconnect: Boolean
+}
+
+input GroupAILogUpdateArgs {
+  where: GroupAILogWhereUniqueInput!
+  data: GroupAILogUpdateInput!
+}
+
+input GroupAILogCreateInput {
+  group: GroupRelateToOneForCreateInput
+  contactID: String
+  contactName: String
+  locationID: String
+  locationName: String
+  modelID: String
+  type: String
+  status: String
+  log: JSON
+}
+
+input GroupRelateToOneForCreateInput {
+  create: GroupCreateInput
+  connect: GroupWhereUniqueInput
 }
 
 type GroupMember {
@@ -466,12 +610,6 @@ input GroupMemberUpdateInput {
   access: Int
 }
 
-input GroupRelateToOneForUpdateInput {
-  create: GroupCreateInput
-  connect: GroupWhereUniqueInput
-  disconnect: Boolean
-}
-
 input UserRelateToOneForUpdateInput {
   create: UserCreateInput
   connect: UserWhereUniqueInput
@@ -487,11 +625,6 @@ input GroupMemberCreateInput {
   group: GroupRelateToOneForCreateInput
   user: UserRelateToOneForCreateInput
   access: Int
-}
-
-input GroupRelateToOneForCreateInput {
-  create: GroupCreateInput
-  connect: GroupWhereUniqueInput
 }
 
 input UserRelateToOneForCreateInput {
@@ -609,6 +742,118 @@ input BotConfigCreateInput {
 input ChatSessionRelateToManyForCreateInput {
   create: [ChatSessionCreateInput!]
   connect: [ChatSessionWhereUniqueInput!]
+}
+
+type ConversationBotConfig {
+  id: ID!
+  name: String
+  companyStatement: String
+  tonestyle: String
+  priorityPlan: String
+  healthInsuranceCarriers: String
+  presentationStrategy: String
+  specificQuestions: String
+  summaryPrompt: String
+  welcomeMessage: String
+  welcomeMessageFormat: String
+  noZipCodeMessage: String
+  group: Group
+  sessions(where: ChatConversationSessionWhereInput! = {}, orderBy: [ChatConversationSessionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatConversationSessionWhereUniqueInput): [ChatConversationSession!]
+  sessionsCount(where: ChatConversationSessionWhereInput! = {}): Int
+}
+
+input ConversationBotConfigWhereUniqueInput {
+  id: ID
+}
+
+input ConversationBotConfigWhereInput {
+  AND: [ConversationBotConfigWhereInput!]
+  OR: [ConversationBotConfigWhereInput!]
+  NOT: [ConversationBotConfigWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  companyStatement: StringFilter
+  tonestyle: StringFilter
+  priorityPlan: StringFilter
+  healthInsuranceCarriers: StringFilter
+  presentationStrategy: StringFilter
+  specificQuestions: StringFilter
+  summaryPrompt: StringFilter
+  welcomeMessage: StringFilter
+  welcomeMessageFormat: StringFilter
+  noZipCodeMessage: StringFilter
+  group: GroupWhereInput
+  sessions: ChatConversationSessionManyRelationFilter
+}
+
+input ChatConversationSessionManyRelationFilter {
+  every: ChatConversationSessionWhereInput
+  some: ChatConversationSessionWhereInput
+  none: ChatConversationSessionWhereInput
+}
+
+input ConversationBotConfigOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  companyStatement: OrderDirection
+  tonestyle: OrderDirection
+  priorityPlan: OrderDirection
+  healthInsuranceCarriers: OrderDirection
+  presentationStrategy: OrderDirection
+  specificQuestions: OrderDirection
+  summaryPrompt: OrderDirection
+  welcomeMessage: OrderDirection
+  welcomeMessageFormat: OrderDirection
+  noZipCodeMessage: OrderDirection
+}
+
+input ConversationBotConfigUpdateInput {
+  name: String
+  companyStatement: String
+  tonestyle: String
+  priorityPlan: String
+  healthInsuranceCarriers: String
+  presentationStrategy: String
+  specificQuestions: String
+  summaryPrompt: String
+  welcomeMessage: String
+  welcomeMessageFormat: String
+  noZipCodeMessage: String
+  group: GroupRelateToOneForUpdateInput
+  sessions: ChatConversationSessionRelateToManyForUpdateInput
+}
+
+input ChatConversationSessionRelateToManyForUpdateInput {
+  disconnect: [ChatConversationSessionWhereUniqueInput!]
+  set: [ChatConversationSessionWhereUniqueInput!]
+  create: [ChatConversationSessionCreateInput!]
+  connect: [ChatConversationSessionWhereUniqueInput!]
+}
+
+input ConversationBotConfigUpdateArgs {
+  where: ConversationBotConfigWhereUniqueInput!
+  data: ConversationBotConfigUpdateInput!
+}
+
+input ConversationBotConfigCreateInput {
+  name: String
+  companyStatement: String
+  tonestyle: String
+  priorityPlan: String
+  healthInsuranceCarriers: String
+  presentationStrategy: String
+  specificQuestions: String
+  summaryPrompt: String
+  welcomeMessage: String
+  welcomeMessageFormat: String
+  noZipCodeMessage: String
+  group: GroupRelateToOneForCreateInput
+  sessions: ChatConversationSessionRelateToManyForCreateInput
+}
+
+input ChatConversationSessionRelateToManyForCreateInput {
+  create: [ChatConversationSessionCreateInput!]
+  connect: [ChatConversationSessionWhereUniqueInput!]
 }
 
 type GHLAccess {
@@ -761,6 +1006,48 @@ input ChatSessionCreateInput {
   botConfig: BotConfigRelateToOneForCreateInput
 }
 
+type ChatConversationSession {
+  id: ID!
+  keywords: String
+  sessionData: JSON
+  botConfig: ConversationBotConfig
+}
+
+input ChatConversationSessionWhereUniqueInput {
+  id: ID
+}
+
+input ChatConversationSessionWhereInput {
+  AND: [ChatConversationSessionWhereInput!]
+  OR: [ChatConversationSessionWhereInput!]
+  NOT: [ChatConversationSessionWhereInput!]
+  id: IDFilter
+  keywords: StringFilter
+  botConfig: ConversationBotConfigWhereInput
+}
+
+input ChatConversationSessionOrderByInput {
+  id: OrderDirection
+  keywords: OrderDirection
+}
+
+input ChatConversationSessionUpdateInput {
+  keywords: String
+  sessionData: JSON
+  botConfig: ConversationBotConfigRelateToOneForUpdateInput
+}
+
+input ChatConversationSessionUpdateArgs {
+  where: ChatConversationSessionWhereUniqueInput!
+  data: ChatConversationSessionUpdateInput!
+}
+
+input ChatConversationSessionCreateInput {
+  keywords: String
+  sessionData: JSON
+  botConfig: ConversationBotConfigRelateToOneForCreateInput
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -791,6 +1078,12 @@ type Mutation {
   updateGroups(data: [GroupUpdateArgs!]!): [Group]
   deleteGroup(where: GroupWhereUniqueInput!): Group
   deleteGroups(where: [GroupWhereUniqueInput!]!): [Group]
+  createGroupAILog(data: GroupAILogCreateInput!): GroupAILog
+  createGroupAILogs(data: [GroupAILogCreateInput!]!): [GroupAILog]
+  updateGroupAILog(where: GroupAILogWhereUniqueInput!, data: GroupAILogUpdateInput!): GroupAILog
+  updateGroupAILogs(data: [GroupAILogUpdateArgs!]!): [GroupAILog]
+  deleteGroupAILog(where: GroupAILogWhereUniqueInput!): GroupAILog
+  deleteGroupAILogs(where: [GroupAILogWhereUniqueInput!]!): [GroupAILog]
   createGroupMember(data: GroupMemberCreateInput!): GroupMember
   createGroupMembers(data: [GroupMemberCreateInput!]!): [GroupMember]
   updateGroupMember(where: GroupMemberWhereUniqueInput!, data: GroupMemberUpdateInput!): GroupMember
@@ -803,6 +1096,12 @@ type Mutation {
   updateBotConfigs(data: [BotConfigUpdateArgs!]!): [BotConfig]
   deleteBotConfig(where: BotConfigWhereUniqueInput!): BotConfig
   deleteBotConfigs(where: [BotConfigWhereUniqueInput!]!): [BotConfig]
+  createConversationBotConfig(data: ConversationBotConfigCreateInput!): ConversationBotConfig
+  createConversationBotConfigs(data: [ConversationBotConfigCreateInput!]!): [ConversationBotConfig]
+  updateConversationBotConfig(where: ConversationBotConfigWhereUniqueInput!, data: ConversationBotConfigUpdateInput!): ConversationBotConfig
+  updateConversationBotConfigs(data: [ConversationBotConfigUpdateArgs!]!): [ConversationBotConfig]
+  deleteConversationBotConfig(where: ConversationBotConfigWhereUniqueInput!): ConversationBotConfig
+  deleteConversationBotConfigs(where: [ConversationBotConfigWhereUniqueInput!]!): [ConversationBotConfig]
   createGHLAccess(data: GHLAccessCreateInput!): GHLAccess
   createGHLAccesses(data: [GHLAccessCreateInput!]!): [GHLAccess]
   updateGHLAccess(where: GHLAccessWhereUniqueInput!, data: GHLAccessUpdateInput!): GHLAccess
@@ -821,6 +1120,12 @@ type Mutation {
   updateChatSessions(data: [ChatSessionUpdateArgs!]!): [ChatSession]
   deleteChatSession(where: ChatSessionWhereUniqueInput!): ChatSession
   deleteChatSessions(where: [ChatSessionWhereUniqueInput!]!): [ChatSession]
+  createChatConversationSession(data: ChatConversationSessionCreateInput!): ChatConversationSession
+  createChatConversationSessions(data: [ChatConversationSessionCreateInput!]!): [ChatConversationSession]
+  updateChatConversationSession(where: ChatConversationSessionWhereUniqueInput!, data: ChatConversationSessionUpdateInput!): ChatConversationSession
+  updateChatConversationSessions(data: [ChatConversationSessionUpdateArgs!]!): [ChatConversationSession]
+  deleteChatConversationSession(where: ChatConversationSessionWhereUniqueInput!): ChatConversationSession
+  deleteChatConversationSessions(where: [ChatConversationSessionWhereUniqueInput!]!): [ChatConversationSession]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, adminPassword: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -873,12 +1178,18 @@ type Query {
   groups(where: GroupWhereInput! = {}, orderBy: [GroupOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupWhereUniqueInput): [Group!]
   group(where: GroupWhereUniqueInput!): Group
   groupsCount(where: GroupWhereInput! = {}): Int
+  groupAILogs(where: GroupAILogWhereInput! = {}, orderBy: [GroupAILogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupAILogWhereUniqueInput): [GroupAILog!]
+  groupAILog(where: GroupAILogWhereUniqueInput!): GroupAILog
+  groupAILogsCount(where: GroupAILogWhereInput! = {}): Int
   groupMembers(where: GroupMemberWhereInput! = {}, orderBy: [GroupMemberOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupMemberWhereUniqueInput): [GroupMember!]
   groupMember(where: GroupMemberWhereUniqueInput!): GroupMember
   groupMembersCount(where: GroupMemberWhereInput! = {}): Int
   botConfigs(where: BotConfigWhereInput! = {}, orderBy: [BotConfigOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: BotConfigWhereUniqueInput): [BotConfig!]
   botConfig(where: BotConfigWhereUniqueInput!): BotConfig
   botConfigsCount(where: BotConfigWhereInput! = {}): Int
+  conversationBotConfigs(where: ConversationBotConfigWhereInput! = {}, orderBy: [ConversationBotConfigOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ConversationBotConfigWhereUniqueInput): [ConversationBotConfig!]
+  conversationBotConfig(where: ConversationBotConfigWhereUniqueInput!): ConversationBotConfig
+  conversationBotConfigsCount(where: ConversationBotConfigWhereInput! = {}): Int
   gHLAccesses(where: GHLAccessWhereInput! = {}, orderBy: [GHLAccessOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GHLAccessWhereUniqueInput): [GHLAccess!]
   gHLAccess(where: GHLAccessWhereUniqueInput!): GHLAccess
   gHLAccessesCount(where: GHLAccessWhereInput! = {}): Int
@@ -888,6 +1199,9 @@ type Query {
   chatSessions(where: ChatSessionWhereInput! = {}, orderBy: [ChatSessionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatSessionWhereUniqueInput): [ChatSession!]
   chatSession(where: ChatSessionWhereUniqueInput!): ChatSession
   chatSessionsCount(where: ChatSessionWhereInput! = {}): Int
+  chatConversationSessions(where: ChatConversationSessionWhereInput! = {}, orderBy: [ChatConversationSessionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatConversationSessionWhereUniqueInput): [ChatConversationSession!]
+  chatConversationSession(where: ChatConversationSessionWhereUniqueInput!): ChatConversationSession
+  chatConversationSessionsCount(where: ChatConversationSessionWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
   ErrorTest: String
@@ -1005,6 +1319,18 @@ input Ghl_accessTokenInput {
   groupID: String!
 }
 
+type GHLMeReturnBusiness {
+  name: String!
+  address: String!
+  city: String!
+  state: String!
+  country: String!
+  postalCode: String!
+  website: String!
+  timezone: String!
+  logoUrl: String!
+}
+
 type GHLMeReturn {
   name: String!
   email: String!
@@ -1015,6 +1341,7 @@ type GHLMeReturn {
   state: String!
   country: String!
   postalCode: String!
+  business: GHLMeReturnBusiness!
 }
 
 input Ghl_meInput {

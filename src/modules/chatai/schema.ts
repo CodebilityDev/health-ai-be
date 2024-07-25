@@ -12,4 +12,15 @@ export const chataiDataList: Lists = {
     },
     access: allowAll,
   }),
+  ChatConversationSession: list({
+    fields: {
+      keywords: text(),
+      sessionData: json(),
+      botConfig: relationship({
+        ref: "ConversationBotConfig.sessions",
+        many: false,
+      }),
+    },
+    access: allowAll,
+  }),
 };

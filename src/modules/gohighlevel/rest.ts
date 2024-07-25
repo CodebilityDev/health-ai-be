@@ -9,6 +9,7 @@ import {
 } from "~/lib/rest/declarations";
 import { RequestInputType, RouteMethod } from "~/lib/rest/types";
 import { base64 } from "~/services/base64";
+import { getGHLMe } from "./service/getGHLMe";
 import { AccessTokenList } from "./service/getGHLToken";
 
 const ghlRouteDeclaration = new RouteDeclarationList({
@@ -52,7 +53,7 @@ ghlRouteDeclaration.routes.set(
       url.searchParams.append("response_type", "code");
       url.searchParams.append(
         "scope",
-        "conversations/message.write conversations/message.readonly users.readonly users.write locations.readonly contacts.readonly contacts.write conversations.readonly locations/customValues.readonly locations/customFields.readonly",
+        "conversations/message.write conversations/message.readonly users.readonly users.write locations.readonly contacts.readonly contacts.write conversations.readonly locations/customValues.readonly locations/customFields.readonly conversations/reports.readonly",
       );
       url.searchParams.append(
         "state",
@@ -83,7 +84,7 @@ ghlRouteDeclaration.routes.set(
     }),
 
     func: async ({
-      context: { prisma },
+      context,
       inputData: {
         [RequestInputType.QUERY]: { code, state },
       },
@@ -141,7 +142,7 @@ ghlRouteDeclaration.routes.set(
 
       let groupData;
 
-      groupData = await prisma.group.findFirst({
+      groupData = await context.prisma.group.findFirst({
         where: {
           id: data.locationId,
         },
@@ -153,7 +154,7 @@ ghlRouteDeclaration.routes.set(
       // if group dont exist, create it
 
       if (!groupData) {
-        groupData = await prisma.group.create({
+        groupData = await context.prisma.group.create({
           data: {
             id: data.locationId,
             name: data.locationId,
@@ -165,7 +166,7 @@ ghlRouteDeclaration.routes.set(
       }
 
       // bind the user to the group if not already bound
-      const userGroup = await prisma.groupMember.findFirst({
+      const userGroup = await context.prisma.groupMember.findFirst({
         where: {
           groupId: data.locationId,
           userId: userId,
@@ -173,7 +174,7 @@ ghlRouteDeclaration.routes.set(
       });
 
       if (!userGroup) {
-        await prisma.groupMember.create({
+        await context.prisma.groupMember.create({
           data: {
             group: { connect: { id: data.locationId } },
             user: { connect: { id: userId } },
@@ -186,7 +187,7 @@ ghlRouteDeclaration.routes.set(
 
       // if groupData doesnt have ghl binding, create it
       if (!ghlAccessID) {
-        await prisma.gHLAccess.create({
+        await context.prisma.gHLAccess.create({
           data: {
             refreshToken: data.refresh_token,
             scope: data.scope,
@@ -199,7 +200,7 @@ ghlRouteDeclaration.routes.set(
           },
         });
       } else {
-        await prisma.gHLAccess.update({
+        await context.prisma.gHLAccess.update({
           where: { id: ghlAccessID },
           data: {
             refreshToken: data.refresh_token,
@@ -209,6 +210,21 @@ ghlRouteDeclaration.routes.set(
             locationId: data.locationId,
             planId: data.planId,
             updatedAt: new Date(),
+          },
+        });
+      }
+
+      // update name of the group
+      const userInfo = await getGHLMe({
+        context: context,
+        groupID: data.locationId,
+      });
+
+      if (userInfo) {
+        await context.prisma.group.update({
+          where: { id: data.locationId },
+          data: {
+            name: userInfo.business.name,
           },
         });
       }
