@@ -48,6 +48,7 @@ chatgptRouteDeclaration.routes.set(
         },
         res,
       });
+      // console.log(resp.messages);
       if (rawchatSession) {
         await context.prisma.chatConversationSession.update({
           where: {
@@ -55,6 +56,7 @@ chatgptRouteDeclaration.routes.set(
           },
           data: {
             sessionData: resp.chatSessionData.toString(),
+            botConfigId: modelID,
           },
         });
       } else {
@@ -62,6 +64,7 @@ chatgptRouteDeclaration.routes.set(
           data: {
             id: sessionID,
             sessionData: resp.chatSessionData.toString(),
+            botConfigId: modelID,
           },
         });
       }
