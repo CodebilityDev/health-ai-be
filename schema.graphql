@@ -353,6 +353,8 @@ type Group {
   contactConfigs: JSON
   aiLogs(where: GroupAILogWhereInput! = {}, orderBy: [GroupAILogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupAILogWhereUniqueInput): [GroupAILog!]
   aiLogsCount(where: GroupAILogWhereInput! = {}): Int
+  snippets(where: SnippetWhereInput! = {}, orderBy: [SnippetOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: SnippetWhereUniqueInput): [Snippet!]
+  snippetsCount(where: SnippetWhereInput! = {}): Int
 }
 
 input GroupWhereUniqueInput {
@@ -374,6 +376,7 @@ input GroupWhereInput {
   enable_globalContactUpdate: BooleanFilter
   enable_globalAutoReply: BooleanFilter
   aiLogs: GroupAILogManyRelationFilter
+  snippets: SnippetManyRelationFilter
 }
 
 input BooleanFilter {
@@ -385,6 +388,12 @@ input GroupAILogManyRelationFilter {
   every: GroupAILogWhereInput
   some: GroupAILogWhereInput
   none: GroupAILogWhereInput
+}
+
+input SnippetManyRelationFilter {
+  every: SnippetWhereInput
+  some: SnippetWhereInput
+  none: SnippetWhereInput
 }
 
 input GroupOrderByInput {
@@ -407,6 +416,7 @@ input GroupUpdateInput {
   enable_globalAutoReply: Boolean
   contactConfigs: JSON
   aiLogs: GroupAILogRelateToManyForUpdateInput
+  snippets: SnippetRelateToManyForUpdateInput
 }
 
 input BotConfigRelateToOneForUpdateInput {
@@ -440,6 +450,13 @@ input GroupAILogRelateToManyForUpdateInput {
   connect: [GroupAILogWhereUniqueInput!]
 }
 
+input SnippetRelateToManyForUpdateInput {
+  disconnect: [SnippetWhereUniqueInput!]
+  set: [SnippetWhereUniqueInput!]
+  create: [SnippetCreateInput!]
+  connect: [SnippetWhereUniqueInput!]
+}
+
 input GroupUpdateArgs {
   where: GroupWhereUniqueInput!
   data: GroupUpdateInput!
@@ -457,6 +474,7 @@ input GroupCreateInput {
   enable_globalAutoReply: Boolean
   contactConfigs: JSON
   aiLogs: GroupAILogRelateToManyForCreateInput
+  snippets: SnippetRelateToManyForCreateInput
 }
 
 input BotConfigRelateToOneForCreateInput {
@@ -482,6 +500,11 @@ input AIKeyRelateToOneForCreateInput {
 input GroupAILogRelateToManyForCreateInput {
   create: [GroupAILogCreateInput!]
   connect: [GroupAILogWhereUniqueInput!]
+}
+
+input SnippetRelateToManyForCreateInput {
+  create: [SnippetCreateInput!]
+  connect: [SnippetWhereUniqueInput!]
 }
 
 type GroupAILog {
@@ -856,6 +879,60 @@ input ChatConversationSessionRelateToManyForCreateInput {
   connect: [ChatConversationSessionWhereUniqueInput!]
 }
 
+type Snippet {
+  id: ID!
+  name: String
+  tags: String
+  content: String
+  comment: String
+  group: Group
+}
+
+input SnippetWhereUniqueInput {
+  id: ID
+}
+
+input SnippetWhereInput {
+  AND: [SnippetWhereInput!]
+  OR: [SnippetWhereInput!]
+  NOT: [SnippetWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  tags: StringFilter
+  content: StringFilter
+  comment: StringFilter
+  group: GroupWhereInput
+}
+
+input SnippetOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  tags: OrderDirection
+  content: OrderDirection
+  comment: OrderDirection
+}
+
+input SnippetUpdateInput {
+  name: String
+  tags: String
+  content: String
+  comment: String
+  group: GroupRelateToOneForUpdateInput
+}
+
+input SnippetUpdateArgs {
+  where: SnippetWhereUniqueInput!
+  data: SnippetUpdateInput!
+}
+
+input SnippetCreateInput {
+  name: String
+  tags: String
+  content: String
+  comment: String
+  group: GroupRelateToOneForCreateInput
+}
+
 type GHLAccess {
   id: ID!
   group: Group
@@ -1102,6 +1179,12 @@ type Mutation {
   updateConversationBotConfigs(data: [ConversationBotConfigUpdateArgs!]!): [ConversationBotConfig]
   deleteConversationBotConfig(where: ConversationBotConfigWhereUniqueInput!): ConversationBotConfig
   deleteConversationBotConfigs(where: [ConversationBotConfigWhereUniqueInput!]!): [ConversationBotConfig]
+  createSnippet(data: SnippetCreateInput!): Snippet
+  createSnippets(data: [SnippetCreateInput!]!): [Snippet]
+  updateSnippet(where: SnippetWhereUniqueInput!, data: SnippetUpdateInput!): Snippet
+  updateSnippets(data: [SnippetUpdateArgs!]!): [Snippet]
+  deleteSnippet(where: SnippetWhereUniqueInput!): Snippet
+  deleteSnippets(where: [SnippetWhereUniqueInput!]!): [Snippet]
   createGHLAccess(data: GHLAccessCreateInput!): GHLAccess
   createGHLAccesses(data: [GHLAccessCreateInput!]!): [GHLAccess]
   updateGHLAccess(where: GHLAccessWhereUniqueInput!, data: GHLAccessUpdateInput!): GHLAccess
@@ -1190,6 +1273,9 @@ type Query {
   conversationBotConfigs(where: ConversationBotConfigWhereInput! = {}, orderBy: [ConversationBotConfigOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ConversationBotConfigWhereUniqueInput): [ConversationBotConfig!]
   conversationBotConfig(where: ConversationBotConfigWhereUniqueInput!): ConversationBotConfig
   conversationBotConfigsCount(where: ConversationBotConfigWhereInput! = {}): Int
+  snippets(where: SnippetWhereInput! = {}, orderBy: [SnippetOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: SnippetWhereUniqueInput): [Snippet!]
+  snippet(where: SnippetWhereUniqueInput!): Snippet
+  snippetsCount(where: SnippetWhereInput! = {}): Int
   gHLAccesses(where: GHLAccessWhereInput! = {}, orderBy: [GHLAccessOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GHLAccessWhereUniqueInput): [GHLAccess!]
   gHLAccess(where: GHLAccessWhereUniqueInput!): GHLAccess
   gHLAccessesCount(where: GHLAccessWhereInput! = {}): Int

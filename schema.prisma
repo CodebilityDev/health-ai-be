@@ -74,6 +74,7 @@ model Group {
   enable_globalAutoReply     Boolean                @default(false)
   contactConfigs             Json?
   aiLogs                     GroupAILog[]           @relation("GroupAILog_group")
+  snippets                   Snippet[]              @relation("Snippet_group")
 }
 
 model GroupAILog {
@@ -138,6 +139,18 @@ model ConversationBotConfig {
   group                   Group?                    @relation("ConversationBotConfig_group", fields: [groupId], references: [id])
   groupId                 String?                   @unique @map("group")
   sessions                ChatConversationSession[] @relation("ChatConversationSession_botConfig")
+}
+
+model Snippet {
+  id      String  @id @default(cuid())
+  name    String  @default("")
+  tags    String  @default("")
+  content String  @default("")
+  comment String  @default("")
+  group   Group?  @relation("Snippet_group", fields: [groupId], references: [id])
+  groupId String? @map("group")
+
+  @@index([groupId])
 }
 
 model GHLAccess {

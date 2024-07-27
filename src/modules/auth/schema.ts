@@ -255,6 +255,10 @@ export const userDataList: Lists = {
         ref: "GroupAILog.group",
         many: true,
       }),
+      snippets: relationship({
+        ref: "Snippet.group",
+        many: true,
+      }),
     },
     hooks: {
       afterOperation: async ({ operation, context, item }) => {

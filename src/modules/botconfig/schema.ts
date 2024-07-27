@@ -68,4 +68,25 @@ export const botDataList: Lists = {
       },
     }),
   }),
+  Snippet: list({
+    fields: {
+      name: text({ validation: { isRequired: true } }),
+      tags: text(),
+      content: text(),
+      comment: text(),
+      group: relationship({ ref: "Group.snippets", many: false }),
+    },
+    access: schemaAccessConfig({
+      isAuthed: {
+        all: true,
+        read: false,
+      },
+      operations: {
+        all: SchemaAccessTemplate.allow,
+      },
+      filter: {
+        all: SchemaAccessTemplate.quickMembershipCheck(),
+      },
+    }),
+  }),
 };
