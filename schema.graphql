@@ -350,11 +350,22 @@ type Group {
   enable_globalWelcome: Boolean
   enable_globalContactUpdate: Boolean
   enable_globalAutoReply: Boolean
+  check_dndNotice: Boolean
+  enable_checkDnd: Boolean
+  enable_checkProfanity: Boolean
+  enable_botIsAssistant: Boolean
+  enable_noSSN: Boolean
   contactConfigs: JSON
+  availability_start: Int
+  availability_end: Int
+  availability_enabled: Boolean
   aiLogs(where: GroupAILogWhereInput! = {}, orderBy: [GroupAILogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupAILogWhereUniqueInput): [GroupAILog!]
   aiLogsCount(where: GroupAILogWhereInput! = {}): Int
   snippets(where: SnippetWhereInput! = {}, orderBy: [SnippetOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: SnippetWhereUniqueInput): [Snippet!]
   snippetsCount(where: SnippetWhereInput! = {}): Int
+  agent_firstName: String
+  agent_lastName: String
+  enable_stopNotice: Boolean
 }
 
 input GroupWhereUniqueInput {
@@ -375,13 +386,35 @@ input GroupWhereInput {
   enable_globalWelcome: BooleanFilter
   enable_globalContactUpdate: BooleanFilter
   enable_globalAutoReply: BooleanFilter
+  check_dndNotice: BooleanFilter
+  enable_checkDnd: BooleanFilter
+  enable_checkProfanity: BooleanFilter
+  enable_botIsAssistant: BooleanFilter
+  enable_noSSN: BooleanFilter
+  availability_start: IntNullableFilter
+  availability_end: IntNullableFilter
+  availability_enabled: BooleanFilter
   aiLogs: GroupAILogManyRelationFilter
   snippets: SnippetManyRelationFilter
+  agent_firstName: StringFilter
+  agent_lastName: StringFilter
+  enable_stopNotice: BooleanFilter
 }
 
 input BooleanFilter {
   equals: Boolean
   not: BooleanFilter
+}
+
+input IntNullableFilter {
+  equals: Int
+  in: [Int!]
+  notIn: [Int!]
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  not: IntNullableFilter
 }
 
 input GroupAILogManyRelationFilter {
@@ -402,6 +435,17 @@ input GroupOrderByInput {
   enable_globalWelcome: OrderDirection
   enable_globalContactUpdate: OrderDirection
   enable_globalAutoReply: OrderDirection
+  check_dndNotice: OrderDirection
+  enable_checkDnd: OrderDirection
+  enable_checkProfanity: OrderDirection
+  enable_botIsAssistant: OrderDirection
+  enable_noSSN: OrderDirection
+  availability_start: OrderDirection
+  availability_end: OrderDirection
+  availability_enabled: OrderDirection
+  agent_firstName: OrderDirection
+  agent_lastName: OrderDirection
+  enable_stopNotice: OrderDirection
 }
 
 input GroupUpdateInput {
@@ -414,9 +458,20 @@ input GroupUpdateInput {
   enable_globalWelcome: Boolean
   enable_globalContactUpdate: Boolean
   enable_globalAutoReply: Boolean
+  check_dndNotice: Boolean
+  enable_checkDnd: Boolean
+  enable_checkProfanity: Boolean
+  enable_botIsAssistant: Boolean
+  enable_noSSN: Boolean
   contactConfigs: JSON
+  availability_start: Int
+  availability_end: Int
+  availability_enabled: Boolean
   aiLogs: GroupAILogRelateToManyForUpdateInput
   snippets: SnippetRelateToManyForUpdateInput
+  agent_firstName: String
+  agent_lastName: String
+  enable_stopNotice: Boolean
 }
 
 input BotConfigRelateToOneForUpdateInput {
@@ -472,9 +527,20 @@ input GroupCreateInput {
   enable_globalWelcome: Boolean
   enable_globalContactUpdate: Boolean
   enable_globalAutoReply: Boolean
+  check_dndNotice: Boolean
+  enable_checkDnd: Boolean
+  enable_checkProfanity: Boolean
+  enable_botIsAssistant: Boolean
+  enable_noSSN: Boolean
   contactConfigs: JSON
+  availability_start: Int
+  availability_end: Int
+  availability_enabled: Boolean
   aiLogs: GroupAILogRelateToManyForCreateInput
   snippets: SnippetRelateToManyForCreateInput
+  agent_firstName: String
+  agent_lastName: String
+  enable_stopNotice: Boolean
 }
 
 input BotConfigRelateToOneForCreateInput {
@@ -609,17 +675,6 @@ input GroupMemberWhereInput {
   group: GroupWhereInput
   user: UserWhereInput
   access: IntNullableFilter
-}
-
-input IntNullableFilter {
-  equals: Int
-  in: [Int!]
-  notIn: [Int!]
-  lt: Int
-  lte: Int
-  gt: Int
-  gte: Int
-  not: IntNullableFilter
 }
 
 input GroupMemberOrderByInput {

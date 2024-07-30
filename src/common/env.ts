@@ -42,4 +42,7 @@ export const CONFIG = {
     process.env.GHL_REDIRECT_URI || "http://localhost:3000/ghl-callback",
   CMS_MARKETPLACE_API: process.env.CMS_MARKETPLACE_API || "key",
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || "secret",
+  REDISQUEUE_HOST: process.env.REDISQUEUE_HOST || "test",
+  REDISQUEUE_PORT: process.env.REDISQUEUE_PORT || "6379",
+  REDISQUEUE_PASS: process.env.REDISQUEUE_PASS || "test",
 };

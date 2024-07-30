@@ -6,7 +6,7 @@ import {
 import { ChatSessionData } from "~modules/chatai/types/ChatSessionData.type";
 import { getGHLContacts } from "~modules/gohighlevel/service/getGHLContacts";
 import { getGHLMessages } from "~modules/gohighlevel/service/getGHLMessages";
-import { sendGHLMessage } from "~modules/gohighlevel/service/sendGHLMessage";
+import { processGHLMessage } from "~modules/gohighlevel/service/sendGHLMessage";
 import { sendWelcomeMessageRoutine as generateWelcomeMessage } from "./services/sendWelcomeMessageRoutine";
 
 const ghWelcomeAPIGqlDeclaration = new GraphqlMethodDeclarationList();
@@ -198,7 +198,7 @@ ghWelcomeAPIGqlDeclaration.add(
       });
 
       if (input.actualSend) {
-        await sendGHLMessage({
+        await processGHLMessage({
           context: context,
           groupID: input.groupID,
           input: {

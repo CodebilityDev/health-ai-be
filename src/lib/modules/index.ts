@@ -91,6 +91,15 @@ export function injectModules(
 
   config.server.extendHttpServer = (server, context) => {
     bootstrapHttp(server, context, allSocketExtensions ?? []);
+
+    // inject queue workers
+    for (const module of modules) {
+      if (module.queueDeclarations) {
+        for (const worker of module.queueDeclarations) {
+          worker({ context });
+        }
+      }
+    }
   };
 
   return config;

@@ -2,10 +2,7 @@ import type { Lists } from ".keystone/types";
 import { graphql, list } from "@keystone-6/core";
 import { denyAll } from "@keystone-6/core/access";
 import {
-  checkbox,
   image,
-  integer,
-  json,
   password,
   relationship,
   select,
@@ -14,11 +11,7 @@ import {
   virtual,
 } from "@keystone-6/core/fields";
 import { z } from "zod";
-import {
-  ACCESS_LEVELS,
-  GlobalContext,
-  PERMISSION_ENUM,
-} from "~/common/context";
+import { GlobalContext, PERMISSION_ENUM } from "~/common/context";
 import { s3ImageConfigKey } from "~/config/imageConfig";
 import { schemaAccessConfig } from "~/lib/schema/access";
 import { SchemaAccessTemplate } from "~/lib/schema/access/templates";
@@ -222,139 +215,5 @@ export const userDataList: Lists = {
     graphql: {
       omit: true,
     },
-  }),
-  Group: list({
-    fields: {
-      name: text({ validation: { isRequired: true } }),
-      members: relationship({
-        ref: "GroupMember.group",
-        many: true,
-      }),
-
-      botConfig: relationship({
-        ref: "BotConfig.group",
-        many: false,
-      }),
-      conversationBotConfig: relationship({
-        ref: "ConversationBotConfig.group",
-        many: false,
-      }),
-      ghlAccess: relationship({
-        ref: "GHLAccess.group",
-        many: false,
-      }),
-      aiKey: relationship({
-        ref: "AIKey.group",
-        many: false,
-      }),
-      enable_globalWelcome: checkbox(),
-      enable_globalContactUpdate: checkbox(),
-      enable_globalAutoReply: checkbox(),
-      contactConfigs: json(),
-      aiLogs: relationship({
-        ref: "GroupAILog.group",
-        many: true,
-      }),
-      snippets: relationship({
-        ref: "Snippet.group",
-        many: true,
-      }),
-    },
-    hooks: {
-      afterOperation: async ({ operation, context, item }) => {
-        if (operation === "create") {
-          await context.prisma.groupMember.create({
-            data: {
-              group: {
-                connect: {
-                  id: item.id,
-                },
-              },
-              user: {
-                connect: {
-                  id: context.session?.itemId,
-                },
-              },
-              access: ACCESS_LEVELS.ADMIN,
-            },
-          });
-        }
-      },
-    },
-    access: schemaAccessConfig({
-      isAuthed: true,
-      operations: {
-        all: SchemaAccessTemplate.allow,
-      },
-      filter: {
-        all: SchemaAccessTemplate.sequential([
-          ({ context }) => {
-            return {
-              OR: [
-                SchemaAccessTemplate.memberhipCheckString(
-                  {
-                    type: "user",
-                    userId: context.session?.itemId,
-                    permissionLevel: ACCESS_LEVELS.VIEW,
-                  },
-                  SchemaAccessTemplate.groupMemberKeymap,
-                ),
-              ],
-            };
-          },
-        ]),
-      },
-    }),
-  }),
-  GroupAILog: list({
-    fields: {
-      group: relationship({
-        ref: "Group.aiLogs",
-        many: false,
-      }),
-      contactID: text(),
-      contactName: text(),
-      locationID: text(),
-      locationName: text(),
-      modelID: text(),
-      type: text(),
-      status: text(),
-      log: json(),
-    },
-    access: schemaAccessConfig({
-      isAuthed: true,
-      operations: {
-        all: SchemaAccessTemplate.allow,
-      },
-      filter: {
-        all: SchemaAccessTemplate.quickMembershipCheck(),
-      },
-    }),
-  }),
-  GroupMember: list({
-    fields: {
-      group: relationship({
-        ref: "Group.members",
-        many: false,
-      }),
-      user: relationship({
-        ref: "User.groups",
-        many: false,
-      }),
-      access: integer({
-        defaultValue: ACCESS_LEVELS.VIEW,
-      }),
-    },
-    access: schemaAccessConfig({
-      isAuthed: true,
-      operations: {
-        all: SchemaAccessTemplate.allow,
-      },
-      filter: {
-        all: SchemaAccessTemplate.sequential([
-          SchemaAccessTemplate.quickMembershipCheck(),
-        ]),
-      },
-    }),
   }),
 };

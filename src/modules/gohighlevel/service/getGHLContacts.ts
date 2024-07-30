@@ -80,42 +80,78 @@ export const getGHLContacts = async (args: {
   return data.contacts;
 };
 
-type LeadContactCustomField = {
+export type LeadContact = {
   id: string;
-  value: any; // Assuming the value can be of any type, replace with appropriate type if known
+  name: string;
+  locationId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  emailLowerCase: string;
+  timezone: string;
+  companyName: string;
+  phone: string;
+  dnd: boolean;
+  dndSettings: {
+    Call: DndSetting;
+    Email: DndSetting;
+    SMS: DndSetting;
+    WhatsApp: DndSetting;
+    GMB: DndSetting;
+    FB: DndSetting;
+  };
+  type: string;
+  source: string;
+  assignedTo: string;
+  address1: string;
+  city: string;
+  state: string;
+  country: string;
+  postalCode: string;
+  website: string;
+  tags: string[];
+  dateOfBirth: string;
+  dateAdded: string;
+  dateUpdated: string;
+  attachments: string;
+  ssn: string;
+  gender: string;
+  keyword: string;
+  firstNameLowerCase: string;
+  fullNameLowerCase: string;
+  lastNameLowerCase: string;
+  lastActivity: string;
+  customFields: CustomField[];
+  businessId: string;
+  attributionSource: AttributionSource;
+  lastAttributionSource: AttributionSource;
 };
 
-type LeadContact = {
-  id: string;
-  country: string;
-  type: string;
-  locationId: string;
-  attributionSource: {
-    sessionSource: string;
-    mediumId: string | null;
-    medium: string;
-  };
-  lastNameLowerCase: string;
-  emailLowerCase: string;
-  email: string;
-  lastName: string;
-  dateAdded: string;
-  phone: string;
-  timezone: string;
-  city: string;
-  address1: string;
-  dateOfBirth: string;
-  attachments: any[]; // Assuming the attachments are of type any[], replace with appropriate type if known
-  tags: string[];
-  state: string;
-  additionalPhones: any[]; // Assuming the additionalPhones are of type any[], replace with appropriate type if known
-  postalCode: string;
-  fullNameLowerCase: string;
-  firstName: string;
-  firstNameLowerCase: string;
-  dateUpdated: string;
-  customFields: LeadContactCustomField[];
-  additionalEmails: any[]; // Assuming the additionalEmails are of type any[], replace with appropriate type if known
+type DndSetting = {
+  status: string;
+  message: string;
+  code: string;
+};
+
+type AttributionSource = {
+  url: string;
+  campaign: string;
+  utmSource: string;
+  utmMedium: string;
+  utmContent: string;
+  referrer: string;
+  campaignId: string;
+  fbclid: string;
+  gclid: string;
+  msclikid: string;
+  dclid: string;
+  fbc: string;
+  fbp: string;
+  fbEventId: string;
+  userAgent: string;
+  ip: string;
+  medium: string;
+  mediumId: string;
 };
 
 export const getGHLContact = async (args: {

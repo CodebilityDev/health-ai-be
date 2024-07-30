@@ -1,10 +1,12 @@
 import { ChatCompletionMessageParam } from "openai/resources";
 import { GlobalContext } from "~/common/context";
 import { ChatSessionData } from "~modules/chatai/types/ChatSessionData.type";
+import { LeadContact } from "~modules/gohighlevel/service/getGHLContacts";
 import { getGHLDetailedContact } from "~modules/gohighlevel/service/getGHLDetailedContact";
 import { getGHLMe } from "~modules/gohighlevel/service/getGHLMe";
 import { getGHLMessages } from "~modules/gohighlevel/service/getGHLMessages";
-import { sendGHLMessage } from "~modules/gohighlevel/service/sendGHLMessage";
+import { getGHLContactUpdate } from "~modules/gohighlevel/service/getGHLUpdateContact";
+import { processGHLMessage } from "~modules/gohighlevel/service/sendGHLMessage";
 import {
   ContactCreate,
   ContactUpdate,
@@ -61,6 +63,53 @@ async function checkEnabled(args: {
   }
 }
 
+async function checkDNDMessage(args: {
+  context: GlobalContext;
+  groupID: string;
+  contactInfo: LeadContact;
+  message: string;
+}) {
+  // get group info
+  const group = await args.context.prisma.group.findFirst({
+    where: {
+      id: args.groupID,
+    },
+  });
+
+  if (!group) {
+    return false;
+  }
+
+  // if dnd check is disabled, return true
+  if (!group.enable_checkDnd) {
+    return true;
+  }
+
+  // check if user has DND enabled for SMS, if yes return false
+  if (args.contactInfo.dndSettings?.SMS?.status !== "inactive") {
+    return false;
+  }
+
+  // check if message is 'STOP' or 'STOPALL', if yes return false (and update DND status)
+  if (
+    args.message.toLowerCase() === "stop" ||
+    args.message.toLowerCase() === "stopall"
+  ) {
+    await getGHLContactUpdate({
+      context: args.context,
+      contactId: args.contactInfo.id,
+      groupID: args.groupID,
+      updateData: {
+        dnd: true,
+      },
+    });
+    return false;
+  }
+
+  // return true if user
+  return true;
+}
+
 export const WebhookRoutines = {
   onCreate: async (args: {
     locationID: string;
@@ -103,6 +152,7 @@ export const WebhookRoutines = {
       context: args.context,
       groupID: args.groupID,
     });
+    const timezone = user.timezone || agentInfo.timezone || "America/New_York";
 
     // console.log("Agent Info", agentInfo);
 
@@ -122,8 +172,12 @@ export const WebhookRoutines = {
     });
 
     // console.log("Generated message", resp);
-
-    const sendResult = await sendGHLMessage({
+    // addSMSJob({
+    //   message: resp.message,
+    //   contactID: args.contactID,
+    //   groupID: args.groupID,
+    // });
+    await processGHLMessage({
       context: args.context,
       groupID: args.groupID,
       input: {
@@ -131,17 +185,20 @@ export const WebhookRoutines = {
         message: resp.message,
         type: "SMS",
       },
+      cutOffTime: {
+        timezone,
+      },
     });
 
     // if chat session with id already exists, delete it
     await args.context.prisma.chatSession.deleteMany({
       where: {
-        id: "welcome" + sendResult.conversationId,
+        id: "welcome" + args.contactID,
       },
     });
     await args.context.prisma.chatSession.create({
       data: {
-        id: "welcome" + sendResult.conversationId,
+        id: "welcome" + args.contactID,
         botConfigId: resp.modelID,
         keywords: `contact: ${user.firstName} ${user.lastName} | email: ${user.email} | id: ${user.id}`,
         sessionData: resp.chatSession.toString(),
@@ -213,6 +270,8 @@ export const WebhookRoutines = {
       groupID: args.groupID,
     });
 
+    const timezone = user.timezone || agentInfo.timezone || "America/New_York";
+
     // console.log("Agent Info", agentInfo);
 
     const body = {
@@ -232,7 +291,7 @@ export const WebhookRoutines = {
 
     // console.log("Generated message", resp);
 
-    const sendResult = await sendGHLMessage({
+    const sendResult = await processGHLMessage({
       context: args.context,
       groupID: args.groupID,
       input: {
@@ -240,17 +299,20 @@ export const WebhookRoutines = {
         message: resp.message,
         type: "SMS",
       },
+      cutOffTime: {
+        timezone,
+      },
     });
 
     // if chat session with id already exists, delete it
     await args.context.prisma.chatSession.deleteMany({
       where: {
-        id: "welcome" + sendResult.conversationId,
+        id: "welcome" + args.contactID,
       },
     });
     await args.context.prisma.chatSession.create({
       data: {
-        id: "welcome" + sendResult.conversationId,
+        id: "welcome" + args.contactID,
         botConfigId: resp.modelID,
         keywords: `contact: ${user.firstName} ${user.lastName} | email: ${user.email} | id: ${user.id}`,
         sessionData: resp.chatSession.toString(),
@@ -297,6 +359,12 @@ export const WebhookRoutines = {
       },
     });
 
+    // check dnd
+    if (!(await checkDNDMessage({ ...args, contactInfo: user }))) {
+      return;
+    }
+
+    // check if whitelisted
     if (
       !(await checkEnabled({
         contactID: args.contactID,
@@ -323,6 +391,8 @@ export const WebhookRoutines = {
       groupID: args.groupID,
     });
 
+    const timezone = user.timezone || agentInfo.timezone || "America/New_York";
+
     let chatSessionData = new ChatSessionData([]);
 
     // check if chat session exists, else create a new one
@@ -330,7 +400,7 @@ export const WebhookRoutines = {
     const chatSession =
       await args.context.prisma.chatConversationSession.findFirst({
         where: {
-          id: "chat" + args.conversationID,
+          id: "chat" + user.id,
         },
       });
 
@@ -342,7 +412,7 @@ export const WebhookRoutines = {
       // create a new chat session
       await args.context.prisma.chatConversationSession.create({
         data: {
-          id: "chat" + args.conversationID,
+          id: "chat" + user.id,
           keywords: `contact: ${user.firstName} ${user.lastName} | email: ${user.email} | id: ${user.id}`,
           sessionData: chatSessionData.toString(),
         },
@@ -435,13 +505,16 @@ export const WebhookRoutines = {
 
     // console.log("Generated message", resp);
 
-    const sendResult = await sendGHLMessage({
+    const sendResult = await processGHLMessage({
       context: args.context,
       groupID: args.groupID,
       input: {
         contactID: args.contactID,
         message: resp.message,
         type: "SMS",
+      },
+      cutOffTime: {
+        timezone,
       },
     });
 
@@ -465,16 +538,34 @@ export const WebhookRoutines = {
       }
     }
 
-    await args.context.prisma.chatConversationSession.update({
-      where: {
-        id: "chat" + sendResult.conversationId,
-      },
-      data: {
-        botConfigId: resp.modelID,
-        keywords: `contact: ${user.firstName} ${user.lastName} | email: ${user.email} | id: ${user.id}`,
-        sessionData: resp.chatSession.toString(),
-      },
-    });
+    // check if id exist in chat session, if yes update, else create
+    const fetchedChatSession =
+      await args.context.prisma.chatConversationSession.findFirst({
+        where: {
+          id: "chat" + user.id,
+        },
+      });
+    if (fetchedChatSession) {
+      await args.context.prisma.chatConversationSession.update({
+        where: {
+          id: "chat" + user.id,
+        },
+        data: {
+          botConfigId: resp.modelID,
+          keywords: `contact: ${user.firstName} ${user.lastName} | email: ${user.email} | id: ${user.id}`,
+          sessionData: resp.chatSession.toString(),
+        },
+      });
+    } else {
+      await args.context.prisma.chatConversationSession.create({
+        data: {
+          id: "chat" + user.id,
+          botConfigId: resp.modelID,
+          keywords: `contact: ${user.firstName} ${user.lastName} | email: ${user.email} | id: ${user.id}`,
+          sessionData: resp.chatSession.toString(),
+        },
+      });
+    }
 
     (async () => {
       await args.context.prisma.groupAILog.create({

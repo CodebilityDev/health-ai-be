@@ -1,4 +1,4 @@
-import { ChatCompletionMessageParam } from "openai/resources";
+import { CT, SYS } from "./utils";
 
 const defaultMission =
   "You are a helpful healthcare insurance agent. You should find and respond the insurance plans which matches all criteria that users give. And you must provide reason why you choose that and respond to user.";
@@ -40,92 +40,107 @@ export const getGitomerText = (data: {
     recommendedPlan: any;
     carriers: any;
   };
+  config: {
+    isAnAssistant?: boolean;
+    noSSN?: boolean;
+    dndReminder?: boolean;
+  };
   agent: {
     firstName: string;
     lastName: string;
   };
 }) => {
-  // console.log(data);
-  let query =
-    "Please give me insurance plans which matches all the following criteria.";
+  // ========================= Format Rules =========================
 
-  let msg: ChatCompletionMessageParam[] = [];
-  msg.push({
-    role: "system",
-    content:
-      "You will reply in concise answers and not exceed 1600 characters.",
-  });
-  msg.push({
-    role: "system",
-    content: "Don't use markdown formatting. Use plain text only.",
-  });
-  msg.push({
-    role: "system",
-    content: data.botSettings.mission || defaultMission,
-  });
-  msg.push({
-    role: "system",
-    content: "Your tone should be: " + (data.botSettings.tone || defaultTone),
-  });
-  msg.push({
-    role: "system",
-    content: data.botSettings.summary || defaultSummary,
-  });
-  msg.push({
-    role: "system",
-    content: `${data.botSettings.exMessage || defaultFormat}`,
-  });
-  msg.push({
-    role: "system",
-    content:
+  let formatRules: CT[] = [
+    SYS("You will reply in concise answers and not exceed 1600 characters"),
+    SYS("Don't use markdown formatting. Use plain text only."),
+  ];
+
+  // ========================= Behavior Rules =========================
+
+  let behaviorRules: CT[] = [
+    SYS(data.botSettings.mission || defaultMission),
+    SYS("Your tone should be: " + (data.botSettings.tone || defaultTone)),
+    SYS(data.botSettings.summary || defaultSummary),
+    SYS(`${data.botSettings.exMessage || defaultFormat}`),
+    SYS(
       "If the user provides zip code. Search for a plan using the provided parameters if applicable, then return the following response based on what you kow: " +
-      (data.botSettings.welcomeMessage || example1),
-  });
-  msg.push({
-    role: "system",
-    content:
+        (data.botSettings.welcomeMessage || example1),
+    ),
+    SYS(
       "If the user doesn't provide zip or postal code, don't recommend any plan and instead reply with this message:" +
-      (data.botSettings.noZipCodeMessage || example2),
-  });
-  msg.push({ role: "user", content: query });
-  msg.push({
-    role: "user",
-    content: JSON.stringify({
-      // first_name: data.client["firstName"],
-      // last_name: data.client["lastName"],
-      agent_first_name: data.agent["firstName"],
-      agent_last_name: data.agent["lastName"],
-    }),
-  });
-  const plan = data.botSettings.plan;
-  if (plan != "") {
-    msg.push({
-      role: "user",
-      content: `Criteria 1: Only respond with ${plan} plan`,
-    });
+        (data.botSettings.noZipCodeMessage || example2),
+    ),
+  ];
+
+  if (data.botSettings.plan != "") {
+    behaviorRules.push(
+      SYS(`Criteria 1: Only respond with ${data.botSettings.plan} plan`),
+    );
   }
 
   const recommendedPlan = data.botSettings.recommendedPlan;
   if (recommendedPlan.includes("3")) {
-    msg.push({
-      role: "user",
-      content:
-        "Criteria 2: Please respond several plans. Max 3 plans, Min 1 plan.",
-    });
+    behaviorRules.push(
+      SYS("Criteria 2: Please respond several plans. Max 3 plans, Min 1 plan."),
+    );
   } else {
-    msg.push({
-      role: "user",
-      content: "Criteria 2: Only respond the Best one plan.",
-    });
+    behaviorRules.push(SYS("Criteria 2: Only respond the Best one plan."));
   }
 
   const carriers = data.botSettings.carriers;
   if (carriers.length) {
-    msg.push({
-      role: "user",
-      content: `Criteria 3: Only respond insurance from these carriers - ${carriers}.`,
-    });
+    behaviorRules.push(
+      SYS(
+        `Criteria 3: Only respond insurance from these carriers - ${carriers}.`,
+      ),
+    );
   }
+
+  if (data.config.isAnAssistant) {
+    behaviorRules.push(
+      SYS(
+        "You are an assistant. Whenever you'll use the agent's first name and last name, you should use the following format: [agent first name] [agent last name]'s Assistant",
+      ),
+    );
+  }
+
+  if (data.config.noSSN) {
+    behaviorRules.push(
+      SYS(
+        "Avoid asking for SSN (Social Security Number) and if the user provides SSN, don't store it or use it in any way.",
+      ),
+    );
+  }
+
+  if (data.config.dndReminder) {
+    behaviorRules.push(
+      SYS(
+        "On end of each message, you should provide a way for user to unsubscribe from our messages. To do that, you can add 'Reply STOP to unsubscribe' at the end of each message.",
+      ),
+    );
+  }
+
+  // ========================= Profile Builder =========================
+
+  let profileContext: CT[] = [
+    SYS(
+      "Please give me insurance plans which matches all the following criteria.",
+    ),
+    SYS(
+      JSON.stringify({
+        // first_name: data.client["firstName"],
+        // last_name: data.client["lastName"],
+        agent_first_name: data.agent["firstName"],
+        agent_last_name: data.agent["lastName"],
+      }),
+    ),
+  ];
+
+  // ========================= Compiled Message =========================
+
+  let msg: CT[] = [...formatRules, ...behaviorRules, ...profileContext];
 
   return msg;
 };
