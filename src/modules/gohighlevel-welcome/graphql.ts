@@ -216,8 +216,10 @@ ghWelcomeAPIGqlDeclaration.add(
         await processGHLMessage({
           context: context,
           groupID: input.groupID,
+          groupName: group.name,
           input: {
             contactID: input.contactID,
+            contactName: `${input.first_name} ${input.last_name}`,
             message: message.message,
             type: "SMS",
           },

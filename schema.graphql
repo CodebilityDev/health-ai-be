@@ -351,9 +351,11 @@ type Group {
   enable_globalContactUpdate: Boolean
   enable_globalAutoReply: Boolean
   check_dndNotice: Boolean
+  dndNoticeMessage: String
   enable_checkDnd: Boolean
   enable_checkProfanity: Boolean
   enable_botIsAssistant: Boolean
+  botAssistantName: String
   enable_noSSN: Boolean
   contactConfigs: JSON
   availability_start: Int
@@ -388,9 +390,11 @@ input GroupWhereInput {
   enable_globalContactUpdate: BooleanFilter
   enable_globalAutoReply: BooleanFilter
   check_dndNotice: BooleanFilter
+  dndNoticeMessage: StringFilter
   enable_checkDnd: BooleanFilter
   enable_checkProfanity: BooleanFilter
   enable_botIsAssistant: BooleanFilter
+  botAssistantName: StringFilter
   enable_noSSN: BooleanFilter
   availability_start: IntNullableFilter
   availability_end: IntNullableFilter
@@ -437,9 +441,11 @@ input GroupOrderByInput {
   enable_globalContactUpdate: OrderDirection
   enable_globalAutoReply: OrderDirection
   check_dndNotice: OrderDirection
+  dndNoticeMessage: OrderDirection
   enable_checkDnd: OrderDirection
   enable_checkProfanity: OrderDirection
   enable_botIsAssistant: OrderDirection
+  botAssistantName: OrderDirection
   enable_noSSN: OrderDirection
   availability_start: OrderDirection
   availability_end: OrderDirection
@@ -460,9 +466,11 @@ input GroupUpdateInput {
   enable_globalContactUpdate: Boolean
   enable_globalAutoReply: Boolean
   check_dndNotice: Boolean
+  dndNoticeMessage: String
   enable_checkDnd: Boolean
   enable_checkProfanity: Boolean
   enable_botIsAssistant: Boolean
+  botAssistantName: String
   enable_noSSN: Boolean
   contactConfigs: JSON
   availability_start: Int
@@ -530,9 +538,11 @@ input GroupCreateInput {
   enable_globalContactUpdate: Boolean
   enable_globalAutoReply: Boolean
   check_dndNotice: Boolean
+  dndNoticeMessage: String
   enable_checkDnd: Boolean
   enable_checkProfanity: Boolean
   enable_botIsAssistant: Boolean
+  botAssistantName: String
   enable_noSSN: Boolean
   contactConfigs: JSON
   availability_start: Int
@@ -1277,6 +1287,7 @@ type Mutation {
   authclient_changePassword(oldPassword: String!, newPassword: String!): Boolean
   ghl_sendMessage(input: Ghl_sendMessageInput!): GHLMessageReturn
   ghl_setCustomFields(input: Ghl_setCustomFieldsInput!): [String]
+  queue_deletePendingMessage(input: Queue_deletePendingMessageInput!): QueuePendingMessages
 }
 
 union ClientItemAuthenticationWithPasswordResult = ClientItemAuthenticationWithPasswordSuccess | ClientItemAuthenticationWithPasswordFailure
@@ -1355,6 +1366,7 @@ type Query {
   ghl_getContacts(input: Ghl_getContactsInput!): GHLContactList
   ghl_getMessages(input: Ghl_getMessagesInput!): String
   ghl_getCustomFields(input: Ghl_getCustomFieldsInput!): GHLCustomFieldData
+  queue_getPendingMessages(input: Queue_getPendingMessagesInput!): QueuePendingMessages
 }
 
 union AuthenticatedItem = User
@@ -1582,4 +1594,39 @@ input Ghl_setCustomFieldsInputCustomFields {
 input Ghl_setCustomFieldsInput {
   groupID: String!
   customFields: [Ghl_setCustomFieldsInputCustomFields]!
+}
+
+type QueuePendingMessages {
+  queue: [QueuePendingMessage]
+}
+
+type QueuePendingMessageDataOffTimeConfig {
+  timezone: String
+}
+
+type QueuePendingMessageData {
+  groupID: String
+  groupName: String
+  contactID: String
+  contactName: String
+  type: String
+  message: String
+  offTimeConfig: QueuePendingMessageDataOffTimeConfig
+  forceSend: Boolean
+}
+
+type QueuePendingMessage {
+  id: String!
+  data: QueuePendingMessageData!
+  delay: Float!
+  delayString: String!
+}
+
+input Queue_getPendingMessagesInput {
+  groupID: String!
+}
+
+input Queue_deletePendingMessageInput {
+  groupID: String!
+  ids: [String]!
 }

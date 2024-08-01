@@ -7,7 +7,10 @@ export const QUEUEKEY_SMS = "sms-queue";
 
 export type QueueJobTypeSMS = {
   groupID: string;
+  groupName: string;
   contactID: string;
+  contactName: string;
+  type: string;
   message: string;
   offTimeConfig?: {
     timezone: string;
@@ -15,7 +18,7 @@ export type QueueJobTypeSMS = {
   forceSend?: boolean;
 };
 
-const queueObject: {
+export const queueObject: {
   queue: Queue | null;
 } = {
   queue: null,
@@ -28,7 +31,7 @@ export const addSMSJob = async (job: QueueJobTypeSMS, opts?: JobsOptions) => {
   queueObject.queue.add(Date.now().toString(), job, opts);
 };
 
-function msToTime(duration: number) {
+export function msToTime(duration: number) {
   let milliseconds = (duration % 1000) / 100,
     seconds = Math.floor((duration / 1000) % 60),
     minutes = Math.floor((duration / (1000 * 60)) % 60),
@@ -38,7 +41,7 @@ function msToTime(duration: number) {
   minutes = minutes < 10 ? 0 + minutes : minutes;
   seconds = seconds < 10 ? 0 + seconds : seconds;
 
-  return hours + ":" + minutes + ":" + seconds;
+  return `${hours} hours, ${minutes} minutes, ${seconds} seconds`;
 }
 
 export async function scheduleDelay(params: {

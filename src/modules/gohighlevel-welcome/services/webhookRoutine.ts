@@ -1,5 +1,7 @@
-import { ChatCompletionMessageParam } from "openai/resources";
+import { ChatCompletion, ChatCompletionMessageParam } from "openai/resources";
 import { GlobalContext } from "~/common/context";
+import { CONFIG } from "~/common/env";
+import { getCleanGPTResponse } from "~modules/chatai/openai/healthbot/getGPTResponse";
 import { ChatSessionData } from "~modules/chatai/types/ChatSessionData.type";
 import { LeadContact } from "~modules/gohighlevel/service/getGHLContacts";
 import { getGHLDetailedContact } from "~modules/gohighlevel/service/getGHLDetailedContact";
@@ -74,6 +76,9 @@ async function checkDNDMessage(args: {
     where: {
       id: args.groupID,
     },
+    include: {
+      aiKey: true,
+    },
   });
 
   if (!group) {
@@ -81,7 +86,7 @@ async function checkDNDMessage(args: {
   }
 
   // if dnd check is disabled, return true
-  if (!group.enable_checkDnd) {
+  if (!group.enable_checkDnd && !group.enable_checkProfanity) {
     return true;
   }
 
@@ -90,20 +95,44 @@ async function checkDNDMessage(args: {
     return false;
   }
 
-  // check if message is 'STOP' or 'STOPALL', if yes return false (and update DND status)
-  if (
-    args.message.toLowerCase() === "stop" ||
-    args.message.toLowerCase() === "stopall"
-  ) {
-    await getGHLContactUpdate({
-      context: args.context,
-      contactId: args.contactInfo.id,
-      groupID: args.groupID,
-      updateData: {
-        dnd: true,
-      },
-    });
-    return false;
+  if (group.enable_checkDnd) {
+    // check if message is 'STOP' or 'STOPALL', if yes return false (and update DND status)
+    if (
+      args.message.toLowerCase() === "stop" ||
+      args.message.toLowerCase() === "stopall"
+    ) {
+      await getGHLContactUpdate({
+        context: args.context,
+        contactId: args.contactInfo.id,
+        groupID: args.groupID,
+        updateData: {
+          dnd: true,
+        },
+      });
+      return false;
+    }
+
+    if (group.enable_checkProfanity) {
+      const openAIKey = group?.aiKey?.openapiKey || CONFIG.OPENAI_API_KEY;
+      const profanityCheck = (await getCleanGPTResponse({
+        apiKey: openAIKey,
+        allHistory: [
+          {
+            role: "system",
+            content:
+              "The user will send a message, return 'true' if the message is profane, else return 'false'. Return the result as it is..",
+          },
+          {
+            role: "user",
+            content: args.message,
+          },
+        ],
+      })) as ChatCompletion;
+
+      if (profanityCheck.choices[0].message.content?.includes("true")) {
+        return false;
+      }
+    }
   }
 
   // return true if user
@@ -180,8 +209,10 @@ export const WebhookRoutines = {
     await processGHLMessage({
       context: args.context,
       groupID: args.groupID,
+      groupName: agentInfo.business.name,
       input: {
         contactID: args.contactID,
+        contactName: `${user.firstName} ${user.lastName}`,
         message: resp.message,
         type: "SMS",
       },
@@ -294,8 +325,10 @@ export const WebhookRoutines = {
     const sendResult = await processGHLMessage({
       context: args.context,
       groupID: args.groupID,
+      groupName: agentInfo.business.name,
       input: {
         contactID: args.contactID,
+        contactName: `${user.firstName} ${user.lastName}`,
         message: resp.message,
         type: "SMS",
       },
@@ -517,8 +550,10 @@ export const WebhookRoutines = {
     const sendResult = await processGHLMessage({
       context: args.context,
       groupID: args.groupID,
+      groupName: agentInfo.business.name,
       input: {
         contactID: args.contactID,
+        contactName: `${user.firstName} ${user.lastName}`,
         message: resp.message,
         type: "SMS",
       },
@@ -602,8 +637,6 @@ export const webhookRoutine = async (args: {
   payload: GHLWebhookBody;
   context: GlobalContext;
 }) => {
-  // console.log("Webhook received", args.payload);
-
   // get the latest user that is associated with the location
   const locationID = args.payload.locationId;
   const group = await args.context.prisma.gHLAccess.findFirst({
@@ -618,8 +651,6 @@ export const webhookRoutine = async (args: {
   if (!group?.group) {
     return;
   }
-
-  // console.log("Group", group);
 
   switch (args.payload.type) {
     case "ContactUpdate": {

@@ -73,9 +73,11 @@ model Group {
   enable_globalContactUpdate Boolean                @default(false)
   enable_globalAutoReply     Boolean                @default(false)
   check_dndNotice            Boolean                @default(false)
+  dndNoticeMessage           String                 @default("")
   enable_checkDnd            Boolean                @default(false)
   enable_checkProfanity      Boolean                @default(false)
   enable_botIsAssistant      Boolean                @default(false)
+  botAssistantName           String                 @default("")
   enable_noSSN               Boolean                @default(false)
   contactConfigs             Json?
   availability_start         Int?

@@ -1,7 +1,23 @@
 import OpenAI from "openai";
 import { ChatCompletion, ChatCompletionMessageParam } from "openai/resources";
+import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions";
 import { available_functions } from "./functions";
 import { functionsFormat } from "./functionsFormat";
+
+export const getCleanGPTResponse = async (args: {
+  apiKey: string;
+  allHistory: ChatCompletionMessageParam[];
+  options?: Partial<ChatCompletionCreateParamsBase>;
+}) => {
+  const openAIClient = new OpenAI({
+    apiKey: args.apiKey,
+  });
+  return await openAIClient.chat.completions.create({
+    ...(args.options ?? {}),
+    model: "gpt-4o-2024-05-13",
+    messages: args.allHistory,
+  });
+};
 
 export const getGPTResponse = async (args: {
   apiKey: string;
