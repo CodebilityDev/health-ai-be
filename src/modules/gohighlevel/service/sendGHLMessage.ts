@@ -13,9 +13,11 @@ interface MessageResponse {
 export const processGHLMessage = async (args: {
   context: GlobalContext;
   groupID: string;
+  groupName: string;
   input: {
     type: "SMS" | string;
     contactID: string;
+    contactName: string;
     message: string;
   };
   cutOffTime?: {
@@ -29,7 +31,10 @@ export const processGHLMessage = async (args: {
   addSMSJob({
     message: args.input.message,
     contactID: args.input.contactID,
+    contactName: args.input.contactName,
     groupID: args.groupID,
+    groupName: args.groupName,
+    type: args.input.type,
     offTimeConfig: {
       timezone: args.cutOffTime?.timezone!,
     },

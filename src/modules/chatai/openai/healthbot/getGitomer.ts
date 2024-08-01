@@ -42,8 +42,10 @@ export const getGitomerText = (data: {
   };
   config: {
     isAnAssistant?: boolean;
+    assitantName?: string;
     noSSN?: boolean;
     dndReminder?: boolean;
+    dndNoticeMessage?: string;
   };
   agent: {
     firstName: string;
@@ -99,9 +101,12 @@ export const getGitomerText = (data: {
   }
 
   if (data.config.isAnAssistant) {
+    let assistantCall =
+      data.config.assitantName ||
+      `[agent first name] [agent last name]'s Assistant`;
     behaviorRules.push(
       SYS(
-        "You are an assistant. Whenever you'll use the agent's first name and last name, you should use the following format: [agent first name] [agent last name]'s Assistant",
+        `You are an assistant. Whenever you'll use the agent's first name and last name, you should use the following format: ${assistantCall}`,
       ),
     );
   }
@@ -115,9 +120,11 @@ export const getGitomerText = (data: {
   }
 
   if (data.config.dndReminder) {
+    const dndMessage =
+      data.config.dndNoticeMessage || "Reply STOP to unsubscribe";
     behaviorRules.push(
       SYS(
-        "On end of each message, you should provide a way for user to unsubscribe from our messages. To do that, you can add 'Reply STOP to unsubscribe' at the end of each message.",
+        `On end of each message, you should provide a way for user to unsubscribe from our messages. To do that, you can add '${dndMessage}' at the end of each message.`,
       ),
     );
   }
