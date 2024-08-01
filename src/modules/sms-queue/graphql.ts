@@ -73,16 +73,17 @@ messageQueueGqlDeclaration.add(
 
       const delayedJobs = await queueObject.queue.getDelayed();
 
-      const returnObject = delayedJobs.map((job) => {
-        const remTime = job.timestamp + (job.opts.delay ?? 0) - Date.now();
-        return {
-          id: job.id,
-          data: job.data as QueueJobTypeSMS,
-          delay: remTime,
-          delayString: msToTime(remTime ?? 0),
-        };
-      });
-
+      const returnObject = delayedJobs
+        .filter((job) => job.data.groupID === input.groupID)
+        .map((job) => {
+          const remTime = job.timestamp + (job.opts.delay ?? 0) - Date.now();
+          return {
+            id: job.id,
+            data: job.data as QueueJobTypeSMS,
+            delay: remTime,
+            delayString: msToTime(remTime ?? 0),
+          };
+        });
       // console.log("returnObject", returnObject);
 
       return { queue: returnObject };
