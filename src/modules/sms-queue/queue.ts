@@ -41,7 +41,7 @@ export function msToTime(duration: number) {
   minutes = minutes < 10 ? 0 + minutes : minutes;
   seconds = seconds < 10 ? 0 + seconds : seconds;
 
-  return hours + ":" + minutes + ":" + seconds;
+  return `${hours} hours, ${minutes} minutes, ${seconds} seconds`;
 }
 
 export async function scheduleDelay(params: {

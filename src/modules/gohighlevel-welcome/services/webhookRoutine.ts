@@ -637,8 +637,6 @@ export const webhookRoutine = async (args: {
   payload: GHLWebhookBody;
   context: GlobalContext;
 }) => {
-  // console.log("Webhook received", args.payload);
-
   // get the latest user that is associated with the location
   const locationID = args.payload.locationId;
   const group = await args.context.prisma.gHLAccess.findFirst({
@@ -653,8 +651,6 @@ export const webhookRoutine = async (args: {
   if (!group?.group) {
     return;
   }
-
-  // console.log("Group", group);
 
   switch (args.payload.type) {
     case "ContactUpdate": {

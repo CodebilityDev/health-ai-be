@@ -1287,6 +1287,7 @@ type Mutation {
   authclient_changePassword(oldPassword: String!, newPassword: String!): Boolean
   ghl_sendMessage(input: Ghl_sendMessageInput!): GHLMessageReturn
   ghl_setCustomFields(input: Ghl_setCustomFieldsInput!): [String]
+  queue_deletePendingMessage(input: Queue_deletePendingMessageInput!): QueuePendingMessages
 }
 
 union ClientItemAuthenticationWithPasswordResult = ClientItemAuthenticationWithPasswordSuccess | ClientItemAuthenticationWithPasswordFailure
@@ -1365,6 +1366,7 @@ type Query {
   ghl_getContacts(input: Ghl_getContactsInput!): GHLContactList
   ghl_getMessages(input: Ghl_getMessagesInput!): String
   ghl_getCustomFields(input: Ghl_getCustomFieldsInput!): GHLCustomFieldData
+  queue_getPendingMessages(input: Queue_getPendingMessagesInput!): QueuePendingMessages
 }
 
 union AuthenticatedItem = User
@@ -1592,4 +1594,39 @@ input Ghl_setCustomFieldsInputCustomFields {
 input Ghl_setCustomFieldsInput {
   groupID: String!
   customFields: [Ghl_setCustomFieldsInputCustomFields]!
+}
+
+type QueuePendingMessages {
+  queue: [QueuePendingMessage]
+}
+
+type QueuePendingMessageDataOffTimeConfig {
+  timezone: String
+}
+
+type QueuePendingMessageData {
+  groupID: String
+  groupName: String
+  contactID: String
+  contactName: String
+  type: String
+  message: String
+  offTimeConfig: QueuePendingMessageDataOffTimeConfig
+  forceSend: Boolean
+}
+
+type QueuePendingMessage {
+  id: String!
+  data: QueuePendingMessageData!
+  delay: Float!
+  delayString: String!
+}
+
+input Queue_getPendingMessagesInput {
+  groupID: String!
+}
+
+input Queue_deletePendingMessageInput {
+  groupID: String!
+  ids: [String]!
 }
