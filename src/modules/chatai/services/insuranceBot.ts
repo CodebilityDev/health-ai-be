@@ -80,12 +80,8 @@ export async function buildInsuranceBotReplier(args: {
       noZipCodeMessage: modelConfig.noZipCodeMessage,
     },
     agent: {
-      firstName:
-        modelConfig.group?.agent_firstName ||
-        ghlAccountMe?.firstName ||
-        "Insurance Bot",
-      lastName:
-        modelConfig.group?.agent_firstName || ghlAccountMe?.lastName || "",
+      firstName: ghlAccountMe?.firstName || "Insurance Bot",
+      lastName: ghlAccountMe?.lastName || "",
     },
     config: {
       isAnAssistant: modelConfig.group?.enable_botIsAssistant,

@@ -7,3 +7,4 @@ reload.json
 .keystone
 keystone.ts
 keystone.ts.map
+*.local

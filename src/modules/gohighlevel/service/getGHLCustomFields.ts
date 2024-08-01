@@ -44,11 +44,11 @@ export const getGHLCustomFields = async (args: {
     throw new Error("Unauthorized");
   }
 
-  // if (CachedLocationCustomFields[accessToken?.locationId]) {
-  //   return CachedLocationCustomFields[
-  //     accessToken?.locationId
-  //   ] as CustomFieldsData;
-  // }
+  if (CachedLocationCustomFields[accessToken?.locationId]) {
+    return CachedLocationCustomFields[
+      accessToken?.locationId
+    ] as CustomFieldsData;
+  }
 
   const resp = await fetch(
     `https://services.leadconnectorhq.com/locations/${accessToken?.locationId}/customFields?model=${args.model ?? "all"}`,

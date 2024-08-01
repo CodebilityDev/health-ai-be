@@ -9,6 +9,7 @@ import {
   clearCustomFieldsCache,
   getGHLCustomFields,
 } from "~modules/gohighlevel/service/getGHLCustomFields";
+import { getGHLMe } from "~modules/gohighlevel/service/getGHLMe";
 import { getGHLMessages } from "~modules/gohighlevel/service/getGHLMessages";
 import {
   createCustomField,
@@ -200,6 +201,11 @@ ghWelcomeAPIGqlDeclaration.add(
       //   },
       // });
 
+      const ghlAccountMe = await getGHLMe({
+        context: context,
+        groupID: input.groupID,
+      });
+
       const message = await generateWelcomeMessage({
         chatSession: new ChatSessionData([]),
         // @ts-ignore
@@ -208,8 +214,12 @@ ghWelcomeAPIGqlDeclaration.add(
           location_id: input.location_id,
           first_name: input.first_name || "",
           last_name: input.last_name || "",
-          agent_first_name: input.agent_first_name || "Insurance Agent",
-          agent_last_name: input.agent_last_name || "",
+          // agent_first_name:
+          //   input.agent_first_name ||
+          //   ghlAccountMe.firstName ||
+          //   "Insurance Agent",
+          // agent_last_name:
+          //   input.agent_last_name || ghlAccountMe.firstName || "",
           // ...detailedUserInfo,
         },
         context,
@@ -388,6 +398,9 @@ ghWelcomeAPIGqlDeclaration.add(
                 name: field.name!,
               },
             });
+            if (d.statusCode == 401) {
+              throw new Error("Please re-authenticate GHL");
+            }
             output.push(`Created custom field: ${field.name}`);
             break;
           }
@@ -401,6 +414,9 @@ ghWelcomeAPIGqlDeclaration.add(
                 name: field.name!,
               },
             });
+            if (d.statusCode == 401) {
+              throw new Error("Please re-authenticate GHL");
+            }
             // console.log(d);
             output.push(`Updated custom field: ${field.name}`);
             break;
@@ -414,7 +430,9 @@ ghWelcomeAPIGqlDeclaration.add(
                 id: field.id!,
               },
             });
-            // console.log(d);
+            if (d.statusCode == 401) {
+              throw new Error("Please re-authenticate GHL");
+            }
             output.push(`Deleted custom field: ${field.id}`);
             break;
           }
