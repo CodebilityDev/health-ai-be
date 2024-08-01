@@ -1287,6 +1287,7 @@ type Mutation {
   authclient_changePassword(oldPassword: String!, newPassword: String!): Boolean
   ghl_sendMessage(input: Ghl_sendMessageInput!): GHLMessageReturn
   ghl_setCustomFields(input: Ghl_setCustomFieldsInput!): [String]
+  ghl_breakCustomFieldsCache(input: Ghl_breakCustomFieldsCacheInput!): Boolean
   queue_deletePendingMessage(input: Queue_deletePendingMessageInput!): QueuePendingMessages
 }
 
@@ -1594,6 +1595,10 @@ input Ghl_setCustomFieldsInputCustomFields {
 input Ghl_setCustomFieldsInput {
   groupID: String!
   customFields: [Ghl_setCustomFieldsInputCustomFields]!
+}
+
+input Ghl_breakCustomFieldsCacheInput {
+  groupID: String!
 }
 
 type QueuePendingMessages {
