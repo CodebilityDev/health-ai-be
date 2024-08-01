@@ -71,6 +71,9 @@ export async function sendWelcomeMessageRoutine(args: {
   const modelAI = await args.context.prisma.gHLAccess.findFirst({
     where: {
       locationId: args.body.location_id,
+      group: {
+        id: args.body.location_id,
+      },
     },
     orderBy: {
       updatedAt: "desc",

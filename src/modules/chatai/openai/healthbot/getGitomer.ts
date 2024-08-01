@@ -146,6 +146,10 @@ export const getGitomerText = (data: {
         // last_name: data.client["lastName"],
         agent_first_name: data.agent["firstName"],
         agent_last_name: data.agent["lastName"],
+        name_format:
+          data.config.isAnAssistant && data.config.assitantName
+            ? data.config.assitantName
+            : `[agent first name] [agent last name]'s Assistant`,
       }),
     ),
   ];

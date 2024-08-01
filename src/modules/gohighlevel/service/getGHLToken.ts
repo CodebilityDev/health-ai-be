@@ -9,6 +9,7 @@ export const AccessTokenList: Record<
     companyId: string;
     userId: string;
     expiresAt: number;
+    scope: string;
   } | null
 > = {};
 
@@ -81,6 +82,7 @@ export const getAccessToken = async (args: {
       locationId: data.locationId,
       companyId: data.companyId,
       userId: data.userId,
+      scope: data.scope,
       expiresAt: Date.now() + data.expires_in * 1000,
     };
 

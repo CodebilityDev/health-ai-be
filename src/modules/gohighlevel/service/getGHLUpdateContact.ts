@@ -59,13 +59,16 @@ export const getGHLContactUpdate = async (args: {
     groupID: args.groupID,
   });
 
+  // console.log(accessToken);
+  // console.log("id", args.contactId);
+
   const resp = await fetch(
     `https://services.leadconnectorhq.com/contacts/${args.contactId}`,
     {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${accessToken?.accessToken}`,
-        Accept: "application/json",
+        "Content-Type": "application/json",
         Version: "2021-07-28",
       },
       body: JSON.stringify(args.updateData),
@@ -74,6 +77,7 @@ export const getGHLContactUpdate = async (args: {
 
   const data = await resp.json();
 
+  // console.log(JSON.stringify(args.updateData));
   // console.log(JSON.stringify(data));
 
   return data.contact;

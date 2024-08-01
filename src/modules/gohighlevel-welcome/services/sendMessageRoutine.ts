@@ -23,6 +23,9 @@ export async function sendMessageRoutine(args: {
   const modelAI = await args.context.prisma.gHLAccess.findFirst({
     where: {
       locationId: args.location_id,
+      group: {
+        id: args.location_id,
+      },
     },
     include: {
       group: {
