@@ -6,7 +6,7 @@ import {
 import { ChatSessionData } from "~modules/chatai/types/ChatSessionData.type";
 import { getGHLContacts } from "~modules/gohighlevel/service/getGHLContacts";
 import {
-  CachedLocationCustomFields,
+  clearCustomFieldsCache,
   getGHLCustomFields,
 } from "~modules/gohighlevel/service/getGHLCustomFields";
 import { getGHLMessages } from "~modules/gohighlevel/service/getGHLMessages";
@@ -453,7 +453,8 @@ ghWelcomeAPIGqlDeclaration.add(
       if (!group) {
         throw new Error("Unauthorized");
       }
-      delete CachedLocationCustomFields[input.groupID];
+
+      clearCustomFieldsCache(group.id);
 
       return true;
     },

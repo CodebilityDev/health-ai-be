@@ -21,7 +21,14 @@ type CustomFieldsData = {
   customFields: CustomField[];
 };
 
-export const CachedLocationCustomFields: Record<string, CustomFieldsData> = {};
+export const CachedLocationCustomFields: Record<
+  string,
+  CustomFieldsData | null
+> = {};
+
+export const clearCustomFieldsCache = (locationId: string) => {
+  CachedLocationCustomFields[locationId] = null;
+};
 
 export const getGHLCustomFields = async (args: {
   context: GlobalContext;
@@ -38,7 +45,9 @@ export const getGHLCustomFields = async (args: {
   }
 
   if (CachedLocationCustomFields[accessToken?.locationId]) {
-    return CachedLocationCustomFields[accessToken?.locationId];
+    return CachedLocationCustomFields[
+      accessToken?.locationId
+    ] as CustomFieldsData;
   }
 
   const resp = await fetch(
