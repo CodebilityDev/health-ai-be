@@ -49,6 +49,7 @@ export const groupDataList: Lists = {
       availability_start: integer(),
       availability_end: integer(),
       availability_enabled: checkbox(),
+      user_contextFields: json(),
       aiLogs: relationship({
         ref: "GroupAILog.group",
         many: true,

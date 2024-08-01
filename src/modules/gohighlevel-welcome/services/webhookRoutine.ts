@@ -419,6 +419,12 @@ export const WebhookRoutines = {
       });
     }
 
+    const groupData = await args.context.prisma.group.findFirst({
+      where: {
+        id: args.groupID,
+      },
+    });
+
     // get conversation history
     const conversation = await getGHLMessages({
       context: args.context,
@@ -472,7 +478,10 @@ export const WebhookRoutines = {
     chatHistory = [
       {
         role: "user",
-        content: profileBuilderPrompt(body),
+        content: profileBuilderPrompt({
+          userInfo: body,
+          filter: groupData?.contactConfigs as string[],
+        }),
       },
       ...chatHistory,
     ];

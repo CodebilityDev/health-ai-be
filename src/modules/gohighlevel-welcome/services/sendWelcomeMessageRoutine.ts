@@ -2,8 +2,46 @@ import { GlobalContext } from "~/common/context";
 import { buildInsuranceBotReplier } from "~modules/chatai/services/insuranceBot";
 import { ChatSessionData } from "~modules/chatai/types/ChatSessionData.type";
 
-export const profileBuilderPrompt = (args: any) =>
-  `[profilePrompt] This is my latest identity information. Use these data to properly address me or consider my needs: ${JSON.stringify(args)}`;
+const DEFAULT_FIELDS = [
+  // "location_id",
+  "first_name",
+  "last_name",
+  // "agent_first_name",
+  // "agent_last_name",
+
+  // "id",
+  // "email",
+  // "timezone",
+  // "country",
+  // "contactName",
+];
+
+export const profileBuilderPrompt = (args: {
+  userInfo: any;
+  filter?: string[];
+}) => {
+  const fieldsFilter = [...DEFAULT_FIELDS, ...(args.filter || [])];
+
+  const customFields = args.userInfo.customFields || [];
+
+  args.userInfo = {
+    ...args.userInfo,
+    ...customFields.reduce((acc: any, field: any) => {
+      acc[field.name] = field.value;
+      return acc;
+    }, {} as any),
+  };
+
+  const filteredUserInfo = Object.keys(args.userInfo).reduce((acc, key) => {
+    if (fieldsFilter.includes(key)) {
+      acc[key] = args.userInfo[key];
+    }
+    return acc;
+  }, {} as any);
+  const st = `[profilePrompt] This is my latest identity information. Use these data to properly address me or consider my needs: ${JSON.stringify(filteredUserInfo)}`;
+
+  return st;
+};
 
 export async function sendWelcomeMessageRoutine(args: {
   context: GlobalContext;
@@ -14,7 +52,6 @@ export async function sendWelcomeMessageRoutine(args: {
     last_name: string;
     agent_first_name: string;
     agent_last_name: string;
-    [key: string]: any;
   };
 }) {
   const modelAI = await args.context.prisma.gHLAccess.findFirst({
@@ -67,7 +104,10 @@ export async function sendWelcomeMessageRoutine(args: {
     input: {
       modelID: modelID,
       chatSession: args.chatSession,
-      prompt: profileBuilderPrompt(args.body),
+      prompt: profileBuilderPrompt({
+        userInfo: args.body,
+        filter: modelAI?.group?.contactConfigs as string[],
+      }),
     },
     res: undefined,
   });

@@ -53,7 +53,7 @@ ghlRouteDeclaration.routes.set(
       url.searchParams.append("response_type", "code");
       url.searchParams.append(
         "scope",
-        "conversations/message.write conversations/message.readonly users.readonly users.write locations.readonly contacts.readonly contacts.write conversations.readonly locations/customValues.readonly locations/customFields.readonly conversations/reports.readonly",
+        "conversations/message.write conversations/message.readonly conversations.readonly conversations/reports.readonly users.readonly users.write locations.readonly contacts.readonly contacts.write locations/customValues.write locations/customValues.readonly locations/customFields.readonly locations/customFields.write",
       );
       url.searchParams.append(
         "state",

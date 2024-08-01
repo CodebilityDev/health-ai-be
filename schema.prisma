@@ -81,6 +81,7 @@ model Group {
   availability_start         Int?
   availability_end           Int?
   availability_enabled       Boolean                @default(false)
+  user_contextFields         Json?
   aiLogs                     GroupAILog[]           @relation("GroupAILog_group")
   snippets                   Snippet[]              @relation("Snippet_group")
   agent_firstName            String                 @default("")

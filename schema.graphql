@@ -359,6 +359,7 @@ type Group {
   availability_start: Int
   availability_end: Int
   availability_enabled: Boolean
+  user_contextFields: JSON
   aiLogs(where: GroupAILogWhereInput! = {}, orderBy: [GroupAILogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupAILogWhereUniqueInput): [GroupAILog!]
   aiLogsCount(where: GroupAILogWhereInput! = {}): Int
   snippets(where: SnippetWhereInput! = {}, orderBy: [SnippetOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: SnippetWhereUniqueInput): [Snippet!]
@@ -467,6 +468,7 @@ input GroupUpdateInput {
   availability_start: Int
   availability_end: Int
   availability_enabled: Boolean
+  user_contextFields: JSON
   aiLogs: GroupAILogRelateToManyForUpdateInput
   snippets: SnippetRelateToManyForUpdateInput
   agent_firstName: String
@@ -536,6 +538,7 @@ input GroupCreateInput {
   availability_start: Int
   availability_end: Int
   availability_enabled: Boolean
+  user_contextFields: JSON
   aiLogs: GroupAILogRelateToManyForCreateInput
   snippets: SnippetRelateToManyForCreateInput
   agent_firstName: String
@@ -1273,6 +1276,7 @@ type Mutation {
   authclient_resetPassword(token: String!, password: String!): Boolean
   authclient_changePassword(oldPassword: String!, newPassword: String!): Boolean
   ghl_sendMessage(input: Ghl_sendMessageInput!): GHLMessageReturn
+  ghl_setCustomFields(input: Ghl_setCustomFieldsInput!): [String]
 }
 
 union ClientItemAuthenticationWithPasswordResult = ClientItemAuthenticationWithPasswordSuccess | ClientItemAuthenticationWithPasswordFailure
@@ -1350,6 +1354,7 @@ type Query {
   ghl_me(input: Ghl_meInput!): GHLMeReturn
   ghl_getContacts(input: Ghl_getContactsInput!): GHLContactList
   ghl_getMessages(input: Ghl_getMessagesInput!): String
+  ghl_getCustomFields(input: Ghl_getCustomFieldsInput!): GHLCustomFieldData
 }
 
 union AuthenticatedItem = User
@@ -1542,4 +1547,39 @@ input Ghl_sendMessageInput {
 input Ghl_getMessagesInput {
   groupID: String!
   conversationID: String!
+}
+
+type GHLCustomFieldData {
+  customFields: [GHLCustomField]
+}
+
+type GHLCustomField {
+  id: String!
+  name: String!
+  fieldKey: String
+  placeholder: String
+  dataType: String
+  position: Float
+  picklistOptions: [String]
+  picklistImageOptions: [String]
+  isAllowedCustomOption: Boolean
+  isMultiFileAllowed: Boolean
+  maxFileLimit: Float
+  locationId: String
+  model: String
+}
+
+input Ghl_getCustomFieldsInput {
+  groupID: String!
+}
+
+input Ghl_setCustomFieldsInputCustomFields {
+  id: String
+  name: String
+  action: String!
+}
+
+input Ghl_setCustomFieldsInput {
+  groupID: String!
+  customFields: [Ghl_setCustomFieldsInputCustomFields]!
 }
