@@ -1,5 +1,4 @@
 import { JobsOptions, Queue } from "bullmq";
-import moment from "moment";
 import { GlobalContext } from "~/common/context";
 import { buildQueue } from "~/lib/bull/queueBuilder";
 
@@ -69,25 +68,14 @@ export async function scheduleDelay(params: {
     const currentHour = new Date(groupTime).getHours();
 
     if (currentHour < availability_start || currentHour >= availability_end) {
-      // reschedule sms for the next day
-      let delay;
-      if (currentHour >= availability_end) {
-        // Schedule for the next day
-        const nextAvailableTime = moment()
-          .add(1, "days")
-          .set({ hour: availability_start, minute: 0, second: 0 });
-        delay = nextAvailableTime.diff(moment());
+      // compute how many seconds until the next availability time
+      let remainingHour;
+      if (currentHour < availability_start) {
+        remainingHour = availability_start - currentHour;
       } else {
-        // Schedule for later today
-        const nextAvailableTime = moment().set({
-          hour: availability_start,
-          minute: 0,
-          second: 0,
-        });
-        delay = nextAvailableTime.diff(moment());
+        remainingHour = 24 - currentHour + availability_start;
       }
-
-      // delay = 60000; // 60 seconds for testing
+      const delay = remainingHour * 60 * 60 * 1000;
 
       console.log("Rescheduling SMS for later", msToTime(delay));
 
@@ -100,9 +88,7 @@ export async function scheduleDelay(params: {
           delay,
         },
       );
-
-      return true;
-    } else if (params.queueSendIfEmpty) {
+    } else {
       // console.log("Group availability is disabled");
       await addSMSJob(params.data);
     }
