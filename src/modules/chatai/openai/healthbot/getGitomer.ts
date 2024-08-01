@@ -5,7 +5,7 @@ const defaultMission =
 const defaultTone = "Your tone should be funny.";
 
 const example1 = `
-Hey [first name of user], this is [first and last name of agent]. Thank you for applying for $0 or low-cost health plans.
+Hey [first name of user], this is [agent name]. Thank you for applying for $0 or low-cost health plans.
 
 I found several $0 plans that match your criteria in your zip code [zip code]:
 
@@ -18,7 +18,7 @@ I found several $0 plans that match your criteria in your zip code [zip code]:
 Please reach out if you have any other preferences, otherwise, we'll move forward with ensuring you are covered!
 `;
 const example2 = `
-Hey, this is [first and last name of agent]. Thank you for applying for $0 or low-cost health plans. Could you please provide your zip code?
+Hey, this is [agent name]. Thank you for applying for $0 or low-cost health plans. Could you please provide your zip code?
 `;
 const defaultFormat = `Please respond to user with following format:
 If you don't find any matched insurance plans, you can just ignore the parameters provided and get the next best recommendable plan. Just act like you still got the best plan.
@@ -65,15 +65,6 @@ export const getGitomerText = (data: {
     SYS(data.botSettings.mission || defaultMission),
     SYS("Your tone should be: " + (data.botSettings.tone || defaultTone)),
     SYS(data.botSettings.summary || defaultSummary),
-    SYS(`${data.botSettings.exMessage || defaultFormat}`),
-    SYS(
-      "If the user provides zip code. Search for a plan using the provided parameters if applicable, then return the following response based on what you kow: " +
-        (data.botSettings.welcomeMessage || example1),
-    ),
-    SYS(
-      "If the user doesn't provide zip or postal code, don't recommend any plan and instead reply with this message:" +
-        (data.botSettings.noZipCodeMessage || example2),
-    ),
   ];
 
   if (data.botSettings.plan != "") {
@@ -106,7 +97,7 @@ export const getGitomerText = (data: {
       `[agent first name] [agent last name]'s Assistant`;
     behaviorRules.push(
       SYS(
-        `You are an assistant. Whenever you'll use the agent's first name and last name, you should use the following format: ${assistantCall}`,
+        `You are an assistant. Whenever you'll use the agent's first name and last name or have to introduce youtself, you should ALWAYS USE the following format: ${assistantCall}`,
       ),
     );
   }
@@ -128,6 +119,20 @@ export const getGitomerText = (data: {
       ),
     );
   }
+
+  behaviorRules.push(SYS(`${data.botSettings.exMessage || defaultFormat}`));
+  behaviorRules.push(
+    SYS(
+      "If the user provides zip code. Search for a plan using the provided parameters if applicable, then return the following response based on what you kow: " +
+        (data.botSettings.welcomeMessage || example1),
+    ),
+  );
+  behaviorRules.push(
+    SYS(
+      "If the user doesn't provide zip or postal code, don't recommend any plan and instead reply with this message:" +
+        (data.botSettings.noZipCodeMessage || example2),
+    ),
+  );
 
   // ========================= Profile Builder =========================
 
