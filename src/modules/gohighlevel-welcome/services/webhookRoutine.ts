@@ -130,6 +130,14 @@ async function checkDNDMessage(args: {
       })) as ChatCompletion;
 
       if (profanityCheck.choices[0].message.content?.includes("true")) {
+        await getGHLContactUpdate({
+          context: args.context,
+          contactId: args.contactInfo.id,
+          groupID: args.groupID,
+          updateData: {
+            dnd: true,
+          },
+        });
         return false;
       }
     }
