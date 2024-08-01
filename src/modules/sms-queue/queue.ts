@@ -88,13 +88,17 @@ export async function scheduleDelay(params: {
           delay,
         },
       );
+
+      return true;
     } else {
-      // console.log("Group availability is disabled");
-      await addSMSJob(params.data);
+      return false;
     }
   } else if (params.queueSendIfEmpty) {
-    // console.log("Group availability is disabled");
-    await addSMSJob(params.data);
+    await addSMSJob({
+      ...params.data,
+      // forceSend: true,
+    });
+    return true;
   }
 
   return false;
