@@ -3,11 +3,25 @@ import { buildInsuranceBotReplier } from "~modules/chatai/services/insuranceBot"
 import { ChatSessionData } from "~modules/chatai/types/ChatSessionData.type";
 
 const DEFAULT_FIELDS = [
-  // "location_id",
+  "location_id",
   "first_name",
   "last_name",
-  // "agent_first_name",
-  // "agent_last_name",
+  "agent_first_name",
+  "agent_last_name",
+  "emailLowerCase",
+  "timezone",
+  "companyName",
+  "phone",
+  "type",
+  "source",
+  "address1",
+  "city",
+  "state",
+  "country",
+  "postalCode",
+  "website",
+  "dateOfBirth",
+  "gender",
 
   // "id",
   // "email",
@@ -106,7 +120,7 @@ export async function sendWelcomeMessageRoutine(args: {
       chatSession: args.chatSession,
       prompt: profileBuilderPrompt({
         userInfo: args.body,
-        filter: modelAI?.group?.contactConfigs as string[],
+        filter: modelAI?.group?.user_contextFields as string[],
       }),
     },
     res: undefined,

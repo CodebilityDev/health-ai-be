@@ -521,7 +521,7 @@ export const WebhookRoutines = {
         role: "user",
         content: profileBuilderPrompt({
           userInfo: body,
-          filter: groupData?.contactConfigs as string[],
+          filter: groupData?.user_contextFields as string[],
         }),
       },
       ...chatHistory,
