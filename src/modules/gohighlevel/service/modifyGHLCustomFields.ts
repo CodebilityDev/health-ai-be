@@ -1,4 +1,5 @@
 import { GlobalContext } from "~/common/context";
+import { CachedLocationCustomFields } from "./getGHLCustomFields";
 import { getAccessToken } from "./getGHLToken";
 
 export type CustomFieldDataType = {
@@ -35,6 +36,9 @@ export const createCustomField = async (args: {
 
   const data = await resp.json();
 
+  if (accessToken?.locationId)
+    delete CachedLocationCustomFields[accessToken?.locationId!];
+
   return data;
 };
 
@@ -68,6 +72,8 @@ export const updateCustomField = async (args: {
 
   const data = await resp.json();
 
+  if (accessToken?.locationId)
+    delete CachedLocationCustomFields[accessToken?.locationId!];
   return data;
 };
 
@@ -97,6 +103,8 @@ export const deleteCustomField = async (args: {
   );
 
   const data = await resp.json();
+  if (accessToken?.locationId)
+    delete CachedLocationCustomFields[accessToken?.locationId!];
 
   return data;
 };

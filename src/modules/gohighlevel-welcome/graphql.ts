@@ -5,7 +5,10 @@ import {
 } from "~/lib/graphql/declarations";
 import { ChatSessionData } from "~modules/chatai/types/ChatSessionData.type";
 import { getGHLContacts } from "~modules/gohighlevel/service/getGHLContacts";
-import { getGHLCustomFields } from "~modules/gohighlevel/service/getGHLCustomFields";
+import {
+  CachedLocationCustomFields,
+  getGHLCustomFields,
+} from "~modules/gohighlevel/service/getGHLCustomFields";
 import { getGHLMessages } from "~modules/gohighlevel/service/getGHLMessages";
 import {
   createCustomField,
@@ -385,7 +388,6 @@ ghWelcomeAPIGqlDeclaration.add(
                 name: field.name!,
               },
             });
-            // console.log(d);
             output.push(`Created custom field: ${field.name}`);
             break;
           }
@@ -420,6 +422,40 @@ ghWelcomeAPIGqlDeclaration.add(
       }
 
       return output;
+    },
+  }),
+);
+
+ghWelcomeAPIGqlDeclaration.add(
+  new GraphqlActionMetadata({
+    root: "Mutation",
+    name: "ghl_breakCustomFieldsCache",
+    output: "Boolean",
+    input: z.object({
+      groupID: z.string(),
+    }),
+    resolve: async (_, input, context) => {
+      if (!context.session) {
+        throw new Error("Unauthorized");
+      }
+
+      const group = await context.prisma.group.findFirst({
+        where: {
+          id: input.groupID,
+          members: {
+            some: {
+              userId: context.session.itemId,
+            },
+          },
+        },
+      });
+
+      if (!group) {
+        throw new Error("Unauthorized");
+      }
+      delete CachedLocationCustomFields[input.groupID];
+
+      return true;
     },
   }),
 );

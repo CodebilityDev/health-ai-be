@@ -21,7 +21,7 @@ type CustomFieldsData = {
   customFields: CustomField[];
 };
 
-const CachedLocationCustomFields: Record<string, CustomFieldsData> = {};
+export const CachedLocationCustomFields: Record<string, CustomFieldsData> = {};
 
 export const getGHLCustomFields = async (args: {
   context: GlobalContext;
