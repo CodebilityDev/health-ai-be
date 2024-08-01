@@ -189,6 +189,7 @@ ghlRouteDeclaration.routes.set(
       if (!ghlAccessID) {
         await context.prisma.gHLAccess.create({
           data: {
+            id: data.locationId,
             refreshToken: data.refresh_token,
             scope: data.scope,
             companyId: data.companyId,

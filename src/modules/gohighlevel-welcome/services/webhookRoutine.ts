@@ -91,7 +91,11 @@ async function checkDNDMessage(args: {
   }
 
   // check if user has DND enabled for SMS, if yes return false
-  if (args.contactInfo.dndSettings?.SMS?.status !== "inactive") {
+  if (
+    args.contactInfo.dnd ||
+    (args.contactInfo.dndSettings?.SMS?.status &&
+      args.contactInfo.dndSettings?.SMS?.status !== "inactive")
+  ) {
     return false;
   }
 
@@ -111,35 +115,36 @@ async function checkDNDMessage(args: {
       });
       return false;
     }
+  }
 
-    if (group.enable_checkProfanity) {
-      const openAIKey = group?.aiKey?.openapiKey || CONFIG.OPENAI_API_KEY;
-      const profanityCheck = (await getCleanGPTResponse({
-        apiKey: openAIKey,
-        allHistory: [
-          {
-            role: "system",
-            content:
-              "The user will send a message, return 'true' if the message is profane, else return 'false'. Return the result as it is..",
-          },
-          {
-            role: "user",
-            content: args.message,
-          },
-        ],
-      })) as ChatCompletion;
+  if (group.enable_checkProfanity) {
+    const openAIKey = group?.aiKey?.openapiKey || CONFIG.OPENAI_API_KEY;
+    const profanityCheck = (await getCleanGPTResponse({
+      apiKey: openAIKey,
+      allHistory: [
+        {
+          role: "system",
+          content:
+            "The user will send a message, return 'true' if the message is profane, else return 'false'. Return the result as it is..",
+        },
+        {
+          role: "user",
+          content: args.message,
+        },
+      ],
+    })) as ChatCompletion;
 
-      if (profanityCheck.choices[0].message.content?.includes("true")) {
-        await getGHLContactUpdate({
-          context: args.context,
-          contactId: args.contactInfo.id,
-          groupID: args.groupID,
-          updateData: {
-            dnd: true,
-          },
-        });
-        return false;
-      }
+    if (profanityCheck.choices[0].message.content?.includes("true")) {
+      await getGHLContactUpdate({
+        context: args.context,
+        contactId: args.contactInfo.id,
+        groupID: args.groupID,
+        updateData: {
+          dnd: true,
+        },
+      });
+      console.log("Profanity detected", args.message);
+      return false;
     }
   }
 
@@ -302,7 +307,7 @@ export const WebhookRoutines = {
     //   return;
     // }
 
-    // console.log("User", user);
+    // console.log("Enabled", user);
 
     const agentInfo = await getGHLMe({
       context: args.context,
@@ -400,8 +405,11 @@ export const WebhookRoutines = {
       },
     });
 
+    // console.log("User", user);
+
     // check dnd
     if (!(await checkDNDMessage({ ...args, contactInfo: user }))) {
+      // console.log(`DND enabled [${args.contactID}]`);
       return;
     }
 
@@ -650,15 +658,24 @@ export const webhookRoutine = async (args: {
   const group = await args.context.prisma.gHLAccess.findFirst({
     where: {
       locationId: locationID,
+      group: {
+        id: {
+          equals: locationID,
+        },
+      },
     },
     include: {
       group: true,
     },
   });
 
+  // console.log("Group", group);
+
   if (!group?.group) {
     return;
   }
+
+  // console.log("Webhook Routine", args.payload);
 
   switch (args.payload.type) {
     case "ContactUpdate": {

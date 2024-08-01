@@ -107,8 +107,6 @@ export async function buildInsuranceBotReplier(args: {
     },
   ];
 
-  // console.log(messages);
-
   // generate the response
   const { curMessages, lastResponse } = await getGPTResponse({
     apiKey: openAIKey,
