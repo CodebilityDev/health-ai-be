@@ -91,6 +91,8 @@ export async function buildInsuranceBotReplier(args: {
       isAnAssistant: modelConfig.group?.enable_botIsAssistant,
       noSSN: modelConfig.group?.enable_noSSN,
       dndReminder: modelConfig.group?.check_dndNotice,
+      assitantName: modelConfig.group?.botAssistantName,
+      dndNoticeMessage: modelConfig.group?.dndNoticeMessage,
     },
   });
 
