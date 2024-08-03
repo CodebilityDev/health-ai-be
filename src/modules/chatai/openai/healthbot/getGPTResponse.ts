@@ -1,8 +1,8 @@
 import OpenAI from "openai";
 import { ChatCompletion, ChatCompletionMessageParam } from "openai/resources";
 import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions";
-import { available_functions } from "./functions";
-import { functionsFormat } from "./functionsFormat";
+import { functionsFormat } from "./functionsFormatV2";
+import { available_functions } from "./functionsV2";
 
 export const getCleanGPTResponse = async (args: {
   apiKey: string;

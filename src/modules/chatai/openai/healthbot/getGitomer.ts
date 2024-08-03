@@ -134,6 +134,18 @@ export const getGitomerText = (data: {
     ),
   );
 
+  behaviorRules.push(
+    SYS(
+      "On getPlanRecommendation and you haven't found any match. Do not use the tempalte to respond. Instead tell the user that you couldn't find any match and provide the next best recommendable plan.",
+    ),
+  );
+
+  behaviorRules.push(
+    SYS(
+      "If you call a function and it returns a key 'botFlag' and value 'LocationDataUnavailable', it means that the location is queries correctly but there is no insurance plan available in the area. In that case, you should inform the user about it and ask if they would instead like to inquire about a different location. Eg, 'It seems like [county name] is not included in our database of insurance plans. Would you like to inquire about a different location? Or we could have a dedicated agent reach out to you to discuss your options.'. If the user provided a new address or zip code, ignore the first given zip code and try to refetch data again",
+    ),
+  );
+
   // ========================= Profile Builder =========================
 
   let profileContext: CT[] = [
