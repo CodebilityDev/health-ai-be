@@ -46,6 +46,9 @@ export const getGitomerText = (data: {
     noSSN?: boolean;
     dndReminder?: boolean;
     dndNoticeMessage?: string;
+    activeSurvey?: boolean;
+    activeSurveyTargetFields?: string;
+    activeSurveySample?: string;
   };
   agent: {
     firstName: string;
@@ -146,6 +149,17 @@ export const getGitomerText = (data: {
     ),
   );
 
+  if (data.config.activeSurvey) {
+    // console.log("activeSurvey");
+    behaviorRules.push(
+      SYS(
+        (data.config.activeSurveySample ||
+          "You are also assigned to ask the following fields one-by-one from the user while you are communicating. ASK for the INFORMATION one-by-one at the end of each of your replies. For example: '[your typical message here, 'age' or 'name']. Can you provide your [field requirement] as part of our profile building.' or '[your typical message here]. What's your [field, example 'name' or 'age']? This will help us recommend you better plans'. Track wihich fields we don't have yet. Double check it. These are the fields that we would like to collect: ") +
+          (data.config.activeSurveyTargetFields || "[]"),
+      ),
+    );
+  }
+
   // ========================= Profile Builder =========================
 
   let profileContext: CT[] = [
@@ -169,6 +183,8 @@ export const getGitomerText = (data: {
   // ========================= Compiled Message =========================
 
   let msg: CT[] = [...formatRules, ...behaviorRules, ...profileContext];
+
+  console.log(JSON.stringify(msg, null, 2));
 
   return msg;
 };

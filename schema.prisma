@@ -84,6 +84,9 @@ model Group {
   availability_end           Int?
   availability_enabled       Boolean                @default(false)
   user_contextFields         Json?
+  enable_profileBuilder      Boolean                @default(false)
+  enable_activeSurvey        Boolean                @default(false)
+  activeSurveySample         String                 @default("")
   aiLogs                     GroupAILog[]           @relation("GroupAILog_group")
   snippets                   Snippet[]              @relation("Snippet_group")
   agent_firstName            String                 @default("")
