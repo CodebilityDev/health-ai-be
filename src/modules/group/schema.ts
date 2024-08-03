@@ -52,6 +52,9 @@ export const groupDataList: Lists = {
       availability_end: integer(),
       availability_enabled: checkbox(),
       user_contextFields: json(),
+      enable_profileBuilder: checkbox(),
+      enable_activeSurvey: checkbox(),
+      activeSurveySample: text(),
       aiLogs: relationship({
         ref: "GroupAILog.group",
         many: true,

@@ -18,6 +18,7 @@ export async function sendMessageRoutine(args: {
   };
   chatHistory: ChatCompletionMessageParam[];
   prompt: string;
+  targetFields?: string;
   type?: "welcome" | "chat";
 }) {
   const modelAI = await args.context.prisma.gHLAccess.findFirst({
@@ -98,6 +99,7 @@ export async function sendMessageRoutine(args: {
       chatHistory: args.chatHistory,
       prompt: args.prompt,
       chatSession: args.chatSession,
+      targetFields: args.targetFields,
     },
     res: undefined,
   });

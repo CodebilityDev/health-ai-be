@@ -184,7 +184,7 @@ export const available_functions = {
       },
     });
 
-    console.log(res);
+    // console.log(res);
 
     if (!res.coverage) {
       return {

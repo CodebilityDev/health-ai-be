@@ -362,6 +362,9 @@ type Group {
   availability_end: Int
   availability_enabled: Boolean
   user_contextFields: JSON
+  enable_profileBuilder: Boolean
+  enable_activeSurvey: Boolean
+  activeSurveySample: String
   aiLogs(where: GroupAILogWhereInput! = {}, orderBy: [GroupAILogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: GroupAILogWhereUniqueInput): [GroupAILog!]
   aiLogsCount(where: GroupAILogWhereInput! = {}): Int
   snippets(where: SnippetWhereInput! = {}, orderBy: [SnippetOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: SnippetWhereUniqueInput): [Snippet!]
@@ -399,6 +402,9 @@ input GroupWhereInput {
   availability_start: IntNullableFilter
   availability_end: IntNullableFilter
   availability_enabled: BooleanFilter
+  enable_profileBuilder: BooleanFilter
+  enable_activeSurvey: BooleanFilter
+  activeSurveySample: StringFilter
   aiLogs: GroupAILogManyRelationFilter
   snippets: SnippetManyRelationFilter
   agent_firstName: StringFilter
@@ -450,6 +456,9 @@ input GroupOrderByInput {
   availability_start: OrderDirection
   availability_end: OrderDirection
   availability_enabled: OrderDirection
+  enable_profileBuilder: OrderDirection
+  enable_activeSurvey: OrderDirection
+  activeSurveySample: OrderDirection
   agent_firstName: OrderDirection
   agent_lastName: OrderDirection
   enable_stopNotice: OrderDirection
@@ -477,6 +486,9 @@ input GroupUpdateInput {
   availability_end: Int
   availability_enabled: Boolean
   user_contextFields: JSON
+  enable_profileBuilder: Boolean
+  enable_activeSurvey: Boolean
+  activeSurveySample: String
   aiLogs: GroupAILogRelateToManyForUpdateInput
   snippets: SnippetRelateToManyForUpdateInput
   agent_firstName: String
@@ -549,6 +561,9 @@ input GroupCreateInput {
   availability_end: Int
   availability_enabled: Boolean
   user_contextFields: JSON
+  enable_profileBuilder: Boolean
+  enable_activeSurvey: Boolean
+  activeSurveySample: String
   aiLogs: GroupAILogRelateToManyForCreateInput
   snippets: SnippetRelateToManyForCreateInput
   agent_firstName: String

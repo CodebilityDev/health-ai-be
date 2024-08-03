@@ -17,6 +17,7 @@ export async function buildInsuranceBotReplier(args: {
     chatSession: ChatSessionData;
     chatHistory?: ChatCompletionMessageParam[];
     summarizeLength?: number;
+    targetFields?: string;
   };
 }) {
   // get modelID from database
@@ -41,6 +42,17 @@ export async function buildInsuranceBotReplier(args: {
             aiKey: true,
           },
         },
+      },
+    });
+  }
+
+  let groupData = modelConfig?.group;
+
+  if (!groupData) {
+    groupData = await args.context.prisma.group.findUnique({
+      where: { id: args.input.modelID },
+      include: {
+        aiKey: true,
       },
     });
   }
@@ -89,6 +101,9 @@ export async function buildInsuranceBotReplier(args: {
       dndReminder: modelConfig.group?.check_dndNotice,
       assitantName: modelConfig.group?.botAssistantName,
       dndNoticeMessage: modelConfig.group?.dndNoticeMessage,
+      activeSurvey: modelConfig.group?.enable_activeSurvey,
+      activeSurveySample: modelConfig.group?.activeSurveySample,
+      activeSurveyTargetFields: args.input.targetFields,
     },
   });
 

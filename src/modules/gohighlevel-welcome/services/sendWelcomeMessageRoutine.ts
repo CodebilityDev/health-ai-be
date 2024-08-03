@@ -2,6 +2,14 @@ import { GlobalContext } from "~/common/context";
 import { buildInsuranceBotReplier } from "~modules/chatai/services/insuranceBot";
 import { ChatSessionData } from "~modules/chatai/types/ChatSessionData.type";
 
+export const FIELDS_MAP: Record<string, any> = {
+  location_id: null,
+  first_name: "firstName",
+  last_name: "lastName",
+  agent_first_name: null,
+  agent_last_name: null,
+};
+
 const DEFAULT_FIELDS = [
   "location_id",
   "first_name",
@@ -30,11 +38,26 @@ const DEFAULT_FIELDS = [
   // "contactName",
 ];
 
+const UPDATABLE_FIELDS = [
+  "companyName",
+  "phone",
+  "type",
+  "address1",
+  "city",
+  "state",
+  "country",
+  "postalCode",
+  "website",
+  "dateOfBirth",
+  "gender",
+];
+
 export const profileBuilderPrompt = (args: {
   userInfo: any;
   filter?: string[];
 }) => {
   const fieldsFilter = [...DEFAULT_FIELDS, ...(args.filter || [])];
+  const updatableFields = [...UPDATABLE_FIELDS, ...(args.filter || [])];
 
   const customFields = args.userInfo.customFields || [];
 
@@ -52,9 +75,42 @@ export const profileBuilderPrompt = (args: {
     }
     return acc;
   }, {} as any);
+
   const st = `[profilePrompt] This is my latest identity information. Use these data to properly address me or consider my needs: ${JSON.stringify(filteredUserInfo)}`;
 
-  return st;
+  return {
+    prompt: st,
+    userInfo: filteredUserInfo,
+    fieldsFilter: updatableFields,
+  };
+};
+
+export const dataToProfileBuilder = (args: {
+  newUserData: any;
+  customFieldsNameAndID: Record<string, string>;
+}) => {
+  const dataUpdate: Record<string, any> = {};
+  const specialKeys = Object.keys(FIELDS_MAP);
+  const customKeys = Object.keys(args.customFieldsNameAndID);
+  for (let newKey in args.newUserData) {
+    if (specialKeys.includes(newKey)) {
+      if (FIELDS_MAP[newKey]) {
+        dataUpdate[FIELDS_MAP[newKey]] = args.newUserData[newKey];
+      }
+    } else if (customKeys.includes(newKey)) {
+      if (!dataUpdate.customFields) {
+        dataUpdate.customFields = [];
+      }
+      dataUpdate.customFields.push({
+        id: args.customFieldsNameAndID[newKey],
+        field_value: args.newUserData[newKey],
+      });
+    } else if (UPDATABLE_FIELDS.includes(newKey)) {
+      dataUpdate[newKey] = args.newUserData[newKey];
+    }
+  }
+
+  return dataUpdate;
 };
 
 export async function sendWelcomeMessageRoutine(args: {
@@ -124,7 +180,7 @@ export async function sendWelcomeMessageRoutine(args: {
       prompt: profileBuilderPrompt({
         userInfo: args.body,
         filter: modelAI?.group?.user_contextFields as string[],
-      }),
+      }).prompt,
     },
     res: undefined,
   });
