@@ -283,7 +283,7 @@ export const available_functions = {
       },
     });
 
-    console.log(res);
+    // console.log(res);
 
     if (res.message) {
       return {
