@@ -372,6 +372,7 @@ type Group {
   agent_firstName: String
   agent_lastName: String
   enable_stopNotice: Boolean
+  branding: Branding
 }
 
 input GroupWhereUniqueInput {
@@ -410,6 +411,7 @@ input GroupWhereInput {
   agent_firstName: StringFilter
   agent_lastName: StringFilter
   enable_stopNotice: BooleanFilter
+  branding: BrandingWhereInput
 }
 
 input BooleanFilter {
@@ -494,6 +496,7 @@ input GroupUpdateInput {
   agent_firstName: String
   agent_lastName: String
   enable_stopNotice: Boolean
+  branding: BrandingRelateToOneForUpdateInput
 }
 
 input BotConfigRelateToOneForUpdateInput {
@@ -534,6 +537,12 @@ input SnippetRelateToManyForUpdateInput {
   connect: [SnippetWhereUniqueInput!]
 }
 
+input BrandingRelateToOneForUpdateInput {
+  create: BrandingCreateInput
+  connect: BrandingWhereUniqueInput
+  disconnect: Boolean
+}
+
 input GroupUpdateArgs {
   where: GroupWhereUniqueInput!
   data: GroupUpdateInput!
@@ -569,6 +578,7 @@ input GroupCreateInput {
   agent_firstName: String
   agent_lastName: String
   enable_stopNotice: Boolean
+  branding: BrandingRelateToOneForCreateInput
 }
 
 input BotConfigRelateToOneForCreateInput {
@@ -599,6 +609,11 @@ input GroupAILogRelateToManyForCreateInput {
 input SnippetRelateToManyForCreateInput {
   create: [SnippetCreateInput!]
   connect: [SnippetWhereUniqueInput!]
+}
+
+input BrandingRelateToOneForCreateInput {
+  create: BrandingCreateInput
+  connect: BrandingWhereUniqueInput
 }
 
 type GroupAILog {
@@ -1208,6 +1223,110 @@ input ChatConversationSessionCreateInput {
   botConfig: ConversationBotConfigRelateToOneForCreateInput
 }
 
+type Branding {
+  id: ID!
+  group: Group
+  companyName: String
+  companyMotto: String
+  companyPhone: String
+  companyEmail: String
+  companyAddress: String
+  companyWebsite: String
+  companyDescription: String
+  bannerLogoPhotoUrl: String
+  lifestylePhotoUrl: String
+  logoPhotoUrl: String
+  colorPalette1: String
+  colorPalette1Contrast: String
+  colorPalette2: String
+  colorPalette2Contrast: String
+}
+
+input BrandingWhereUniqueInput {
+  id: ID
+}
+
+input BrandingWhereInput {
+  AND: [BrandingWhereInput!]
+  OR: [BrandingWhereInput!]
+  NOT: [BrandingWhereInput!]
+  id: IDFilter
+  group: GroupWhereInput
+  companyName: StringFilter
+  companyMotto: StringFilter
+  companyPhone: StringFilter
+  companyEmail: StringFilter
+  companyAddress: StringFilter
+  companyWebsite: StringFilter
+  companyDescription: StringFilter
+  bannerLogoPhotoUrl: StringFilter
+  lifestylePhotoUrl: StringFilter
+  logoPhotoUrl: StringFilter
+  colorPalette1: StringFilter
+  colorPalette1Contrast: StringFilter
+  colorPalette2: StringFilter
+  colorPalette2Contrast: StringFilter
+}
+
+input BrandingOrderByInput {
+  id: OrderDirection
+  companyName: OrderDirection
+  companyMotto: OrderDirection
+  companyPhone: OrderDirection
+  companyEmail: OrderDirection
+  companyAddress: OrderDirection
+  companyWebsite: OrderDirection
+  companyDescription: OrderDirection
+  bannerLogoPhotoUrl: OrderDirection
+  lifestylePhotoUrl: OrderDirection
+  logoPhotoUrl: OrderDirection
+  colorPalette1: OrderDirection
+  colorPalette1Contrast: OrderDirection
+  colorPalette2: OrderDirection
+  colorPalette2Contrast: OrderDirection
+}
+
+input BrandingUpdateInput {
+  group: GroupRelateToOneForUpdateInput
+  companyName: String
+  companyMotto: String
+  companyPhone: String
+  companyEmail: String
+  companyAddress: String
+  companyWebsite: String
+  companyDescription: String
+  bannerLogoPhotoUrl: String
+  lifestylePhotoUrl: String
+  logoPhotoUrl: String
+  colorPalette1: String
+  colorPalette1Contrast: String
+  colorPalette2: String
+  colorPalette2Contrast: String
+}
+
+input BrandingUpdateArgs {
+  where: BrandingWhereUniqueInput!
+  data: BrandingUpdateInput!
+}
+
+input BrandingCreateInput {
+  group: GroupRelateToOneForCreateInput
+  companyName: String
+  companyMotto: String
+  companyPhone: String
+  companyEmail: String
+  companyAddress: String
+  companyWebsite: String
+  companyDescription: String
+  bannerLogoPhotoUrl: String
+  lifestylePhotoUrl: String
+  logoPhotoUrl: String
+  colorPalette1: String
+  colorPalette1Contrast: String
+  colorPalette2: String
+  colorPalette2Contrast: String
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -1292,6 +1411,12 @@ type Mutation {
   updateChatConversationSessions(data: [ChatConversationSessionUpdateArgs!]!): [ChatConversationSession]
   deleteChatConversationSession(where: ChatConversationSessionWhereUniqueInput!): ChatConversationSession
   deleteChatConversationSessions(where: [ChatConversationSessionWhereUniqueInput!]!): [ChatConversationSession]
+  createBranding(data: BrandingCreateInput!): Branding
+  createBrandings(data: [BrandingCreateInput!]!): [Branding]
+  updateBranding(where: BrandingWhereUniqueInput!, data: BrandingUpdateInput!): Branding
+  updateBrandings(data: [BrandingUpdateArgs!]!): [Branding]
+  deleteBranding(where: BrandingWhereUniqueInput!): Branding
+  deleteBrandings(where: [BrandingWhereUniqueInput!]!): [Branding]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, adminPassword: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -1374,6 +1499,9 @@ type Query {
   chatConversationSessions(where: ChatConversationSessionWhereInput! = {}, orderBy: [ChatConversationSessionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ChatConversationSessionWhereUniqueInput): [ChatConversationSession!]
   chatConversationSession(where: ChatConversationSessionWhereUniqueInput!): ChatConversationSession
   chatConversationSessionsCount(where: ChatConversationSessionWhereInput! = {}): Int
+  brandings(where: BrandingWhereInput! = {}, orderBy: [BrandingOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: BrandingWhereUniqueInput): [Branding!]
+  branding(where: BrandingWhereUniqueInput!): Branding
+  brandingsCount(where: BrandingWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
   ErrorTest: String
