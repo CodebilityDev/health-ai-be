@@ -92,6 +92,7 @@ model Group {
   agent_firstName            String                 @default("")
   agent_lastName             String                 @default("")
   enable_stopNotice          Boolean                @default(false)
+  branding                   Branding?              @relation("Branding_group")
 }
 
 model GroupAILog {
@@ -208,6 +209,26 @@ model ChatConversationSession {
   botConfigId String?                @map("botConfig")
 
   @@index([botConfigId])
+}
+
+model Branding {
+  id                    String  @id @default(cuid())
+  group                 Group?  @relation("Branding_group", fields: [groupId], references: [id])
+  groupId               String? @unique @map("group")
+  companyName           String  @default("")
+  companyMotto          String  @default("")
+  companyPhone          String  @default("")
+  companyEmail          String  @default("")
+  companyAddress        String  @default("")
+  companyWebsite        String  @default("")
+  companyDescription    String  @default("")
+  bannerLogoPhotoUrl    String  @default("")
+  lifestylePhotoUrl     String  @default("")
+  logoPhotoUrl          String  @default("")
+  colorPalette1         String  @default("")
+  colorPalette1Contrast String  @default("")
+  colorPalette2         String  @default("")
+  colorPalette2Contrast String  @default("")
 }
 
 enum UserRoleType {

@@ -66,6 +66,10 @@ export const groupDataList: Lists = {
       agent_firstName: text(),
       agent_lastName: text(),
       enable_stopNotice: checkbox(),
+      branding: relationship({
+        ref: "Branding.group",
+        many: false,
+      }),
     },
     hooks: {
       afterOperation: async ({ operation, context, item, inputData }) => {

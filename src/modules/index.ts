@@ -1,6 +1,7 @@
 import { Module } from "~/lib/modules/declarations";
 import { authDefinition } from "./auth";
 import { Bots } from "./botconfig";
+import { Branding } from "./branding";
 import { ChatAI } from "./chatai";
 import { GHL } from "./gohighlevel";
 import { GHL_Welcome } from "./gohighlevel-welcome";
@@ -21,4 +22,5 @@ export const moduleDefinitions: Module[] = [
   ChatAI,
   GHL_Welcome,
   SMSQueueDeclaration,
+  Branding,
 ];
