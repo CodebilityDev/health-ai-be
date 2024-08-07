@@ -3,6 +3,7 @@ import { authDefinition } from "./auth";
 import { Bots } from "./botconfig";
 import { Branding } from "./branding";
 import { ChatAI } from "./chatai";
+import { fileDefinition } from "./file";
 import { GHL } from "./gohighlevel";
 import { GHL_Welcome } from "./gohighlevel-welcome";
 import { groupDefiniton } from "./group";
@@ -23,4 +24,5 @@ export const moduleDefinitions: Module[] = [
   GHL_Welcome,
   SMSQueueDeclaration,
   Branding,
+  fileDefinition,
 ];

@@ -1429,6 +1429,7 @@ type Mutation {
   ghl_setCustomFields(input: Ghl_setCustomFieldsInput!): [String]
   ghl_breakCustomFieldsCache(input: Ghl_breakCustomFieldsCacheInput!): Boolean
   queue_deletePendingMessage(input: Queue_deletePendingMessageInput!): QueuePendingMessages
+  file_generateUploadURL(input: File_generateUploadURLInput!): FileUploadURL
 }
 
 union ClientItemAuthenticationWithPasswordResult = ClientItemAuthenticationWithPasswordSuccess | ClientItemAuthenticationWithPasswordFailure
@@ -1777,4 +1778,13 @@ input Queue_getPendingMessagesInput {
 input Queue_deletePendingMessageInput {
   groupID: String!
   ids: [String]!
+}
+
+type FileUploadURL {
+  getURL: String!
+  putURL: String!
+}
+
+input File_generateUploadURLInput {
+  fileID: String!
 }
