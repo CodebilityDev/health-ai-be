@@ -21,12 +21,12 @@ export const CONFIG = {
     process.env.PAGE_RESET_PASSWORD_URL || "/reset-password",
   PAGE_URL: process.env.PAGE_URL || "http://localhost:300",
   RUN_CRON_JOB: process.env.RUN_CRON_JOB || "false",
-  S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID || "value",
-  S3_BUCKET_NAME: process.env.S3_BUCKET_NAME || "value",
-  S3_ENDPOINT: process.env.S3_ENDPOINT || "https://value",
-  S3_FORCE_PATH_STYLE: process.env.S3_FORCE_PATH_STYLE || "value",
-  S3_REGION: process.env.S3_REGION || "value",
-  S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY || "value",
+  S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID || "",
+  S3_BUCKET_NAME: process.env.S3_BUCKET_NAME || "",
+  S3_ENDPOINT: process.env.S3_ENDPOINT || "",
+  S3_FORCE_PATH_STYLE: process.env.S3_FORCE_PATH_STYLE || "",
+  S3_REGION: process.env.S3_REGION || "",
+  S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY || "",
   SERVER_CORS_HEADERS:
     process.env.SERVER_CORS_HEADERS ||
     '"Origin, X-Requested-With, Content-Type, Accept, Authorization"',

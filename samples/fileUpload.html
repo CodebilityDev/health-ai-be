@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+    <title>File Upload</title>
+  </head>
+  <body>
+    <h1>File Upload</h1>
+
+    <input type="file" id="fileInput" />
+    <button onclick="uploadFile()">Upload</button>
+
+    <script>
+      function uploadFile() {
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+
+        // Replace 'YOUR_S3_PRESIGNED_URL' with your actual pre-signed S3 URL
+        const s3PresignedUrl =
+          "https://s3.us-east-2.amazonaws.com/federalplans-public-files/public/anon/test-1723032754315.png";
+
+        fetch(s3PresignedUrl, {
+          method: "PUT",
+          body: file,
+        })
+          .then((response) => {
+            if (response.ok) {
+              console.log("File uploaded successfully!");
+            } else {
+              console.error("Failed to upload file.");
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+    </script>
+  </body>
+</html>
