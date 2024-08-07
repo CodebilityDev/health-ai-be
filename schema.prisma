@@ -223,12 +223,14 @@ model Branding {
   companyWebsite        String  @default("")
   companyDescription    String  @default("")
   bannerLogoPhotoUrl    String  @default("")
-  lifestylePhotoUrl     String  @default("")
+  lifestylePhotoUrls    Json?
   logoPhotoUrl          String  @default("")
   colorPalette1         String  @default("")
   colorPalette1Contrast String  @default("")
   colorPalette2         String  @default("")
   colorPalette2Contrast String  @default("")
+  backgroundColor       String  @default("")
+  textColor             String  @default("")
 }
 
 enum UserRoleType {

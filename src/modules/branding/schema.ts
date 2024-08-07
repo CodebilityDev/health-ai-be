@@ -1,6 +1,6 @@
 import type { Lists } from ".keystone/types";
 import { list } from "@keystone-6/core";
-import { relationship, text } from "@keystone-6/core/fields";
+import { json, relationship, text } from "@keystone-6/core/fields";
 import { schemaAccessConfig } from "~/lib/schema/access";
 import { SchemaAccessTemplate } from "~/lib/schema/access/templates";
 
@@ -16,12 +16,26 @@ export const brandingDataList: Lists = {
       companyWebsite: text(),
       companyDescription: text(),
       bannerLogoPhotoUrl: text(),
-      lifestylePhotoUrl: text(),
+      lifestylePhotoUrls: json({
+        hooks: {
+          validateInput(args) {
+            // make sure that json is an array of strings or that it is empty
+            if (
+              args.inputData.lifestylePhotoUrls &&
+              !Array.isArray(args.inputData.lifestylePhotoUrls)
+            ) {
+              throw new Error("lifestylePhotoUrls must be an array");
+            }
+          },
+        },
+      }),
       logoPhotoUrl: text(),
       colorPalette1: text(),
       colorPalette1Contrast: text(),
       colorPalette2: text(),
       colorPalette2Contrast: text(),
+      backgroundColor: text(),
+      textColor: text(),
     },
     access: schemaAccessConfig({
       isAuthed: {
