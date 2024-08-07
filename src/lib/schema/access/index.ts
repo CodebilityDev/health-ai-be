@@ -46,7 +46,7 @@ export const schemaAccessConfig = <T, N = any, O = any>(generatorArgs: {
     let isLoggedIn = operation.context.session?.itemId;
 
     if (typeof generatorArgs.isAuthed === "boolean") {
-      throwAuthError = !generatorArgs.isAuthed;
+      throwAuthError = !isLoggedIn;
     } else {
       switch (operation.operation) {
         case "query":
