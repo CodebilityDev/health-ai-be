@@ -1234,12 +1234,14 @@ type Branding {
   companyWebsite: String
   companyDescription: String
   bannerLogoPhotoUrl: String
-  lifestylePhotoUrl: String
+  lifestylePhotoUrls: JSON
   logoPhotoUrl: String
   colorPalette1: String
   colorPalette1Contrast: String
   colorPalette2: String
   colorPalette2Contrast: String
+  backgroundColor: String
+  textColor: String
 }
 
 input BrandingWhereUniqueInput {
@@ -1260,12 +1262,13 @@ input BrandingWhereInput {
   companyWebsite: StringFilter
   companyDescription: StringFilter
   bannerLogoPhotoUrl: StringFilter
-  lifestylePhotoUrl: StringFilter
   logoPhotoUrl: StringFilter
   colorPalette1: StringFilter
   colorPalette1Contrast: StringFilter
   colorPalette2: StringFilter
   colorPalette2Contrast: StringFilter
+  backgroundColor: StringFilter
+  textColor: StringFilter
 }
 
 input BrandingOrderByInput {
@@ -1278,12 +1281,13 @@ input BrandingOrderByInput {
   companyWebsite: OrderDirection
   companyDescription: OrderDirection
   bannerLogoPhotoUrl: OrderDirection
-  lifestylePhotoUrl: OrderDirection
   logoPhotoUrl: OrderDirection
   colorPalette1: OrderDirection
   colorPalette1Contrast: OrderDirection
   colorPalette2: OrderDirection
   colorPalette2Contrast: OrderDirection
+  backgroundColor: OrderDirection
+  textColor: OrderDirection
 }
 
 input BrandingUpdateInput {
@@ -1296,12 +1300,14 @@ input BrandingUpdateInput {
   companyWebsite: String
   companyDescription: String
   bannerLogoPhotoUrl: String
-  lifestylePhotoUrl: String
+  lifestylePhotoUrls: JSON
   logoPhotoUrl: String
   colorPalette1: String
   colorPalette1Contrast: String
   colorPalette2: String
   colorPalette2Contrast: String
+  backgroundColor: String
+  textColor: String
 }
 
 input BrandingUpdateArgs {
@@ -1319,12 +1325,14 @@ input BrandingCreateInput {
   companyWebsite: String
   companyDescription: String
   bannerLogoPhotoUrl: String
-  lifestylePhotoUrl: String
+  lifestylePhotoUrls: JSON
   logoPhotoUrl: String
   colorPalette1: String
   colorPalette1Contrast: String
   colorPalette2: String
   colorPalette2Contrast: String
+  backgroundColor: String
+  textColor: String
 }
 
 """
