@@ -39,7 +39,7 @@ export type InboundMessage = {
   conversationId: string;
   dateAdded: string;
   direction: string;
-  messageType: string;
+  messageType: string; // SMS,FB,IG,Email
   messageId: string;
   status: string;
 };

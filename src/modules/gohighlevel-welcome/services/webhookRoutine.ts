@@ -94,12 +94,16 @@ async function checkDNDMessage(args: {
   }
 
   // check if user has DND enabled for SMS, if yes return false
-  if (
-    args.contactInfo.dnd ||
-    (args.contactInfo.dndSettings?.SMS?.status &&
-      args.contactInfo.dndSettings?.SMS?.status !== "inactive")
-  ) {
+  if (args.contactInfo.dnd) {
     return false;
+  }
+
+  // if any on the dndSettings is active, return false
+  for (let key in args.contactInfo.dndSettings) {
+    // @ts-ignore
+    if (args.contactInfo.dndSettings[key]?.status !== "inactive") {
+      return false;
+    }
   }
 
   if (group.enable_checkDnd) {
@@ -398,6 +402,7 @@ export const WebhookRoutines = {
     message: string;
     conversationID: string;
     messageID: string;
+    messageType: string;
   }) => {
     // get user information
     const user = await getGHLDetailedContact({
@@ -579,7 +584,7 @@ export const WebhookRoutines = {
         contactID: args.contactID,
         contactName: `${user.firstName} ${user.lastName}`,
         message: resp.message,
-        type: "SMS",
+        type: args.messageType,
       },
       cutOffTime: {
         timezone,
@@ -787,6 +792,7 @@ export const webhookRoutine = async (args: {
         message: _payload.body,
         conversationID: _payload.conversationId,
         messageID: _payload.messageId,
+        messageType: _payload.messageType,
       });
       break;
     }
