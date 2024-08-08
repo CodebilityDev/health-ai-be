@@ -33,7 +33,7 @@ export async function smsQueueWorker(args: { context: GlobalContext }) {
           input: {
             contactID: data.contactID,
             message: data.message,
-            type: "SMS",
+            type: data.type,
           },
         });
       })();

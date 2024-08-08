@@ -45,7 +45,7 @@ export const sendGHLMessage = async (args: {
   context: GlobalContext;
   groupID: string;
   input: {
-    type: "SMS" | string;
+    type: "SMS" | "Email" | "WhatsApp" | "IG" | "FB" | string;
     contactID: string;
     message: string;
   };

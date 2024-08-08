@@ -184,7 +184,7 @@ export const getGitomerText = (data: {
 
   let msg: CT[] = [...formatRules, ...behaviorRules, ...profileContext];
 
-  console.log(JSON.stringify(msg, null, 2));
+  // console.log(JSON.stringify(msg, null, 2));
 
   return msg;
 };
