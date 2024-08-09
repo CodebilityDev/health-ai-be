@@ -51,4 +51,30 @@ export const brandingDataList: Lists = {
       },
     }),
   }),
+  Analytic: list({
+    fields: {
+      group: relationship({ ref: "Group.analytic", many: false }),
+      utm_baseurl: text(),
+      utm_source: text(),
+      utm_medium: text(),
+      utm_campaign: text(),
+      utm_language: text(),
+      generated_marketing_url: text(),
+      direct_link: text(),
+      google_analytics_id: text(),
+    },
+    access: schemaAccessConfig({
+      isAuthed: {
+        all: true,
+        read: false,
+      },
+      operations: {
+        all: SchemaAccessTemplate.allow,
+      },
+      filter: {
+        read: SchemaAccessTemplate.allow,
+        write: SchemaAccessTemplate.quickMembershipCheck(),
+      },
+    }),
+  }),
 };

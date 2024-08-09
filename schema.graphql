@@ -373,6 +373,7 @@ type Group {
   agent_lastName: String
   enable_stopNotice: Boolean
   branding: Branding
+  analytic: Analytic
 }
 
 input GroupWhereUniqueInput {
@@ -412,6 +413,7 @@ input GroupWhereInput {
   agent_lastName: StringFilter
   enable_stopNotice: BooleanFilter
   branding: BrandingWhereInput
+  analytic: AnalyticWhereInput
 }
 
 input BooleanFilter {
@@ -497,6 +499,7 @@ input GroupUpdateInput {
   agent_lastName: String
   enable_stopNotice: Boolean
   branding: BrandingRelateToOneForUpdateInput
+  analytic: AnalyticRelateToOneForUpdateInput
 }
 
 input BotConfigRelateToOneForUpdateInput {
@@ -543,6 +546,12 @@ input BrandingRelateToOneForUpdateInput {
   disconnect: Boolean
 }
 
+input AnalyticRelateToOneForUpdateInput {
+  create: AnalyticCreateInput
+  connect: AnalyticWhereUniqueInput
+  disconnect: Boolean
+}
+
 input GroupUpdateArgs {
   where: GroupWhereUniqueInput!
   data: GroupUpdateInput!
@@ -579,6 +588,7 @@ input GroupCreateInput {
   agent_lastName: String
   enable_stopNotice: Boolean
   branding: BrandingRelateToOneForCreateInput
+  analytic: AnalyticRelateToOneForCreateInput
 }
 
 input BotConfigRelateToOneForCreateInput {
@@ -614,6 +624,11 @@ input SnippetRelateToManyForCreateInput {
 input BrandingRelateToOneForCreateInput {
   create: BrandingCreateInput
   connect: BrandingWhereUniqueInput
+}
+
+input AnalyticRelateToOneForCreateInput {
+  create: AnalyticCreateInput
+  connect: AnalyticWhereUniqueInput
 }
 
 type GroupAILog {
@@ -1335,6 +1350,80 @@ input BrandingCreateInput {
   textColor: String
 }
 
+type Analytic {
+  id: ID!
+  group: Group
+  utm_baseurl: String
+  utm_source: String
+  utm_medium: String
+  utm_campaign: String
+  utm_language: String
+  generated_marketing_url: String
+  direct_link: String
+  google_analytics_id: String
+}
+
+input AnalyticWhereUniqueInput {
+  id: ID
+}
+
+input AnalyticWhereInput {
+  AND: [AnalyticWhereInput!]
+  OR: [AnalyticWhereInput!]
+  NOT: [AnalyticWhereInput!]
+  id: IDFilter
+  group: GroupWhereInput
+  utm_baseurl: StringFilter
+  utm_source: StringFilter
+  utm_medium: StringFilter
+  utm_campaign: StringFilter
+  utm_language: StringFilter
+  generated_marketing_url: StringFilter
+  direct_link: StringFilter
+  google_analytics_id: StringFilter
+}
+
+input AnalyticOrderByInput {
+  id: OrderDirection
+  utm_baseurl: OrderDirection
+  utm_source: OrderDirection
+  utm_medium: OrderDirection
+  utm_campaign: OrderDirection
+  utm_language: OrderDirection
+  generated_marketing_url: OrderDirection
+  direct_link: OrderDirection
+  google_analytics_id: OrderDirection
+}
+
+input AnalyticUpdateInput {
+  group: GroupRelateToOneForUpdateInput
+  utm_baseurl: String
+  utm_source: String
+  utm_medium: String
+  utm_campaign: String
+  utm_language: String
+  generated_marketing_url: String
+  direct_link: String
+  google_analytics_id: String
+}
+
+input AnalyticUpdateArgs {
+  where: AnalyticWhereUniqueInput!
+  data: AnalyticUpdateInput!
+}
+
+input AnalyticCreateInput {
+  group: GroupRelateToOneForCreateInput
+  utm_baseurl: String
+  utm_source: String
+  utm_medium: String
+  utm_campaign: String
+  utm_language: String
+  generated_marketing_url: String
+  direct_link: String
+  google_analytics_id: String
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -1425,6 +1514,12 @@ type Mutation {
   updateBrandings(data: [BrandingUpdateArgs!]!): [Branding]
   deleteBranding(where: BrandingWhereUniqueInput!): Branding
   deleteBrandings(where: [BrandingWhereUniqueInput!]!): [Branding]
+  createAnalytic(data: AnalyticCreateInput!): Analytic
+  createAnalytics(data: [AnalyticCreateInput!]!): [Analytic]
+  updateAnalytic(where: AnalyticWhereUniqueInput!, data: AnalyticUpdateInput!): Analytic
+  updateAnalytics(data: [AnalyticUpdateArgs!]!): [Analytic]
+  deleteAnalytic(where: AnalyticWhereUniqueInput!): Analytic
+  deleteAnalytics(where: [AnalyticWhereUniqueInput!]!): [Analytic]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, adminPassword: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -1511,6 +1606,9 @@ type Query {
   brandings(where: BrandingWhereInput! = {}, orderBy: [BrandingOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: BrandingWhereUniqueInput): [Branding!]
   branding(where: BrandingWhereUniqueInput!): Branding
   brandingsCount(where: BrandingWhereInput! = {}): Int
+  analytics(where: AnalyticWhereInput! = {}, orderBy: [AnalyticOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: AnalyticWhereUniqueInput): [Analytic!]
+  analytic(where: AnalyticWhereUniqueInput!): Analytic
+  analyticsCount(where: AnalyticWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
   ErrorTest: String
