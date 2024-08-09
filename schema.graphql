@@ -1724,6 +1724,33 @@ enum KeystoneAdminUISortDirection {
   DESC
 }
 
+type GHLMessageReturn {
+  message: String!
+  contactID: String!
+  thread: String!
+}
+
+input Ghl_sendMessageInput {
+  groupID: String!
+  contactID: String!
+  location_id: String!
+  actualSend: Boolean
+  zip_code: String
+  first_name: String
+  last_name: String
+  dob: String
+  state: String
+  gender: String
+  how_many_people_in_your_household_need_to_be_on_the_plan: String
+  yearly_income: String
+  number_of_tax_dependents: String
+  has_tax_dependents: String
+  spouse_name: String
+  projected_annual_household_income: String
+  agent_first_name: String
+  agent_last_name: String
+}
+
 input Ghl_accessTokenInput {
   groupID: String!
 }
@@ -1778,33 +1805,6 @@ type GHLContactList {
 input Ghl_getContactsInput {
   groupID: String!
   query: String
-}
-
-type GHLMessageReturn {
-  message: String!
-  contactID: String!
-  thread: String!
-}
-
-input Ghl_sendMessageInput {
-  groupID: String!
-  contactID: String!
-  location_id: String!
-  actualSend: Boolean
-  zip_code: String
-  first_name: String
-  last_name: String
-  dob: String
-  state: String
-  gender: String
-  how_many_people_in_your_household_need_to_be_on_the_plan: String
-  yearly_income: String
-  number_of_tax_dependents: String
-  has_tax_dependents: String
-  spouse_name: String
-  projected_annual_household_income: String
-  agent_first_name: String
-  agent_last_name: String
 }
 
 input Ghl_getMessagesInput {

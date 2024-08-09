@@ -19,14 +19,17 @@ export const getCleanGPTResponse = async (args: {
   });
 };
 
+export type OutputPings = {
+  type: "reply" | "functionCall" | "functionReturn" | "functionError";
+  content: string;
+};
+
 export const getGPTResponse = async (args: {
   apiKey: string;
   preMessages?: ChatCompletionMessageParam[];
+  postMessages?: ChatCompletionMessageParam[];
   messages: ChatCompletionMessageParam[];
-  output: (args: {
-    type: "reply" | "functionCall" | "functionReturn" | "functionError";
-    content: string;
-  }) => void;
+  output: (args: OutputPings) => void;
 }) => {
   const openAIClient = new OpenAI({
     apiKey: args.apiKey,
@@ -37,7 +40,11 @@ export const getGPTResponse = async (args: {
   let curMessages = args.messages;
 
   while (true) {
-    let allHistory = [...(args.preMessages ?? []), ...curMessages];
+    let allHistory = [
+      ...(args.preMessages ?? []),
+      ...curMessages,
+      ...(args.postMessages ?? []),
+    ];
     lastResponse = await openAIClient.chat.completions.create({
       model: "gpt-4o-2024-05-13",
       messages: allHistory,

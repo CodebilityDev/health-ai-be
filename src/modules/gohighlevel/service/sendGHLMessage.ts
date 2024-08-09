@@ -1,5 +1,5 @@
 import { GlobalContext } from "~/common/context";
-import { addSMSJob } from "~modules/sms-queue/queue";
+import { sendSMS } from "~modules/sms-queue/service/sendSMS";
 import { getAccessToken } from "./getGHLToken";
 
 interface MessageResponse {
@@ -24,20 +24,19 @@ export const processGHLMessage = async (args: {
     timezone: string;
   };
 }) => {
-  if (args.cutOffTime) {
-    // check if the current time is within the cut off time via group info
-  }
-
-  addSMSJob({
-    message: args.input.message,
-    contactID: args.input.contactID,
-    contactName: args.input.contactName,
-    groupID: args.groupID,
-    groupName: args.groupName,
-    type: args.input.type,
-    offTimeConfig: {
-      timezone: args.cutOffTime?.timezone!,
+  await sendSMS({
+    data: {
+      message: args.input.message,
+      contactID: args.input.contactID,
+      contactName: args.input.contactName,
+      groupID: args.groupID,
+      groupName: args.groupName,
+      type: args.input.type,
+      offTimeConfig: {
+        timezone: args.cutOffTime?.timezone!,
+      },
     },
+    context: args.context,
   });
 };
 
