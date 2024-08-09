@@ -5,7 +5,7 @@ import { Branding } from "./branding";
 import { ChatAI } from "./chatai";
 import { fileDefinition } from "./file";
 import { GHL } from "./gohighlevel";
-import { GHL_Welcome } from "./gohighlevel-welcome";
+import { GHL_Webhook } from "./gohighlevel-webhook";
 import { groupDefiniton } from "./group";
 import { ServerHealth } from "./serverhealth";
 import { ServerLogging } from "./serverlogging";
@@ -21,7 +21,7 @@ export const moduleDefinitions: Module[] = [
   Bots,
   GHL,
   ChatAI,
-  GHL_Welcome,
+  GHL_Webhook,
   SMSQueueDeclaration,
   Branding,
   fileDefinition,

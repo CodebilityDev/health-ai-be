@@ -1,50 +1,56 @@
-import { Response } from "express";
 import { ChatCompletionMessageParam } from "openai/resources";
 import { GlobalContext } from "~/common/context";
 import { CONFIG } from "~/common/env";
+import { ChatSessionData } from "~modules/chatai/types/ChatSessionData.type";
 import { getGHLMe, GetGHLMe } from "~modules/gohighlevel/service/getGHLMe";
-import { getGitomerText } from "../openai/healthbot/getGitomer";
-import { getGPTResponse } from "../openai/healthbot/getGPTResponse";
-import { ChatSessionData } from "../types/ChatSessionData.type";
+import { getGitomerText } from "./services/getGitomer";
+import { getGPTResponse, OutputPings } from "./services/getGPTResponse";
 
-export async function buildInsuranceBotReplier(args: {
+export type HealthBotAIOnOutput = (args: OutputPings) => void;
+export type HealthBotAIOnEnd = () => void;
+
+/**
+ * Generate a message from the health bot.
+ * Specifically, this function does the following:
+ * 1. Load the model and group data from the database
+ * 2. Gets your GHL Profile
+ * 3. Generates the Gitomer template
+ * 4. Setup Chat History
+ * 5. Generate the response
+ * 6. Return
+ */
+export async function genereateHealthBotMessageCore(args: {
   context: GlobalContext;
-  res?: Response;
+  output?: HealthBotAIOnOutput;
+  onEnd?: HealthBotAIOnEnd;
   input: {
     modelID: string;
     type?: "welcome" | "chat";
     prompt: string;
     chatSession: ChatSessionData;
-    chatHistory?: ChatCompletionMessageParam[];
-    summarizeLength?: number;
+    newChatHistory?: ChatCompletionMessageParam[];
     targetFields?: string;
   };
 }) {
+  let inputType = args.input.type || "welcome";
+  const modelSource = {
+    chat: "conversationBotConfig",
+    welcome: "botConfig",
+  };
   // get modelID from database
-  let modelConfig;
-  if (args.input.type == "chat") {
-    modelConfig = await args.context.prisma.conversationBotConfig.findUnique({
-      where: { id: args.input.modelID },
-      include: {
-        group: {
-          include: {
-            aiKey: true,
-          },
+  // @ts-ignore
+  let modelConfig = await args.context.prisma[
+    modelSource[inputType]
+  ].findUnique({
+    where: { id: args.input.modelID },
+    include: {
+      group: {
+        include: {
+          aiKey: true,
         },
       },
-    });
-  } else {
-    modelConfig = await args.context.prisma.botConfig.findUnique({
-      where: { id: args.input.modelID },
-      include: {
-        group: {
-          include: {
-            aiKey: true,
-          },
-        },
-      },
-    });
-  }
+    },
+  });
 
   let groupData = modelConfig?.group;
 
@@ -56,6 +62,8 @@ export async function buildInsuranceBotReplier(args: {
       },
     });
   }
+
+  // console.log(modelConfig);
 
   if (!modelConfig) {
     throw new Error("Model not found");
@@ -113,7 +121,7 @@ export async function buildInsuranceBotReplier(args: {
     ...chatSessionData.history,
 
     // put chat history here
-    ...(args.input.chatHistory || []),
+    ...(args.input.newChatHistory || []),
 
     // put the user prompt here
     {
@@ -125,10 +133,11 @@ export async function buildInsuranceBotReplier(args: {
   // generate the response
   const { curMessages, lastResponse } = await getGPTResponse({
     apiKey: openAIKey,
-    preMessages: gitomerTemplate,
+    preMessages: gitomerTemplate.preMessage,
+    postMessages: gitomerTemplate.postMessage,
     messages,
     output(fargs) {
-      args.res && args.res.write(JSON.stringify(fargs) + "\n");
+      args.output && args.output(fargs);
     },
   });
   // let reply = lastResponse.choices[0].message.content;
@@ -136,10 +145,16 @@ export async function buildInsuranceBotReplier(args: {
   // save the response to the chat session history
   chatSessionData.history = curMessages;
 
-  args.res && args.res.end();
+  args.onEnd && args.onEnd();
   return {
     lastResponse,
-    messages: [...gitomerTemplate, ...curMessages],
+    message: lastResponse.choices[0].message.content ?? "",
+    messages: [
+      ...gitomerTemplate.preMessage,
+      ...curMessages,
+      ...gitomerTemplate.postMessage,
+    ],
+    thread: curMessages,
     chatSessionData,
   };
 }

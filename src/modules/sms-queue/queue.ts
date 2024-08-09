@@ -61,6 +61,8 @@ export async function scheduleDelay(params: {
     },
   });
 
+  // console.log("test");
+
   if (groupData?.availability_enabled) {
     const availability_start = groupData.availability_start ?? 8; // 8am
     const availability_end = groupData.availability_end ?? 18; // 6pm
@@ -115,21 +117,23 @@ export const updateQueuedSMSJob = async (args: {
 
   const delayedJobs = await queueObject.queue.getDelayed();
 
+  // console.log("Delayed jobs", delayedJobs.length);
+
   for (const job of delayedJobs) {
     await job.remove(); // Remove the delayed job
 
     // console.log("Rescheduling job", job.data);
 
-    if (!job.data?.message) {
-      continue;
-    }
+    // if (!job.data?.message) {
+    //   continue;
+    // }
 
-    await scheduleDelay({
-      context: args.context,
-      groupID: job.data?.groupID,
-      timezone: job.data?.offTimeConfig?.timezone,
-      data: job.data,
-      queueSendIfEmpty: true,
-    });
+    // await scheduleDelay({
+    //   context: args.context,
+    //   groupID: job.data?.groupID,
+    //   timezone: job.data?.offTimeConfig?.timezone,
+    //   data: job.data,
+    //   queueSendIfEmpty: true,
+    // });
   }
 };

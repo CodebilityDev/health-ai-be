@@ -4,8 +4,9 @@ import {
   RouteDeclarationMetadata,
 } from "~/lib/rest/declarations";
 import { RequestInputType, RouteMethod } from "~/lib/rest/types";
-import { buildInsuranceBotReplier } from "./services/insuranceBot";
-import { ChatSessionData } from "./types/ChatSessionData.type";
+import { genereateHealthBotMessageCore } from "./openai/healthbot/genereateHealthBotMessageCore";
+import { getChatSession } from "./openai/healthbot/getChatSession";
+import { saveChatSession } from "./openai/healthbot/saveChatSession";
 
 const chatgptRouteDeclaration = new RouteDeclarationList({
   path: "/chatgpt",
@@ -29,17 +30,18 @@ chatgptRouteDeclaration.routes.set(
       res,
       context,
     }) => {
-      const rawchatSession =
-        await context.prisma.chatConversationSession.findFirst({
-          where: {
-            id: sessionID,
-          },
-        });
-      const chatSession = ChatSessionData.fromString(
-        rawchatSession?.sessionData?.toString() ?? "{}",
-      );
+      // Get Chat Session
+      const chatSession = await getChatSession({
+        sessionID,
+        context,
+        opts: {
+          createIfNotExists: true,
+          keywordIfNotExists: sessionID,
+        },
+      });
 
-      const resp = await buildInsuranceBotReplier({
+      // In place Generate Chat Message
+      await genereateHealthBotMessageCore({
         context,
         input: {
           chatSession,
@@ -47,28 +49,21 @@ chatgptRouteDeclaration.routes.set(
           modelID,
           prompt,
         },
-        res,
+        output: async (pings) => {
+          res.write(JSON.stringify(pings) + "\n");
+        },
+        onEnd: async () => {
+          res.end();
+        },
       });
-      // console.log(resp.messages);
-      if (rawchatSession) {
-        await context.prisma.chatConversationSession.update({
-          where: {
-            id: sessionID,
-          },
-          data: {
-            sessionData: resp.chatSessionData.toString(),
-            botConfigId: modelID,
-          },
-        });
-      } else {
-        await context.prisma.chatConversationSession.create({
-          data: {
-            id: sessionID,
-            sessionData: resp.chatSessionData.toString(),
-            botConfigId: modelID,
-          },
-        });
-      }
+
+      // Save Chat Session
+      await saveChatSession({
+        chatSession,
+        context,
+        modelID,
+        sessionID,
+      });
       return;
     },
   }),
