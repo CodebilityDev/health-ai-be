@@ -70,6 +70,10 @@ export const groupDataList: Lists = {
         ref: "Branding.group",
         many: false,
       }),
+      analytic: relationship({
+        ref: "Analytic.group",
+        many: false,
+      }),
     },
     hooks: {
       afterOperation: async ({ operation, context, item, inputData }) => {

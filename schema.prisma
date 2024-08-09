@@ -93,6 +93,7 @@ model Group {
   agent_lastName             String                 @default("")
   enable_stopNotice          Boolean                @default(false)
   branding                   Branding?              @relation("Branding_group")
+  analytic                   Analytic?              @relation("Analytic_group")
 }
 
 model GroupAILog {
@@ -231,6 +232,20 @@ model Branding {
   colorPalette2Contrast String  @default("")
   backgroundColor       String  @default("")
   textColor             String  @default("")
+}
+
+model Analytic {
+  id                      String  @id @default(cuid())
+  group                   Group?  @relation("Analytic_group", fields: [groupId], references: [id])
+  groupId                 String? @unique @map("group")
+  utm_baseurl             String  @default("")
+  utm_source              String  @default("")
+  utm_medium              String  @default("")
+  utm_campaign            String  @default("")
+  utm_language            String  @default("")
+  generated_marketing_url String  @default("")
+  direct_link             String  @default("")
+  google_analytics_id     String  @default("")
 }
 
 enum UserRoleType {
