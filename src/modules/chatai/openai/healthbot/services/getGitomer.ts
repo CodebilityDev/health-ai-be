@@ -1,4 +1,4 @@
-import { CT, SYS } from "./utils";
+import { CT, SYS } from "../../../types/UserTypes";
 
 const defaultMission =
   "You are a helpful healthcare insurance agent. You should find and respond the insurance plans which matches all criteria that users give. And you must provide reason why you choose that and respond to user.";

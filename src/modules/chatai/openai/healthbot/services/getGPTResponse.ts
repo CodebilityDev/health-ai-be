@@ -19,14 +19,16 @@ export const getCleanGPTResponse = async (args: {
   });
 };
 
+export type OutputPings = {
+  type: "reply" | "functionCall" | "functionReturn" | "functionError";
+  content: string;
+};
+
 export const getGPTResponse = async (args: {
   apiKey: string;
   preMessages?: ChatCompletionMessageParam[];
   messages: ChatCompletionMessageParam[];
-  output: (args: {
-    type: "reply" | "functionCall" | "functionReturn" | "functionError";
-    content: string;
-  }) => void;
+  output: (args: OutputPings) => void;
 }) => {
   const openAIClient = new OpenAI({
     apiKey: args.apiKey,
