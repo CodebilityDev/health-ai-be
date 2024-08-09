@@ -133,7 +133,8 @@ export async function genereateHealthBotMessageCore(args: {
   // generate the response
   const { curMessages, lastResponse } = await getGPTResponse({
     apiKey: openAIKey,
-    preMessages: gitomerTemplate,
+    preMessages: gitomerTemplate.preMessage,
+    postMessages: gitomerTemplate.postMessage,
     messages,
     output(fargs) {
       args.output && args.output(fargs);
@@ -148,7 +149,11 @@ export async function genereateHealthBotMessageCore(args: {
   return {
     lastResponse,
     message: lastResponse.choices[0].message.content ?? "",
-    messages: [...gitomerTemplate, ...curMessages],
+    messages: [
+      ...gitomerTemplate.preMessage,
+      ...curMessages,
+      ...gitomerTemplate.postMessage,
+    ],
     thread: curMessages,
     chatSessionData,
   };

@@ -77,6 +77,9 @@ export const getGHLContactUpdate = async (args: {
 
   const data = await resp.json();
 
+  if (!data.succeded) {
+    console.log(data);
+  }
   // console.log(JSON.stringify(args.updateData));
   // console.log(JSON.stringify(data));
 

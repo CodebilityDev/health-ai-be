@@ -27,6 +27,7 @@ export type OutputPings = {
 export const getGPTResponse = async (args: {
   apiKey: string;
   preMessages?: ChatCompletionMessageParam[];
+  postMessages?: ChatCompletionMessageParam[];
   messages: ChatCompletionMessageParam[];
   output: (args: OutputPings) => void;
 }) => {
@@ -39,7 +40,11 @@ export const getGPTResponse = async (args: {
   let curMessages = args.messages;
 
   while (true) {
-    let allHistory = [...(args.preMessages ?? []), ...curMessages];
+    let allHistory = [
+      ...(args.preMessages ?? []),
+      ...curMessages,
+      ...(args.postMessages ?? []),
+    ];
     lastResponse = await openAIClient.chat.completions.create({
       model: "gpt-4o-2024-05-13",
       messages: allHistory,

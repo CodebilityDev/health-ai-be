@@ -24,7 +24,9 @@ export async function conversationAnalyzer(args: {
     ...args.chatSessionData.history,
     // do the data extraction prompt here
     SYS(
-      `These are the fields that I want checking: ${args.fieldsFilter}. Consider all values as string .The user already has the following provided data, ${JSON.stringify(args.userInfo)}. Return an impartial json response containing new updated data of the user. Example: {"name": undefined, "age": 20} and the user said that they are 25 years old. Only return {"age": 25}. Only return keys and values based of the keys that I am checking. Don't return or invent new fields. You can leave '{}' if no data is needed to be updated. No null values are allowed. Double check the conversation for the latest information and compare it with the existing data.`,
+      `This is my current info. ${JSON.stringify(args.userInfo)}. Return a json object that analyzes the variables: ${args.fieldsFilter.join(
+        ", ",
+      )} and return the new values. Example: {"name": "John Doe", "email": "john@doe.com"}. All fields are required.`,
     ),
     // expect a json of data of 'new' partial data
   ];
@@ -66,11 +68,13 @@ export async function conversationAnalyzer(args: {
 
   // console.log(
   //   "Updated User Info",
-  //   userProfile.userInfo,
-  //   userProfile.fieldsFilter,
+  //   args.userInfo,
+  //   args.fieldsFilter,
   //   rawUpdatedUserInfo,
   //   updatedUserInfoPayload
   // );
+
+  // console.log("Updated User Info", updatedUserInfoPayload);
 
   return updatedUserInfoPayload;
 }

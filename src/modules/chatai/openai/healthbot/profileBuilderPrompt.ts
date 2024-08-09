@@ -6,16 +6,16 @@ export const DEFAULT_FIELDS = [
   "agent_last_name",
   "emailLowerCase",
   "timezone",
-  "companyName",
+  // "companyName",
   "phone",
-  "type",
-  "source",
+  // "type",
+  // "source",
   "address1",
   "city",
   "state",
   "country",
   "postalCode",
-  "website",
+  // "website",
   "dateOfBirth",
   "gender",
 
@@ -27,17 +27,17 @@ export const DEFAULT_FIELDS = [
 ];
 
 export const UPDATABLE_FIELDS = [
-  "companyName",
-  "phone",
-  "type",
+  // "companyName",
+  // "phone",
+  // "type",
   "address1",
   "city",
   "state",
   "country",
   "postalCode",
-  "website",
+  // "website",
   "dateOfBirth",
-  "gender",
+  // "gender",
 ];
 
 export const profileBuilderPrompt = (args: {
